@@ -18,6 +18,7 @@
 		"react-dom": "^19.2.0",
 		"suncalc": "^1.9.0",
 		"three": "^0.183.0",
+		"zundo": "^2.3.0",
 		"zustand": "^5.0.11"
 	},
 	"devDependencies": {

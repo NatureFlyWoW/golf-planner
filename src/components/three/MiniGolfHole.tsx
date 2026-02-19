@@ -5,6 +5,8 @@ import * as THREE from "three";
 import { HOLE_TYPE_MAP } from "../../constants";
 import { useStore } from "../../store";
 import type { Hole } from "../../types";
+import { checkAnyCollision, checkHallBounds } from "../../utils/collision";
+import { snapToGrid } from "../../utils/snap";
 
 type Props = {
 	hole: Hole;
@@ -21,6 +23,8 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 	const removeHole = useStore((s) => s.removeHole);
 	const hall = useStore((s) => s.hall);
 	const tool = useStore((s) => s.ui.tool);
+	const snapEnabled = useStore((s) => s.ui.snapEnabled);
+	const holes = useStore((s) => s.holes);
 	const { raycaster } = useThree();
 	const [isDragging, setIsDragging] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
@@ -51,15 +55,52 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 		raycaster.ray.intersectPlane(floorPlane, intersection);
 
 		if (intersection) {
-			const x = Math.max(
-				width / 2,
-				Math.min(hall.width - width / 2, intersection.x),
+			let x = intersection.x;
+			let z = intersection.z;
+
+			if (snapEnabled) {
+				x = snapToGrid(x, 0.25);
+				z = snapToGrid(z, 0.25);
+			}
+
+			x = Math.max(width / 2, Math.min(hall.width - width / 2, x));
+			z = Math.max(length / 2, Math.min(hall.length - length / 2, z));
+
+			const inBounds = checkHallBounds(
+				{ x, z },
+				hole.rotation,
+				width,
+				length,
+				hall,
 			);
-			const z = Math.max(
-				length / 2,
-				Math.min(hall.length - length / 2, intersection.z),
+			const obbMap: Record<
+				string,
+				{
+					pos: { x: number; z: number };
+					rot: number;
+					w: number;
+					l: number;
+				}
+			> = {};
+			for (const [id, h] of Object.entries(holes)) {
+				const def = HOLE_TYPE_MAP[h.type];
+				if (!def) continue;
+				obbMap[id] = {
+					pos: h.position,
+					rot: h.rotation,
+					w: def.dimensions.width,
+					l: def.dimensions.length,
+				};
+			}
+			const collides = checkAnyCollision(
+				{ pos: { x, z }, rot: hole.rotation, w: width, l: length },
+				obbMap,
+				hole.id,
 			);
-			updateHole(hole.id, { position: { x, z } });
+
+			if (inBounds && !collides) {
+				updateHole(hole.id, { position: { x, z } });
+			}
 		}
 	}
 

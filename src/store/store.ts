@@ -1,3 +1,4 @@
+import { temporal } from "zundo";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { HALL } from "../constants/hall";
@@ -40,131 +41,141 @@ const DEFAULT_UI: UIState = {
 };
 
 export const useStore = create<Store>()(
-	persist(
-		(set, get) => ({
-			hall: HALL,
-			holes: {},
-			holeOrder: [],
-			selectedId: null,
-			budget: {},
-			ui: DEFAULT_UI,
+	temporal(
+		persist(
+			(set, get) => ({
+				hall: HALL,
+				holes: {},
+				holeOrder: [],
+				selectedId: null,
+				budget: {},
+				ui: DEFAULT_UI,
 
-			addHole: (type, position) => {
-				const id = crypto.randomUUID();
-				const definition = HOLE_TYPE_MAP[type];
-				const holeNumber = get().holeOrder.length + 1;
+				addHole: (type, position) => {
+					const id = crypto.randomUUID();
+					const definition = HOLE_TYPE_MAP[type];
+					const holeNumber = get().holeOrder.length + 1;
 
-				const hole: Hole = {
-					id,
-					type,
-					position,
-					rotation: 0,
-					name: `Hole ${holeNumber}`,
-					par: definition?.defaultPar ?? 3,
-				};
-
-				set((state) => ({
-					holes: { ...state.holes, [id]: hole },
-					holeOrder: [...state.holeOrder, id],
-					selectedId: id,
-					ui: {
-						...state.ui,
-						tool: "select",
-						placingType: null,
-						sidebarTab: "detail",
-					},
-				}));
-			},
-
-			removeHole: (id) => {
-				set((state) => {
-					const { [id]: _, ...remainingHoles } = state.holes;
-					return {
-						holes: remainingHoles,
-						holeOrder: state.holeOrder.filter((hid) => hid !== id),
-						selectedId: state.selectedId === id ? null : state.selectedId,
+					const hole: Hole = {
+						id,
+						type,
+						position,
+						rotation: 0,
+						name: `Hole ${holeNumber}`,
+						par: definition?.defaultPar ?? 3,
 					};
-				});
-			},
 
-			updateHole: (id, updates) => {
-				set((state) => ({
-					holes: {
-						...state.holes,
-						[id]: { ...state.holes[id], ...updates },
-					},
-				}));
-			},
+					set((state) => ({
+						holes: { ...state.holes, [id]: hole },
+						holeOrder: [...state.holeOrder, id],
+						selectedId: id,
+						ui: {
+							...state.ui,
+							tool: "select",
+							placingType: null,
+							sidebarTab: "detail",
+						},
+					}));
+				},
 
-			reorderHoles: (fromIndex, toIndex) => {
-				set((state) => {
-					const order = [...state.holeOrder];
-					const [moved] = order.splice(fromIndex, 1);
-					order.splice(toIndex, 0, moved);
-					return { holeOrder: order };
-				});
-			},
+				removeHole: (id) => {
+					set((state) => {
+						const { [id]: _, ...remainingHoles } = state.holes;
+						return {
+							holes: remainingHoles,
+							holeOrder: state.holeOrder.filter((hid) => hid !== id),
+							selectedId: state.selectedId === id ? null : state.selectedId,
+						};
+					});
+				},
 
-			selectHole: (id) => {
-				set((state) => ({
-					selectedId: id,
-					ui: id ? { ...state.ui, sidebarTab: "detail" } : state.ui,
-				}));
-			},
+				updateHole: (id, updates) => {
+					set((state) => ({
+						holes: {
+							...state.holes,
+							[id]: { ...state.holes[id], ...updates },
+						},
+					}));
+				},
 
-			setTool: (tool) => {
-				set((state) => ({ ui: { ...state.ui, tool } }));
-			},
+				reorderHoles: (fromIndex, toIndex) => {
+					set((state) => {
+						const order = [...state.holeOrder];
+						const [moved] = order.splice(fromIndex, 1);
+						order.splice(toIndex, 0, moved);
+						return { holeOrder: order };
+					});
+				},
 
-			setPlacingType: (type) => {
-				set((state) => ({
-					ui: {
-						...state.ui,
-						placingType: type,
-						tool: type ? "place" : "select",
-					},
-				}));
-			},
+				selectHole: (id) => {
+					set((state) => ({
+						selectedId: id,
+						ui: id ? { ...state.ui, sidebarTab: "detail" } : state.ui,
+					}));
+				},
 
-			setView: (view) => {
-				set((state) => ({ ui: { ...state.ui, view } }));
-			},
+				setTool: (tool) => {
+					set((state) => ({ ui: { ...state.ui, tool } }));
+				},
 
-			setSidebarTab: (tab) => {
-				set((state) => ({ ui: { ...state.ui, sidebarTab: tab } }));
-			},
+				setPlacingType: (type) => {
+					set((state) => ({
+						ui: {
+							...state.ui,
+							placingType: type,
+							tool: type ? "place" : "select",
+						},
+					}));
+				},
 
-			toggleSnap: () => {
-				set((state) => ({
-					ui: { ...state.ui, snapEnabled: !state.ui.snapEnabled },
-				}));
-			},
+				setView: (view) => {
+					set((state) => ({ ui: { ...state.ui, view } }));
+				},
 
-			toggleFlowPath: () => {
-				set((state) => ({
-					ui: {
-						...state.ui,
-						showFlowPath: !state.ui.showFlowPath,
-					},
-				}));
-			},
+				setSidebarTab: (tab) => {
+					set((state) => ({ ui: { ...state.ui, sidebarTab: tab } }));
+				},
 
-			updateBudget: (id, updates) => {
-				set((state) => ({
-					budget: {
-						...state.budget,
-						[id]: { ...state.budget[id], ...updates },
-					},
-				}));
+				toggleSnap: () => {
+					set((state) => ({
+						ui: { ...state.ui, snapEnabled: !state.ui.snapEnabled },
+					}));
+				},
+
+				toggleFlowPath: () => {
+					set((state) => ({
+						ui: {
+							...state.ui,
+							showFlowPath: !state.ui.showFlowPath,
+						},
+					}));
+				},
+
+				updateBudget: (id, updates) => {
+					set((state) => ({
+						budget: {
+							...state.budget,
+							[id]: { ...state.budget[id], ...updates },
+						},
+					}));
+				},
+			}),
+			{
+				name: "golf-planner-state",
+				partialize: (state) => ({
+					holes: state.holes,
+					holeOrder: state.holeOrder,
+					budget: state.budget,
+				}),
 			},
-		}),
+		),
 		{
-			name: "golf-planner-state",
 			partialize: (state) => ({
 				holes: state.holes,
 				holeOrder: state.holeOrder,
-				budget: state.budget,
+				selectedId: state.selectedId,
 			}),
+			limit: 50,
 		},
 	),
 );
