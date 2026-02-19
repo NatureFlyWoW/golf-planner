@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useStore } from "../../store";
 import type { Tool } from "../../types";
+import { buildExportData, downloadJson } from "../../utils/exportLayout";
+import { saveLayout } from "../../utils/saveManager";
 
 const tools: { tool: Tool; label: string; icon: string }[] = [
 	{ tool: "select", label: "Sel", icon: "\u2196" },
@@ -160,6 +162,87 @@ export function BottomToolbar() {
 	);
 }
 
-function OverflowPopover(_props: { onClose: () => void }) {
-	return null;
+function OverflowPopover({ onClose }: { onClose: () => void }) {
+	const snapEnabled = useStore((s) => s.ui.snapEnabled);
+	const toggleSnap = useStore((s) => s.toggleSnap);
+	const showFlowPath = useStore((s) => s.ui.showFlowPath);
+	const toggleFlowPath = useStore((s) => s.toggleFlowPath);
+	const view = useStore((s) => s.ui.view);
+	const setView = useStore((s) => s.setView);
+	const holes = useStore((s) => s.holes);
+	const holeOrder = useStore((s) => s.holeOrder);
+	const budget = useStore((s) => s.budget);
+	const hall = useStore((s) => s.hall);
+
+	return (
+		<>
+			{/* Backdrop */}
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: mobile backdrop */}
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: mobile backdrop */}
+			<div className="fixed inset-0 z-40" onClick={onClose} />
+			{/* Popover */}
+			<div className="absolute bottom-16 right-2 z-50 grid grid-cols-2 gap-2 rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
+				<ToggleBtn label="Snap" active={snapEnabled} onTap={toggleSnap} />
+				<ToggleBtn label="Flow" active={showFlowPath} onTap={toggleFlowPath} />
+				<ToggleBtn
+					label={view === "top" ? "3D" : "2D"}
+					active={false}
+					onTap={() => setView(view === "top" ? "3d" : "top")}
+				/>
+				<ToggleBtn
+					label="Sun"
+					active={false}
+					onTap={() => {
+						/* TODO: open sun controls overlay in future iteration */
+					}}
+				/>
+				<button
+					type="button"
+					onClick={() => {
+						const name = window.prompt("Save name:");
+						if (name?.trim()) {
+							saveLayout(name.trim(), holes, holeOrder);
+						}
+						onClose();
+					}}
+					className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700"
+				>
+					Save
+				</button>
+				<button
+					type="button"
+					onClick={() => {
+						const data = buildExportData(holes, holeOrder, budget, hall);
+						downloadJson(data);
+						onClose();
+					}}
+					className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700"
+				>
+					Export
+				</button>
+			</div>
+		</>
+	);
+}
+
+function ToggleBtn({
+	label,
+	active,
+	onTap,
+}: {
+	label: string;
+	active: boolean;
+	onTap: () => void;
+}) {
+	return (
+		<button
+			type="button"
+			onClick={onTap}
+			className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+				active ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"
+			}`}
+		>
+			{label}
+		</button>
+	);
 }
