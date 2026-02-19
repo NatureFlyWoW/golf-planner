@@ -2,6 +2,8 @@ import { Canvas } from "@react-three/fiber";
 import { CameraControls } from "./components/three/CameraControls";
 import { FloorGrid } from "./components/three/FloorGrid";
 import { Hall } from "./components/three/Hall";
+import { PlacedHoles } from "./components/three/PlacedHoles";
+import { PlacementHandler } from "./components/three/PlacementHandler";
 import { Sidebar } from "./components/ui/Sidebar";
 import { Toolbar } from "./components/ui/Toolbar";
 
@@ -28,6 +30,8 @@ export default function App() {
 						<CameraControls />
 						<FloorGrid />
 						<Hall />
+						<PlacementHandler />
+						<PlacedHoles />
 					</Canvas>
 				</div>
 			</div>
