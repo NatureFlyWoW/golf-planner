@@ -14,6 +14,7 @@ describe("store", () => {
 				sidebarTab: "holes",
 				snapEnabled: false,
 				showFlowPath: true,
+				activePanel: null,
 			},
 		});
 	});

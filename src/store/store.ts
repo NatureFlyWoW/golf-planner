@@ -26,6 +26,7 @@ type StoreActions = {
 	setSidebarTab: (tab: UIState["sidebarTab"]) => void;
 	toggleSnap: () => void;
 	toggleFlowPath: () => void;
+	setActivePanel: (panel: UIState["activePanel"]) => void;
 	updateBudget: (id: string, updates: Partial<BudgetCategory>) => void;
 };
 
@@ -38,6 +39,7 @@ const DEFAULT_UI: UIState = {
 	sidebarTab: "holes",
 	snapEnabled: false,
 	showFlowPath: true,
+	activePanel: null,
 };
 
 export const useStore = create<Store>()(
@@ -148,6 +150,12 @@ export const useStore = create<Store>()(
 							...state.ui,
 							showFlowPath: !state.ui.showFlowPath,
 						},
+					}));
+				},
+
+				setActivePanel: (panel) => {
+					set((state) => ({
+						ui: { ...state.ui, activePanel: panel },
 					}));
 				},
 

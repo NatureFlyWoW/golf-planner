@@ -3,6 +3,7 @@ import type { HoleType } from "./hole";
 export type Tool = "select" | "place" | "move" | "delete";
 export type ViewMode = "top" | "3d";
 export type SidebarTab = "holes" | "detail" | "budget";
+export type ActivePanel = "holes" | "detail" | "budget" | null;
 
 export type UIState = {
 	tool: Tool;
@@ -11,4 +12,5 @@ export type UIState = {
 	sidebarTab: SidebarTab;
 	snapEnabled: boolean;
 	showFlowPath: boolean;
+	activePanel: ActivePanel;
 };
