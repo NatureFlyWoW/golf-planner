@@ -1,5 +1,6 @@
 import { useStore } from "../../store";
 import type { Tool } from "../../types";
+import { ExportButton } from "./ExportButton";
 
 const tools: { tool: Tool; label: string; icon: string }[] = [
 	{ tool: "select", label: "Select", icon: "\u2196" },
@@ -28,6 +29,9 @@ export function Toolbar() {
 					{label}
 				</button>
 			))}
+			<div className="ml-auto">
+				<ExportButton />
+			</div>
 		</div>
 	);
 }
