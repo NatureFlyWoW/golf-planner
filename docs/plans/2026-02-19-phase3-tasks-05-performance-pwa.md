@@ -75,11 +75,8 @@ cd /mnt/c/Users/Caus/Golf_Plan/golf-planner && export PATH="/home/ben/.local/sha
 
 ### Step 2: Generate PWA icons
 
-Create simple blue-square-with-white-G icons. Use a Node.js script with Canvas or a quick SVG-to-PNG approach. Simplest: create an SVG and use it directly, or generate PNGs with a script.
+Create `public/icon.svg` — an SVG icon used as the primary PWA icon (modern browsers support SVG natively):
 
-**Quick approach — create SVG icon and convert:**
-
-Create `public/icon.svg`:
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" rx="64" fill="#1d4ed8"/>
@@ -87,40 +84,14 @@ Create `public/icon.svg`:
 </svg>
 ```
 
-Then generate PNGs. If `sharp` or `canvas` aren't available, use the SVG directly for both icon sizes since modern browsers support SVG icons. But the manifest spec says `image/png`, so let's create actual PNGs.
-
-**Alternative: use a simple Node script to generate PNGs:**
-
-```bash
-cd /mnt/c/Users/Caus/Golf_Plan/golf-planner
-node -e "
-const { createCanvas } = require('canvas');
-// If canvas not available, we'll use the SVG approach
-" 2>/dev/null || echo "canvas not available"
-```
-
-**Pragmatic approach:** Use an online tool or provide SVGs. For MVP, SVG icons work in the manifest for most browsers. We can swap to PNG later.
-
-Update the manifest to reference SVG:
-```ts
-icons: [
-  { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml' },
-  { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
-  { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
-],
-```
-
-**For PNGs:** Use Python (available in WSL2) to create simple solid-color PNG icons with a letter:
+Then generate PNG fallbacks. Try Python first (available in WSL2), fall back to copying the SVG:
 
 ```bash
 python3 -c "
 from PIL import Image, ImageDraw, ImageFont
-import sys
-
 for size in [192, 512]:
     img = Image.new('RGB', (size, size), '#1d4ed8')
     draw = ImageDraw.Draw(img)
-    # Use default font at large size
     font_size = int(size * 0.7)
     try:
         font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', font_size)
@@ -133,10 +104,10 @@ for size in [192, 512]:
     draw.text((x, y), 'G', fill='white', font=font)
     img.save(f'public/icon-{size}.png')
     print(f'Created icon-{size}.png')
-" 2>/dev/null || echo "Pillow not available — create icons manually or use SVG"
+"
 ```
 
-If neither works, create placeholder icons (any 192x192 and 512x512 PNG) and replace them later.
+If Pillow is not installed, the SVG icon alone is sufficient for development. PNGs can be generated later with any image tool.
 
 ### Step 3: Configure vite-plugin-pwa
 
@@ -179,6 +150,11 @@ export default defineConfig({
 				orientation: "landscape",
 				icons: [
 					{
+						src: "icon.svg",
+						sizes: "any",
+						type: "image/svg+xml",
+					},
+					{
 						src: "icon-192.png",
 						sizes: "192x192",
 						type: "image/png",
@@ -187,7 +163,13 @@ export default defineConfig({
 						src: "icon-512.png",
 						sizes: "512x512",
 						type: "image/png",
-						purpose: "any maskable",
+						purpose: "any",
+					},
+					{
+						src: "icon-512.png",
+						sizes: "512x512",
+						type: "image/png",
+						purpose: "maskable",
 					},
 				],
 			},
@@ -204,6 +186,7 @@ export default defineConfig({
 
 Key config:
 - `registerType: 'autoUpdate'` — service worker updates silently
+- **Icons:** SVG primary + PNG fallbacks (split `purpose` per manifest spec)
 - **Precache:** All JS/CSS/HTML (client-only app, no API calls)
 - **Runtime cache:** OSM tiles with StaleWhileRevalidate, 100 entries, 7-day expiry
 - **Manifest:** standalone display, landscape orientation preference, blue theme

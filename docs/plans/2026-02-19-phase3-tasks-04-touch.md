@@ -240,22 +240,29 @@ function handlePointerDown(e: ThreeEvent<PointerEvent>) {
 4. Add `onPointerUp` handler for mobile:
 ```tsx
 function handlePointerUp(e: ThreeEvent<PointerEvent>) {
-	if (!isMobile || !pointerDownScreen.current || !pointerDownWorld.current) return;
+	if (!isMobile) return;
 
-	const dx = e.nativeEvent.clientX - pointerDownScreen.current.x;
-	const dy = e.nativeEvent.clientY - pointerDownScreen.current.y;
-	const moved = Math.hypot(dx, dy);
+	if (pointerDownScreen.current && pointerDownWorld.current) {
+		const dx = e.nativeEvent.clientX - pointerDownScreen.current.x;
+		const dy = e.nativeEvent.clientY - pointerDownScreen.current.y;
+		const moved = Math.hypot(dx, dy);
 
-	if (moved < 10 && ghostValid && placingType) {
-		// Tap — confirm placement
-		addHole(placingType, pointerDownWorld.current);
+		if (moved < 10 && ghostValid && placingType) {
+			// Tap — confirm placement
+			addHole(placingType, pointerDownWorld.current);
+		}
+		// If moved >= 10, it was a pan — cancel placement
+	} else if (tool === "select") {
+		// Tap on empty canvas in Select mode — deselect
+		selectHole(null);
 	}
-	// If moved >= 10, it was a pan — cancel placement
 
 	pointerDownScreen.current = null;
 	pointerDownWorld.current = null;
 }
 ```
+
+**IMPORTANT:** This handler also provides the mobile deselection path. On desktop, clicking empty canvas calls `selectHole(null)` via `handleClick`. On mobile, `handleClick` is guarded with `if (isMobile) return`, so deselection happens here instead via `handlePointerUp`.
 
 5. Modify `handleClick` to only work on desktop:
 ```tsx

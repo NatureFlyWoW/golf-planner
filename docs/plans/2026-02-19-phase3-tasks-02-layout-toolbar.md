@@ -15,6 +15,7 @@
 - Modify: `src/components/ui/LocationBar.tsx`
 - Modify: `src/components/ui/MiniMap.tsx`
 - Modify: `src/components/ui/KeyboardHelp.tsx`
+- Modify: `src/components/ui/SunControls.tsx`
 
 Tailwind is mobile-first: base classes apply to all, `md:` applies at >=768px.
 
@@ -74,7 +75,17 @@ In `src/components/ui/KeyboardHelp.tsx`, the root element needs `hidden md:block
 className="hidden md:block ..."
 ```
 
-### Step 6: Add `touchAction: 'none'` to canvas container
+### Step 6: Make SunControls desktop-only
+
+In `src/components/ui/SunControls.tsx`, the root element needs `hidden md:block`:
+
+```tsx
+className="hidden md:block ..."
+```
+
+(The design says SunControls goes into the overflow menu on mobile. The actual SunControls overlay must be hidden to prevent overlap with BottomToolbar.)
+
+### Step 7: Add `touchAction: 'none'` to canvas container
 
 In `src/App.tsx`, the canvas wrapper div (line 29):
 
@@ -97,7 +108,7 @@ Replace with:
 >
 ```
 
-### Step 7: Verify build + visual check
+### Step 8: Verify build + visual check
 
 ```bash
 npm run build
@@ -105,10 +116,10 @@ npm run build
 
 Expected: Build succeeds. On desktop (>=768px), layout unchanged. Below 768px, only the canvas is visible (no toolbar, no sidebar, no footer overlays).
 
-### Step 8: Commit
+### Step 9: Commit
 
 ```bash
-git add src/App.tsx src/components/ui/Toolbar.tsx src/components/ui/Sidebar.tsx src/components/ui/LocationBar.tsx src/components/ui/MiniMap.tsx src/components/ui/KeyboardHelp.tsx
+git add src/App.tsx src/components/ui/Toolbar.tsx src/components/ui/Sidebar.tsx src/components/ui/LocationBar.tsx src/components/ui/MiniMap.tsx src/components/ui/KeyboardHelp.tsx src/components/ui/SunControls.tsx
 git commit -m "feat: add responsive visibility classes for mobile layout"
 ```
 
@@ -127,7 +138,9 @@ Create `src/components/ui/BottomToolbar.tsx`:
 ```tsx
 import { useState } from "react";
 import { useStore } from "../../store";
-import type { HoleType, Tool } from "../../types";
+import type { Tool } from "../../types";
+import { exportLayout } from "../../utils/exportLayout";
+import { saveLayout } from "../../utils/saveManager";
 
 const tools: { tool: Tool; label: string; icon: string }[] = [
 	{ tool: "select", label: "Sel", icon: "\u2196" },
@@ -150,6 +163,8 @@ export function BottomToolbar() {
 	const selectedHole = selectedId ? holes[selectedId] : null;
 	const selectedIndex = selectedId ? holeOrder.indexOf(selectedId) : -1;
 
+	const selectHole = useStore((s) => s.selectHole);
+
 	function handleToolTap(tool: Tool) {
 		if (tool === "place") {
 			// Toggle the hole drawer
@@ -161,6 +176,10 @@ export function BottomToolbar() {
 		} else {
 			setTool(tool);
 			setActivePanel(null);
+			// Deselect hole when switching to Select/Delete tool
+			if (tool === "select") {
+				selectHole(null);
+			}
 		}
 	}
 
@@ -218,7 +237,7 @@ export function BottomToolbar() {
 						key={tool}
 						onClick={() => handleToolTap(tool)}
 						className={`flex min-w-[48px] flex-col items-center justify-center rounded-lg px-2 py-1 ${
-							activeTool === tool
+							activeTool === tool || (tool === "place" && activePanel === "holes")
 								? "bg-blue-600 text-white"
 								: "text-gray-600"
 						}`}
@@ -329,11 +348,8 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 	const toggleFlowPath = useStore((s) => s.toggleFlowPath);
 	const view = useStore((s) => s.ui.view);
 	const setView = useStore((s) => s.setView);
-
-	function handleToggle(fn: () => void) {
-		fn();
-		// Don't close — let user toggle multiple things
-	}
+	const holes = useStore((s) => s.holes);
+	const holeOrder = useStore((s) => s.holeOrder);
 
 	return (
 		<>
@@ -348,23 +364,26 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 				<ToggleBtn
 					label="Snap"
 					active={snapEnabled}
-					onTap={() => handleToggle(toggleSnap)}
+					onTap={toggleSnap}
 				/>
 				<ToggleBtn
 					label="Flow"
 					active={showFlowPath}
-					onTap={() => handleToggle(toggleFlowPath)}
+					onTap={toggleFlowPath}
 				/>
 				<ToggleBtn
 					label={view === "top" ? "3D" : "2D"}
 					active={false}
 					onTap={() => setView(view === "top" ? "3d" : "top")}
 				/>
-				<ToggleBtn label="Sun" active={false} onTap={() => {/* Sun controls — wired in a later phase if needed */}} />
+				<ToggleBtn label="Sun" active={false} onTap={() => {/* TODO: open sun controls overlay in future iteration */}} />
 				<button
 					type="button"
 					onClick={() => {
-						// Trigger save — reuse SaveManager logic or dispatch
+						const name = window.prompt("Save name:");
+						if (name?.trim()) {
+							saveLayout(name.trim(), holes, holeOrder);
+						}
 						onClose();
 					}}
 					className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700"
@@ -374,7 +393,7 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 				<button
 					type="button"
 					onClick={() => {
-						// Trigger export — reuse ExportButton logic
+						exportLayout(holes, holeOrder);
 						onClose();
 					}}
 					className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700"

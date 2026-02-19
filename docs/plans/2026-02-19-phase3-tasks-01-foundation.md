@@ -10,11 +10,11 @@
 **Files:**
 - Modify: `src/types/ui.ts`
 - Modify: `src/store/store.ts`
-- Create: `tests/store/activePanel.test.ts`
+- Create: `tests/utils/activePanel.test.ts`
 
 ### Step 1: Write the failing test
 
-Create `tests/store/activePanel.test.ts`:
+Create `tests/utils/activePanel.test.ts` (matches existing test directory convention):
 
 ```ts
 import { beforeEach, describe, expect, it } from "vitest";
@@ -65,7 +65,7 @@ describe("activePanel", () => {
 ### Step 2: Run test to verify it fails
 
 ```bash
-npx vitest run tests/store/activePanel.test.ts
+npx vitest run tests/utils/activePanel.test.ts
 ```
 
 Expected: FAIL — `activePanel` doesn't exist on `UIState` yet.
@@ -160,7 +160,7 @@ Check `src/types/index.ts` — if it re-exports from `ui.ts`, the new `ActivePan
 ### Step 7: Commit
 
 ```bash
-git add src/types/ui.ts src/store/store.ts tests/store/activePanel.test.ts tests/utils/store.test.ts
+git add src/types/ui.ts src/store/store.ts tests/utils/activePanel.test.ts tests/utils/store.test.ts
 git commit -m "feat: add activePanel to UIState for mobile panel management"
 ```
 
