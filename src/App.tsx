@@ -1,4 +1,5 @@
 import { Canvas } from "@react-three/fiber";
+import { Hall } from "./components/three/Hall";
 import { Sidebar } from "./components/ui/Sidebar";
 import { Toolbar } from "./components/ui/Toolbar";
 
@@ -17,7 +18,7 @@ export default function App() {
 					>
 						<ambientLight intensity={0.8} />
 						<directionalLight position={[10, 20, 5]} intensity={0.5} />
-						<gridHelper args={[20, 20, "#cccccc", "#eeeeee"]} />
+						<Hall />
 					</Canvas>
 				</div>
 			</div>
