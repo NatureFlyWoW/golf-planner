@@ -6,14 +6,20 @@ import { PlacedHoles } from "./components/three/PlacedHoles";
 import { PlacementHandler } from "./components/three/PlacementHandler";
 import { Sidebar } from "./components/ui/Sidebar";
 import { Toolbar } from "./components/ui/Toolbar";
+import { useStore } from "./store";
 
 export default function App() {
+	const tool = useStore((s) => s.ui.tool);
+
 	return (
 		<div className="flex h-screen w-screen flex-col overflow-hidden bg-gray-100">
 			<Toolbar />
 			<div className="flex flex-1 overflow-hidden">
 				<Sidebar />
-				<div className="flex-1">
+				<div
+					className="flex-1"
+					style={{ cursor: tool === "delete" ? "crosshair" : "default" }}
+				>
 					<Canvas
 						orthographic
 						camera={{

@@ -18,10 +18,12 @@ const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 	const definition = HOLE_TYPE_MAP[hole.type];
 	const updateHole = useStore((s) => s.updateHole);
+	const removeHole = useStore((s) => s.removeHole);
 	const hall = useStore((s) => s.hall);
 	const tool = useStore((s) => s.ui.tool);
 	const { raycaster } = useThree();
 	const [isDragging, setIsDragging] = useState(false);
+	const [isHovered, setIsHovered] = useState(false);
 	const dragStart = useRef<{ x: number; z: number } | null>(null);
 
 	if (!definition) return null;
@@ -77,16 +79,28 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 			<mesh
 				onClick={(e) => {
 					e.stopPropagation();
-					onClick();
+					if (tool === "delete") {
+						removeHole(hole.id);
+					} else {
+						onClick();
+					}
 				}}
 				onPointerDown={handlePointerDown}
 				onPointerMove={handlePointerMove}
 				onPointerUp={handlePointerUp}
+				onPointerEnter={() => setIsHovered(true)}
+				onPointerLeave={() => setIsHovered(false)}
 			>
 				<boxGeometry args={[width, HOLE_HEIGHT, length]} />
 				<meshStandardMaterial
 					color={
-						isDragging ? "#FFE082" : isSelected ? "#FFC107" : definition.color
+						isDragging
+							? "#FFE082"
+							: tool === "delete" && isHovered
+								? "#EF5350"
+								: isSelected
+									? "#FFC107"
+									: definition.color
 					}
 				/>
 			</mesh>
