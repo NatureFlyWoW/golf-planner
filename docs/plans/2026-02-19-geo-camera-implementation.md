@@ -192,6 +192,10 @@ export function getWallExposure(
 /**
  * Hook that returns current sun position for the hall location.
  * Updates every 60s in "now" mode, or returns fixed position for a given date.
+ *
+ * IMPORTANT: The `date` parameter must be referentially stable across renders
+ * (e.g. from a const or useState). If a new Date object is created each render,
+ * the effect will re-fire every render.
  */
 export function useSunPosition(date?: Date): SunData {
 	const [sunData, setSunData] = useState<SunData>(() => computeSun(date));
@@ -258,7 +262,8 @@ git commit -m "feat: add sun position hook with direction and wall exposure math
 ```typescript
 // src/components/three/SunIndicator.tsx
 import { Html } from "@react-three/drei";
-import { useMemo } from "react";
+import { useThree } from "@react-three/fiber";
+import { useEffect, useMemo } from "react";
 import { useStore } from "../../store";
 import {
 	type SunData,
@@ -271,6 +276,12 @@ type SunIndicatorProps = {
 
 export function SunIndicator({ sunData }: SunIndicatorProps) {
 	const { width, length } = useStore((s) => s.hall);
+	const invalidate = useThree((s) => s.invalidate);
+
+	// Request a new frame when sun data changes (needed because frameloop="demand")
+	useEffect(() => {
+		invalidate();
+	}, [sunData.azimuth, sunData.altitude, invalidate]);
 
 	const { position, rotation, visible } = useMemo(() => {
 		if (!sunData.isDay) {
@@ -357,8 +368,10 @@ git commit -m "feat: add SunIndicator R3F component with arrow and info label"
 
 Modify `src/components/three/HallOpenings.tsx`:
 
-- Import `getWallExposure` and `useSunPosition` from the hook
-- In `HallOpenings`, call `useSunPosition()` and compute `getWallExposure(sunData.azimuth, sunData.altitudeDeg)`
+- Import `getWallExposure` from the hook and `SunData` type
+- **Do NOT call `useSunPosition()` here** — sun data comes from App via props to avoid duplicate timers
+- Accept `sunData` as an optional prop on `HallOpenings`
+- Compute `getWallExposure(sunData.azimuth, sunData.altitudeDeg)` from the prop
 - Pass the per-wall exposure value to each `Window` component
 - In `Window`, interpolate the color between the default blue (`#64B5F6`) and a warm yellow (`#FFD54F`) based on exposure value
 
@@ -404,13 +417,20 @@ function Window({
 }
 ```
 
-And `HallOpenings` passes `sunExposure`:
+And `HallOpenings` accepts `sunData` as a prop and passes `sunExposure`:
 
 ```typescript
-export function HallOpenings() {
+import { type SunData, getWallExposure } from "../../hooks/useSunPosition";
+
+type HallOpeningsProps = {
+	sunData?: SunData;
+};
+
+export function HallOpenings({ sunData }: HallOpeningsProps) {
 	const { doors, windows, width, length } = useStore((s) => s.hall);
-	const sunData = useSunPosition();
-	const exposure = getWallExposure(sunData.azimuth, sunData.altitudeDeg);
+	const exposure = sunData
+		? getWallExposure(sunData.azimuth, sunData.altitudeDeg)
+		: { north: 0, south: 0, east: 0, west: 0 };
 
 	return (
 		<group>
@@ -478,7 +498,7 @@ export function SunControls({ selectedDate, onDateChange }: SunControlsProps) {
 				)?.label ?? "Custom";
 
 	return (
-		<div className="absolute bottom-2 left-2 z-10 flex flex-col gap-1">
+		<div className="absolute bottom-10 left-2 z-10 flex flex-col gap-1">
 			<div className="flex gap-1">
 				{PRESETS.map(({ label, date }) => (
 					<button
@@ -830,6 +850,7 @@ The final App layout structure becomes:
     <div className="relative flex-1" style={...}>
       <Canvas ...>
         ...existing scene...
+        <Hall sunData={sunData} />  ← pass sunData so HallOpenings gets it
         <SunIndicator sunData={sunData} />
       </Canvas>
       <SunControls ... />
@@ -839,6 +860,8 @@ The final App layout structure becomes:
   <LocationBar sunData={sunData} />
 </div>
 ```
+
+**Important:** `sunData` must flow from `App` → `Hall` → `HallOpenings`. This means `Hall.tsx` also needs to accept and forward the `sunData` prop. Do NOT call `useSunPosition()` inside `HallOpenings` — use the prop from App to ensure all sun consumers show the same position.
 
 **Step 2: Run build**
 
@@ -921,8 +944,8 @@ export function useKeyboardControls({
 	defaultZoom,
 	defaultTarget,
 }: KeyboardControlsOptions) {
-	const holes = useStore((s) => s.holes);
-	const hall = useStore((s) => s.hall);
+	// Note: we read holes/hall lazily inside the handler via useStore.getState()
+	// to avoid re-registering the keydown listener on every hole change.
 
 	useEffect(() => {
 		function handleKeyDown(e: KeyboardEvent) {
@@ -946,6 +969,7 @@ export function useKeyboardControls({
 				}
 				case "f":
 				case "F": {
+					const { holes, hall } = useStore.getState();
 					const holeIds = Object.keys(holes);
 					let minX = 0;
 					let maxX = hall.width;
@@ -1043,7 +1067,7 @@ export function useKeyboardControls({
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [controlsRef, defaultZoom, defaultTarget, holes, hall]);
+	}, [controlsRef, defaultZoom, defaultTarget]);
 }
 ```
 
@@ -1198,9 +1222,7 @@ export function KeyboardHelp() {
 
 **Step 2: Add KeyboardHelp to App**
 
-In `src/App.tsx`, import `KeyboardHelp` and add it inside the canvas wrapper div (same container as SunControls and MiniMap). Position note: SunControls is `bottom-2 left-2` — move KeyboardHelp to `bottom-10 left-2` (above the sun controls) or adjust SunControls to start higher.
-
-Adjustment: Change SunControls position to `bottom-10 left-2` and keep KeyboardHelp at `bottom-2 left-2`. This stacks them: help button at bottom-left, sun controls above it.
+In `src/App.tsx`, import `KeyboardHelp` and add it inside the canvas wrapper div (same container as SunControls and MiniMap). KeyboardHelp is at `bottom-2 left-2` and SunControls is already at `bottom-10 left-2` (set in Task 5). They stack: help button at bottom-left, sun controls above it.
 
 **Step 3: Lint check**
 
@@ -1234,9 +1256,16 @@ useEffect(() => {
 
 	const canvas = controls.domElement;
 	let lastTapTime = 0;
+	let wasSingleTouch = false;
+
+	function handleTouchStart(e: TouchEvent) {
+		// Only track as potential tap if exactly one finger
+		wasSingleTouch = e.touches.length === 1;
+	}
 
 	function handleTouchEnd(e: TouchEvent) {
 		if (e.touches.length > 0) return; // only on final finger up
+		if (!wasSingleTouch) return; // ignore if gesture started as multi-touch (pinch)
 
 		const now = Date.now();
 		if (now - lastTapTime < 300) {
@@ -1256,12 +1285,16 @@ useEffect(() => {
 		}
 	}
 
+	canvas.addEventListener("touchstart", handleTouchStart);
 	canvas.addEventListener("touchend", handleTouchEnd);
-	return () => canvas.removeEventListener("touchend", handleTouchEnd);
+	return () => {
+		canvas.removeEventListener("touchstart", handleTouchStart);
+		canvas.removeEventListener("touchend", handleTouchEnd);
+	};
 }, [defaultTarget]);
 ```
 
-Note: This fires on any canvas double-tap. Hole meshes handle their own click events via R3F's event system which uses `stopPropagation`. If a future interaction (double-tap to open hole detail) is added, the hole's event handler should call `e.stopPropagation()` and this canvas-level handler won't fire.
+Note: This only fires for single-finger double-taps on the canvas background. Multi-touch gestures (pinch-to-zoom) are excluded by the `wasSingleTouch` guard. Hole meshes handle their own click events via R3F's event system which uses `stopPropagation`.
 
 **Step 2: Run build**
 
