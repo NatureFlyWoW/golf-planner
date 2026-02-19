@@ -2,6 +2,7 @@ import { Canvas } from "@react-three/fiber";
 import { useState } from "react";
 import { CameraControls } from "./components/three/CameraControls";
 import { FloorGrid } from "./components/three/FloorGrid";
+import { FlowPath } from "./components/three/FlowPath";
 import { Hall } from "./components/three/Hall";
 import { PlacedHoles } from "./components/three/PlacedHoles";
 import { PlacementHandler } from "./components/three/PlacementHandler";
@@ -37,6 +38,7 @@ export default function App() {
 						<Hall sunData={sunData} />
 						<PlacementHandler />
 						<PlacedHoles />
+						<FlowPath />
 						<SunIndicator sunData={sunData} />
 					</Canvas>
 					<SunControls selectedDate={sunDate} onDateChange={setSunDate} />

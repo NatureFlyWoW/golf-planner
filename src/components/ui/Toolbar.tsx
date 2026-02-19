@@ -73,7 +73,27 @@ export function Toolbar() {
 				{view === "top" ? "3D" : "2D"}
 			</button>
 
-			<div className="ml-auto">
+			<div className="mx-2 h-6 w-px bg-gray-200" />
+
+			<button
+				type="button"
+				onClick={() => useStore.temporal?.getState()?.undo()}
+				className="rounded bg-gray-100 px-2 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
+				title="Undo (Ctrl+Z)"
+			>
+				&#x21A9;
+			</button>
+
+			<button
+				type="button"
+				onClick={() => useStore.temporal?.getState()?.redo()}
+				className="rounded bg-gray-100 px-2 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
+				title="Redo (Ctrl+Shift+Z)"
+			>
+				&#x21AA;
+			</button>
+
+			<div className="ml-auto flex items-center gap-1">
 				<ExportButton />
 			</div>
 		</div>

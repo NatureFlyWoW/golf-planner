@@ -1,5 +1,6 @@
 import { useStore } from "../../store";
 import { MiniGolfHole } from "./MiniGolfHole";
+import { RotationHandle } from "./RotationHandle";
 
 export function PlacedHoles() {
 	const holes = useStore((s) => s.holes);
@@ -21,6 +22,14 @@ export function PlacedHoles() {
 					/>
 				);
 			})}
+			{selectedId && holes[selectedId] && (
+				<RotationHandle
+					holeId={selectedId}
+					holeX={holes[selectedId].position.x}
+					holeZ={holes[selectedId].position.z}
+					rotation={holes[selectedId].rotation}
+				/>
+			)}
 		</group>
 	);
 }
