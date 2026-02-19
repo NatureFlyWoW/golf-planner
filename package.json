@@ -1,0 +1,35 @@
+{
+	"name": "golf-planner",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc -b && vite build",
+		"preview": "vite preview",
+		"check": "biome check .",
+		"format": "biome format --write .",
+		"test": "vitest"
+	},
+	"dependencies": {
+		"@react-three/drei": "^10.7.7",
+		"@react-three/fiber": "^9.5.0",
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0",
+		"three": "^0.183.0",
+		"zustand": "^5.0.11"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.2",
+		"@tailwindcss/vite": "^4.2.0",
+		"@types/node": "^24.10.1",
+		"@types/react": "^19.2.7",
+		"@types/react-dom": "^19.2.3",
+		"@types/three": "^0.183.0",
+		"@vitejs/plugin-react": "^5.1.1",
+		"tailwindcss": "^4.2.0",
+		"typescript": "~5.9.3",
+		"vite": "^7.3.1",
+		"vitest": "^4.0.18"
+	}
+}
