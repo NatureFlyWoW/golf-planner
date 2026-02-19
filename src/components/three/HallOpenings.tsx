@@ -1,3 +1,4 @@
+import { getWallExposure, type SunData } from "../../hooks/useSunPosition";
 import { useStore } from "../../store";
 import type { DoorSpec, WindowSpec } from "../../types";
 
@@ -70,10 +71,12 @@ function Window({
 	window: win,
 	hallWidth,
 	hallLength,
+	sunExposure,
 }: {
 	window: WindowSpec;
 	hallWidth: number;
 	hallLength: number;
+	sunExposure: number;
 }) {
 	const centerY = win.sillHeight + win.height / 2;
 	const position = getWallPosition(
@@ -86,16 +89,31 @@ function Window({
 	);
 	const rotation = getWallRotation(win.wall);
 
+	// Interpolate between default blue and warm yellow based on sun exposure
+	const color = sunExposure > 0 ? "#FFD54F" : "#64B5F6";
+
 	return (
 		<mesh position={position} rotation={rotation}>
 			<planeGeometry args={[win.width, win.height]} />
-			<meshStandardMaterial color="#64B5F6" side={2} />
+			<meshStandardMaterial
+				color={color}
+				opacity={sunExposure > 0 ? 0.8 : 1}
+				transparent={sunExposure > 0}
+				side={2}
+			/>
 		</mesh>
 	);
 }
 
-export function HallOpenings() {
+type HallOpeningsProps = {
+	sunData?: SunData;
+};
+
+export function HallOpenings({ sunData }: HallOpeningsProps) {
 	const { doors, windows, width, length } = useStore((s) => s.hall);
+	const exposure = sunData
+		? getWallExposure(sunData.azimuth, sunData.altitudeDeg)
+		: { north: 0, south: 0, east: 0, west: 0 };
 
 	return (
 		<group>
@@ -108,6 +126,7 @@ export function HallOpenings() {
 					window={win}
 					hallWidth={width}
 					hallLength={length}
+					sunExposure={exposure[win.wall as keyof typeof exposure] ?? 0}
 				/>
 			))}
 		</group>

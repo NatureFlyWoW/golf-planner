@@ -81,12 +81,10 @@ export function useKeyboardControls({
 
 					// Calculate zoom to fit content in viewport
 					const canvas = controls.domElement;
-					const zoomX =
-						canvas.clientWidth > 0 ? canvas.clientWidth / rangeX : defaultZoom;
-					const zoomZ =
-						canvas.clientHeight > 0
-							? canvas.clientHeight / rangeZ
-							: defaultZoom;
+					const cw = canvas?.clientWidth ?? 0;
+					const ch = canvas?.clientHeight ?? 0;
+					const zoomX = cw > 0 ? cw / rangeX : defaultZoom;
+					const zoomZ = ch > 0 ? ch / rangeZ : defaultZoom;
 					camera.zoom = Math.min(zoomX, zoomZ) * 0.9; // 90% to leave margin
 					camera.zoom = Math.max(15, Math.min(120, camera.zoom));
 
