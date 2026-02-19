@@ -1,8 +1,9 @@
 import type { ThreeEvent } from "@react-three/fiber";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { HOLE_TYPE_MAP } from "../../constants";
 import { useStore } from "../../store";
 import { checkAnyCollision, checkHallBounds } from "../../utils/collision";
+import { isMobile } from "../../utils/isMobile";
 import { snapToGrid } from "../../utils/snap";
 import { GhostHole } from "./GhostHole";
 
@@ -50,6 +51,9 @@ export function PlacementHandler() {
 	} | null>(null);
 	const [ghostValid, setGhostValid] = useState(true);
 
+	const pointerDownScreen = useRef<{ x: number; y: number } | null>(null);
+	const pointerDownWorld = useRef<{ x: number; z: number } | null>(null);
+
 	const showGhost = tool === "place" && placingType != null;
 	const definition = placingType ? HOLE_TYPE_MAP[placingType] : null;
 
@@ -93,8 +97,41 @@ export function PlacementHandler() {
 		setGhostValid(checkValidity(pos));
 	}
 
+	function handlePointerDown(e: ThreeEvent<PointerEvent>) {
+		if (!showGhost || !isMobile) return;
+		const pos = computePosition({ x: e.point.x, z: e.point.z });
+		setGhostPos(pos);
+		setGhostValid(checkValidity(pos));
+		pointerDownScreen.current = {
+			x: e.nativeEvent.clientX,
+			y: e.nativeEvent.clientY,
+		};
+		pointerDownWorld.current = pos;
+	}
+
+	function handlePointerUp(e: ThreeEvent<PointerEvent>) {
+		if (!isMobile) return;
+
+		if (pointerDownScreen.current && pointerDownWorld.current) {
+			const dx = e.nativeEvent.clientX - pointerDownScreen.current.x;
+			const dy = e.nativeEvent.clientY - pointerDownScreen.current.y;
+			const moved = Math.hypot(dx, dy);
+
+			if (moved < 10 && ghostValid && placingType) {
+				addHole(placingType, pointerDownWorld.current);
+			}
+		} else if (tool === "select") {
+			selectHole(null);
+		}
+
+		pointerDownScreen.current = null;
+		pointerDownWorld.current = null;
+	}
+
 	function handleClick(e: ThreeEvent<MouseEvent>) {
 		e.stopPropagation();
+
+		if (isMobile) return;
 
 		if (tool === "place" && placingType && ghostPos) {
 			if (ghostValid) {
@@ -113,6 +150,8 @@ export function PlacementHandler() {
 				position={[hall.width / 2, -0.01, hall.length / 2]}
 				onClick={handleClick}
 				onPointerMove={handlePointerMove}
+				onPointerDown={handlePointerDown}
+				onPointerUp={handlePointerUp}
 				visible={false}
 			>
 				<planeGeometry args={[hall.width, hall.length]} />
