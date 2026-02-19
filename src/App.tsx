@@ -28,7 +28,10 @@ export default function App() {
 				<Sidebar />
 				<div
 					className="relative flex-1"
-					style={{ cursor: tool === "delete" ? "crosshair" : "default" }}
+					style={{
+						cursor: tool === "delete" ? "crosshair" : "default",
+						touchAction: "none",
+					}}
 				>
 					<Canvas dpr={[1, 2]} frameloop="demand">
 						<ambientLight intensity={0.8} />

@@ -11,7 +11,7 @@ export function LocationBar({ sunData }: LocationBarProps) {
 	const [expanded, setExpanded] = useState(false);
 
 	return (
-		<div className="border-t border-gray-700 bg-gray-900 text-gray-300">
+		<div className="hidden border-t border-gray-700 bg-gray-900 text-gray-300 md:block">
 			<button
 				type="button"
 				onClick={() => setExpanded(!expanded)}

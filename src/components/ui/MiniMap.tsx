@@ -32,7 +32,7 @@ export function MiniMap() {
 
 	return (
 		<div
-			className="absolute right-2 bottom-2 z-10 overflow-hidden rounded-lg shadow-lg"
+			className="hidden md:block absolute right-2 bottom-2 z-10 overflow-hidden rounded-lg shadow-lg"
 			style={{ width: MAP_SIZE, height: MAP_SIZE }}
 		>
 			<a

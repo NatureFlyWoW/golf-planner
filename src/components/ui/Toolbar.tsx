@@ -20,7 +20,7 @@ export function Toolbar() {
 	const setView = useStore((s) => s.setView);
 
 	return (
-		<div className="flex items-center gap-1 border-b border-gray-200 bg-white px-3 py-2">
+		<div className="hidden items-center gap-1 border-b border-gray-200 bg-white px-3 py-2 md:flex">
 			{tools.map(({ tool, label, icon }) => (
 				<button
 					type="button"

@@ -12,7 +12,7 @@ export function KeyboardHelp() {
 	const [open, setOpen] = useState(false);
 
 	return (
-		<div className="absolute bottom-2 left-2 z-10">
+		<div className="hidden md:block absolute bottom-2 left-2 z-10">
 			<button
 				type="button"
 				onClick={() => setOpen(!open)}

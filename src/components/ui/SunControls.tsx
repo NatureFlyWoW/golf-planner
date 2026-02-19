@@ -23,7 +23,7 @@ export function SunControls({ selectedDate, onDateChange }: SunControlsProps) {
 				)?.label ?? "Custom");
 
 	return (
-		<div className="absolute bottom-10 left-2 z-10 flex flex-col gap-1">
+		<div className="hidden absolute bottom-10 left-2 z-10 flex-col gap-1 md:flex">
 			<div className="flex gap-1">
 				{PRESETS.map(({ label, date }) => (
 					<button
