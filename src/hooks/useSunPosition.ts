@@ -18,15 +18,15 @@ export type WallExposure = {
 };
 
 /**
- * Convert suncalc azimuth to a unit direction vector in scene space.
- * Returns a vector pointing FROM the sun TOWARD the hall center.
+ * Convert suncalc azimuth to the sun's position as a unit direction vector in scene space.
+ * Returns the direction FROM the hall center TOWARD the sun.
  * Scene coords: X+ = east, Z+ = south.
  * suncalc azimuth: 0 = south, PI/2 = west, PI/-PI = north, -PI/2 = east.
  */
 export function getSunDirection(azimuth: number): { x: number; z: number } {
 	return {
 		x: -Math.sin(azimuth),
-		z: -Math.cos(azimuth),
+		z: Math.cos(azimuth),
 	};
 }
 
