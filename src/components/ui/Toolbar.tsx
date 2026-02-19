@@ -1,6 +1,7 @@
 import { useStore } from "../../store";
 import type { Tool } from "../../types";
 import { ExportButton } from "./ExportButton";
+import { SaveManager } from "./SaveManager";
 
 const tools: { tool: Tool; label: string; icon: string }[] = [
 	{ tool: "select", label: "Select", icon: "\u2196" },
@@ -94,6 +95,7 @@ export function Toolbar() {
 			</button>
 
 			<div className="ml-auto flex items-center gap-1">
+				<SaveManager />
 				<ExportButton />
 			</div>
 		</div>
