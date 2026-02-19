@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# Git
+.git/
+
+# IDE / editor
+.vscode/
+.idea/
+
+# Claude config (not app code)
+.claude/
+
+# Documentation (markdown, not code)
+docs/
+CLAUDE.md
+
+# Config files (not app logic)
+package.json
+package-lock.json
+tsconfig.json
+tsconfig.app.json
+tsconfig.node.json
+biome.json
+vite.config.ts
+index.html
+.gitignore
+.cgcignore
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+*.suo
+*.sw?
+
+# Static assets (not code)
+public/
