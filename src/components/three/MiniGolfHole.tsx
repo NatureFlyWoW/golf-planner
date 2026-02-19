@@ -45,6 +45,7 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 			);
 		dragStart.current = { x: hole.position.x, z: hole.position.z };
 		setIsDragging(true);
+		useStore.temporal?.getState()?.pause();
 	}
 
 	function handlePointerMove(e: ThreeEvent<PointerEvent>) {
@@ -109,6 +110,7 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 		e.stopPropagation();
 		setIsDragging(false);
 		dragStart.current = null;
+		useStore.temporal?.getState()?.resume();
 	}
 
 	return (

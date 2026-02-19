@@ -13,32 +13,54 @@ type KeyboardControlsOptions = {
 	controlsRef: React.RefObject<OrbitControlsImpl | null>;
 	defaultZoom: number;
 	defaultTarget: [number, number, number];
+	is3D: boolean;
+	perspectiveDistance: number;
+	perspectiveAngle: number;
 };
 
 export function useKeyboardControls({
 	controlsRef,
 	defaultZoom,
 	defaultTarget,
+	is3D,
+	perspectiveDistance,
+	perspectiveAngle,
 }: KeyboardControlsOptions) {
-	// Note: we read holes/hall lazily inside the handler via useStore.getState()
-	// to avoid re-registering the keydown listener on every hole change.
-
 	useEffect(() => {
 		function handleKeyDown(e: KeyboardEvent) {
 			if (!shouldHandleKey(document.activeElement?.tagName ?? "BODY")) return;
+
+			// Undo/redo shortcuts
+			if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
+				e.preventDefault();
+				if (e.shiftKey) {
+					useStore.temporal?.getState()?.redo();
+				} else {
+					useStore.temporal?.getState()?.undo();
+				}
+				return;
+			}
 
 			const controls = controlsRef.current;
 			if (!controls) return;
 
 			const camera = controls.object;
-			if (!("zoom" in camera)) return; // only orthographic
 
 			switch (e.key) {
 				case "r":
 				case "R": {
 					controls.target.set(...defaultTarget);
-					camera.zoom = defaultZoom;
-					camera.position.set(defaultTarget[0], 50, defaultTarget[2]);
+					if (!is3D && "zoom" in camera) {
+						(camera as { zoom: number }).zoom = defaultZoom;
+						camera.position.set(defaultTarget[0], 50, defaultTarget[2]);
+					} else {
+						camera.position.set(
+							defaultTarget[0],
+							Math.sin(perspectiveAngle) * perspectiveDistance,
+							defaultTarget[2] +
+								Math.cos(perspectiveAngle) * perspectiveDistance,
+						);
+					}
 					camera.updateProjectionMatrix();
 					controls.update();
 					break;
@@ -64,7 +86,6 @@ export function useKeyboardControls({
 							minZ = Math.min(minZ, h.position.z);
 							maxZ = Math.max(maxZ, h.position.z);
 						}
-						// Add padding
 						minX -= 2;
 						maxX += 2;
 						minZ -= 2;
@@ -79,14 +100,18 @@ export function useKeyboardControls({
 					controls.target.set(centerX, 0, centerZ);
 					camera.position.set(centerX, 50, centerZ);
 
-					// Calculate zoom to fit content in viewport
-					const canvas = controls.domElement;
-					const cw = canvas?.clientWidth ?? 0;
-					const ch = canvas?.clientHeight ?? 0;
-					const zoomX = cw > 0 ? cw / rangeX : defaultZoom;
-					const zoomZ = ch > 0 ? ch / rangeZ : defaultZoom;
-					camera.zoom = Math.min(zoomX, zoomZ) * 0.9; // 90% to leave margin
-					camera.zoom = Math.max(15, Math.min(120, camera.zoom));
+					if ("zoom" in camera) {
+						const canvas = controls.domElement;
+						const cw = canvas?.clientWidth ?? 0;
+						const ch = canvas?.clientHeight ?? 0;
+						const zoomX = cw > 0 ? cw / rangeX : defaultZoom;
+						const zoomZ = ch > 0 ? ch / rangeZ : defaultZoom;
+						(camera as { zoom: number }).zoom = Math.min(zoomX, zoomZ) * 0.9;
+						(camera as { zoom: number }).zoom = Math.max(
+							15,
+							Math.min(120, (camera as { zoom: number }).zoom),
+						);
+					}
 
 					camera.updateProjectionMatrix();
 					controls.update();
@@ -94,21 +119,33 @@ export function useKeyboardControls({
 				}
 				case "+":
 				case "=": {
-					camera.zoom = Math.min(120, camera.zoom + 10);
-					camera.updateProjectionMatrix();
-					controls.update();
+					if ("zoom" in camera) {
+						(camera as { zoom: number }).zoom = Math.min(
+							120,
+							(camera as { zoom: number }).zoom + 10,
+						);
+						camera.updateProjectionMatrix();
+						controls.update();
+					}
 					break;
 				}
 				case "-": {
-					camera.zoom = Math.max(15, camera.zoom - 10);
-					camera.updateProjectionMatrix();
-					controls.update();
+					if ("zoom" in camera) {
+						(camera as { zoom: number }).zoom = Math.max(
+							15,
+							(camera as { zoom: number }).zoom - 10,
+						);
+						camera.updateProjectionMatrix();
+						controls.update();
+					}
 					break;
 				}
 				case "0": {
-					camera.zoom = defaultZoom;
-					camera.updateProjectionMatrix();
-					controls.update();
+					if ("zoom" in camera) {
+						(camera as { zoom: number }).zoom = defaultZoom;
+						camera.updateProjectionMatrix();
+						controls.update();
+					}
 					break;
 				}
 				case "ArrowUp": {
@@ -149,5 +186,12 @@ export function useKeyboardControls({
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [controlsRef, defaultZoom, defaultTarget]);
+	}, [
+		controlsRef,
+		defaultZoom,
+		defaultTarget,
+		is3D,
+		perspectiveDistance,
+		perspectiveAngle,
+	]);
 }

@@ -30,6 +30,7 @@ export function RotationHandle({
 		e.stopPropagation();
 		setIsDragging(true);
 		shiftHeld.current = e.nativeEvent.shiftKey;
+		useStore.temporal?.getState()?.pause();
 		(e.nativeEvent.target as Element)?.setPointerCapture?.(
 			e.nativeEvent.pointerId,
 		);
@@ -56,6 +57,7 @@ export function RotationHandle({
 		if (!isDragging) return;
 		e.stopPropagation();
 		setIsDragging(false);
+		useStore.temporal?.getState()?.resume();
 	}
 
 	return (
