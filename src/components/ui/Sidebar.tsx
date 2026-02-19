@@ -1,5 +1,6 @@
 import { useStore } from "../../store";
 import type { SidebarTab } from "../../types";
+import { HoleDetail } from "./HoleDetail";
 import { HoleLibrary } from "./HoleLibrary";
 
 const tabs: { tab: SidebarTab; label: string }[] = [
@@ -32,9 +33,7 @@ export function Sidebar() {
 			</div>
 			<div className="flex-1 overflow-y-auto p-3">
 				{activeTab === "holes" && <HoleLibrary />}
-				{activeTab === "detail" && (
-					<p className="text-xs text-gray-400">Select a hole to see details</p>
-				)}
+				{activeTab === "detail" && <HoleDetail />}
 				{activeTab === "budget" && (
 					<p className="text-xs text-gray-400">Budget tracker — Phase 4</p>
 				)}
