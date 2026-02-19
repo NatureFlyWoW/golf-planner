@@ -1,9 +1,13 @@
 import type { ThreeEvent } from "@react-three/fiber";
 import { useRef, useState } from "react";
 import { useStore } from "../../store";
+import { isMobile } from "../../utils/isMobile";
 
 const RING_RADIUS = 1.2;
 const SNAP_DEG = 15;
+const SPHERE_RADIUS = isMobile ? 0.35 : 0.12;
+const SPHERE_SEGMENTS = isMobile ? 8 : 16;
+const RING_SEGMENTS = isMobile ? 32 : 64;
 
 type RotationHandleProps = {
 	holeId: string;
@@ -64,7 +68,9 @@ export function RotationHandle({
 		<group position={[holeX, 0.01, holeZ]}>
 			{/* Ring outline */}
 			<mesh rotation={[-Math.PI / 2, 0, 0]}>
-				<ringGeometry args={[RING_RADIUS - 0.03, RING_RADIUS + 0.03, 64]} />
+				<ringGeometry
+					args={[RING_RADIUS - 0.03, RING_RADIUS + 0.03, RING_SEGMENTS]}
+				/>
 				<meshBasicMaterial color="#FF9800" transparent opacity={0.6} />
 			</mesh>
 			{/* Drag handle sphere */}
@@ -74,7 +80,9 @@ export function RotationHandle({
 				onPointerMove={handlePointerMove}
 				onPointerUp={handlePointerUp}
 			>
-				<sphereGeometry args={[0.12, 16, 16]} />
+				<sphereGeometry
+					args={[SPHERE_RADIUS, SPHERE_SEGMENTS, SPHERE_SEGMENTS]}
+				/>
 				<meshStandardMaterial color={isDragging ? "#FFE082" : "#FF9800"} />
 			</mesh>
 		</group>
