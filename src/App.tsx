@@ -8,14 +8,17 @@ import { PlacedHoles } from "./components/three/PlacedHoles";
 import { PlacementHandler } from "./components/three/PlacementHandler";
 import { SunIndicator } from "./components/three/SunIndicator";
 import { BottomToolbar } from "./components/ui/BottomToolbar";
+import { HoleDrawer } from "./components/ui/HoleDrawer";
 import { KeyboardHelp } from "./components/ui/KeyboardHelp";
 import { LocationBar } from "./components/ui/LocationBar";
 import { MiniMap } from "./components/ui/MiniMap";
+import { MobileDetailPanel } from "./components/ui/MobileDetailPanel";
 import { Sidebar } from "./components/ui/Sidebar";
 import { SunControls } from "./components/ui/SunControls";
 import { Toolbar } from "./components/ui/Toolbar";
 import { useSunPosition } from "./hooks/useSunPosition";
 import { useStore } from "./store";
+import { isMobile } from "./utils/isMobile";
 
 export default function App() {
 	const tool = useStore((s) => s.ui.tool);
@@ -34,7 +37,11 @@ export default function App() {
 						touchAction: "none",
 					}}
 				>
-					<Canvas dpr={[1, 2]} frameloop="demand">
+					<Canvas
+						dpr={isMobile ? [1, 1.5] : [1, 2]}
+						frameloop="demand"
+						gl={{ antialias: !isMobile }}
+					>
 						<ambientLight intensity={0.8} />
 						<directionalLight position={[10, 20, 5]} intensity={0.5} />
 						<CameraControls />
@@ -52,6 +59,8 @@ export default function App() {
 			</div>
 			<LocationBar sunData={sunData} />
 			<BottomToolbar />
+			<HoleDrawer />
+			<MobileDetailPanel />
 		</div>
 	);
 }
