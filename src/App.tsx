@@ -7,6 +7,7 @@ import { Hall } from "./components/three/Hall";
 import { PlacedHoles } from "./components/three/PlacedHoles";
 import { PlacementHandler } from "./components/three/PlacementHandler";
 import { SunIndicator } from "./components/three/SunIndicator";
+import { BottomToolbar } from "./components/ui/BottomToolbar";
 import { KeyboardHelp } from "./components/ui/KeyboardHelp";
 import { LocationBar } from "./components/ui/LocationBar";
 import { MiniMap } from "./components/ui/MiniMap";
@@ -50,6 +51,7 @@ export default function App() {
 				</div>
 			</div>
 			<LocationBar sunData={sunData} />
+			<BottomToolbar />
 		</div>
 	);
 }
