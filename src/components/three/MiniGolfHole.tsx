@@ -29,6 +29,7 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 	const [isDragging, setIsDragging] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const dragStart = useRef<{ x: number; z: number } | null>(null);
+	const pointerStartScreen = useRef<{ x: number; y: number } | null>(null);
 
 	if (!definition) return null;
 
@@ -44,13 +45,26 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 				e.nativeEvent.pointerId,
 			);
 		dragStart.current = { x: hole.position.x, z: hole.position.z };
-		setIsDragging(true);
-		useStore.temporal?.getState()?.pause();
+		pointerStartScreen.current = {
+			x: e.nativeEvent.clientX,
+			y: e.nativeEvent.clientY,
+		};
+		// Don't setIsDragging(true) yet — wait for deadzone
 	}
 
 	function handlePointerMove(e: ThreeEvent<PointerEvent>) {
-		if (!isDragging || !dragStart.current) return;
+		if (!dragStart.current || !pointerStartScreen.current) return;
 		e.stopPropagation();
+
+		// Check deadzone if not yet dragging
+		if (!isDragging) {
+			const dx = e.nativeEvent.clientX - pointerStartScreen.current.x;
+			const dy = e.nativeEvent.clientY - pointerStartScreen.current.y;
+			if (Math.hypot(dx, dy) < 10) return;
+			// Past deadzone — start dragging
+			setIsDragging(true);
+			useStore.temporal?.getState()?.pause();
+		}
 
 		const intersection = new THREE.Vector3();
 		raycaster.ray.intersectPlane(floorPlane, intersection);
@@ -106,11 +120,14 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 	}
 
 	function handlePointerUp(e: ThreeEvent<PointerEvent>) {
-		if (!isDragging) return;
+		if (!dragStart.current) return;
 		e.stopPropagation();
+		if (isDragging) {
+			useStore.temporal?.getState()?.resume();
+		}
 		setIsDragging(false);
 		dragStart.current = null;
-		useStore.temporal?.getState()?.resume();
+		pointerStartScreen.current = null;
 	}
 
 	return (
