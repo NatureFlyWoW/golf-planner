@@ -139,6 +139,11 @@ export function useKeyboardControls({
 					controls.update();
 					break;
 				}
+				case "g":
+				case "G": {
+					useStore.getState().toggleSnap();
+					break;
+				}
 			}
 		}
 

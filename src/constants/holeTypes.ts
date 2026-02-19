@@ -29,6 +29,27 @@ export const HOLE_TYPES: HoleTypeDefinition[] = [
 		color: "#9C27B0",
 		defaultPar: 3,
 	},
+	{
+		type: "loop",
+		label: "Loop",
+		dimensions: { width: 1.8, length: 2.0 },
+		color: "#00BCD4",
+		defaultPar: 3,
+	},
+	{
+		type: "windmill",
+		label: "Windmill",
+		dimensions: { width: 1.2, length: 2.5 },
+		color: "#E91E63",
+		defaultPar: 4,
+	},
+	{
+		type: "tunnel",
+		label: "Tunnel",
+		dimensions: { width: 0.6, length: 4.0 },
+		color: "#607D8B",
+		defaultPar: 3,
+	},
 ];
 
 export const HOLE_TYPE_MAP = Object.fromEntries(

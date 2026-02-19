@@ -7,7 +7,7 @@ export type HoleType =
 	| "windmill"
 	| "tunnel";
 
-export type HoleRotation = 0 | 90 | 180 | 270;
+export type HoleRotation = number;
 
 export type Hole = {
 	id: string;

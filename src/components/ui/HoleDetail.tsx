@@ -1,6 +1,5 @@
 import { HOLE_TYPE_MAP } from "../../constants";
 import { useStore } from "../../store";
-import type { HoleRotation } from "../../types";
 
 export function HoleDetail() {
 	const selectedId = useStore((s) => s.selectedId);
@@ -20,8 +19,6 @@ export function HoleDetail() {
 
 	const definition = HOLE_TYPE_MAP[hole.type];
 	const orderIndex = holeOrder.indexOf(selectedId);
-
-	const rotations: HoleRotation[] = [0, 90, 180, 270];
 
 	return (
 		<div className="flex flex-col gap-3">
@@ -61,8 +58,24 @@ export function HoleDetail() {
 
 			<div className="flex flex-col gap-1">
 				<span className="text-xs text-gray-500">Rotation</span>
+				<div className="flex items-center gap-2">
+					<input
+						type="number"
+						value={hole.rotation}
+						min={0}
+						max={359}
+						step={15}
+						onChange={(e) =>
+							updateHole(selectedId, {
+								rotation: ((Number(e.target.value) % 360) + 360) % 360,
+							})
+						}
+						className="w-20 rounded border border-gray-200 px-2 py-1 text-sm"
+					/>
+					<span className="text-xs text-gray-400">°</span>
+				</div>
 				<div className="flex gap-1">
-					{rotations.map((r) => (
+					{[0, 90, 180, 270].map((r) => (
 						<button
 							key={r}
 							type="button"

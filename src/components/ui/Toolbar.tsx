@@ -11,6 +11,12 @@ const tools: { tool: Tool; label: string; icon: string }[] = [
 export function Toolbar() {
 	const activeTool = useStore((s) => s.ui.tool);
 	const setTool = useStore((s) => s.setTool);
+	const snapEnabled = useStore((s) => s.ui.snapEnabled);
+	const toggleSnap = useStore((s) => s.toggleSnap);
+	const showFlowPath = useStore((s) => s.ui.showFlowPath);
+	const toggleFlowPath = useStore((s) => s.toggleFlowPath);
+	const view = useStore((s) => s.ui.view);
+	const setView = useStore((s) => s.setView);
 
 	return (
 		<div className="flex items-center gap-1 border-b border-gray-200 bg-white px-3 py-2">
@@ -29,6 +35,44 @@ export function Toolbar() {
 					{label}
 				</button>
 			))}
+
+			<div className="mx-2 h-6 w-px bg-gray-200" />
+
+			<button
+				type="button"
+				onClick={toggleSnap}
+				className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+					snapEnabled
+						? "bg-green-600 text-white"
+						: "bg-gray-100 text-gray-700 hover:bg-gray-200"
+				}`}
+				title="Toggle grid snap (G)"
+			>
+				Snap
+			</button>
+
+			<button
+				type="button"
+				onClick={toggleFlowPath}
+				className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+					showFlowPath
+						? "bg-purple-600 text-white"
+						: "bg-gray-100 text-gray-700 hover:bg-gray-200"
+				}`}
+				title="Toggle player flow path"
+			>
+				Flow
+			</button>
+
+			<button
+				type="button"
+				onClick={() => setView(view === "top" ? "3d" : "top")}
+				className="rounded bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
+				title="Toggle 2D/3D view"
+			>
+				{view === "top" ? "3D" : "2D"}
+			</button>
+
 			<div className="ml-auto">
 				<ExportButton />
 			</div>
