@@ -131,7 +131,7 @@ export function CameraControls() {
 					RIGHT: MOUSE.PAN,
 				}}
 				touches={{
-					ONE: is3D ? TOUCH.ROTATE : undefined,
+					ONE: is3D ? TOUCH.ROTATE : TOUCH.PAN,
 					TWO: TOUCH.DOLLY_PAN,
 				}}
 				makeDefault
