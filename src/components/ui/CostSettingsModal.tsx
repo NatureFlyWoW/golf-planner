@@ -5,6 +5,7 @@ import {
 } from "../../constants/budget";
 import { HOLE_TYPES } from "../../constants/holeTypes";
 import { useStore } from "../../store";
+import type { MaterialProfile } from "../../types/budget";
 
 type Props = {
 	onClose: () => void;
@@ -14,6 +15,7 @@ export function CostSettingsModal({ onClose }: Props) {
 	const budgetConfig = useStore((s) => s.budgetConfig);
 	const setBudgetConfig = useStore((s) => s.setBudgetConfig);
 	const buildMode = useStore((s) => s.financialSettings.buildMode);
+	const materialProfile = useStore((s) => s.budgetConfig.materialProfile);
 	const manualOverride = useStore(
 		(s) => s.budget[COURSE_CATEGORY_ID]?.manualOverride ?? false,
 	);
@@ -91,6 +93,33 @@ export function CostSettingsModal({ onClose }: Props) {
 						<span className="text-lg">✕</span>
 					</button>
 				</div>
+
+				{/* Material Tier */}
+				{buildMode !== "professional" && (
+					<div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
+						<span className="text-[10px] text-gray-500 uppercase font-medium">
+							Material Tier
+						</span>
+						<select
+							value={materialProfile}
+							onChange={(e) =>
+								setBudgetConfig({
+									materialProfile: e.target
+										.value as MaterialProfile,
+								})
+							}
+							className="rounded border border-gray-200 px-2 py-1 text-xs"
+						>
+							<option value="budget_diy">
+								Budget DIY (0.65x)
+							</option>
+							<option value="standard_diy">
+								Standard DIY (1.0x)
+							</option>
+							<option value="semi_pro">Semi-Pro (1.8x)</option>
+						</select>
+					</div>
+				)}
 
 				{/* Cost fields */}
 				<div className="flex flex-col gap-2 px-4 py-3">

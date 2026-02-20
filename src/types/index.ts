@@ -8,6 +8,7 @@ export type {
 	ConstructionPhase,
 	ExpenseEntry,
 	FinancialSettings,
+	MaterialProfile,
 	RiskTolerance,
 	UncertaintyParams,
 	VatProfile,

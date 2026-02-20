@@ -66,7 +66,10 @@ export type FinancialSettings = {
 	buildMode: BuildMode;
 };
 
+export type MaterialProfile = "budget_diy" | "standard_diy" | "semi_pro";
+
 export type BudgetConfigV2 = {
 	costPerType: Record<string, number>;
 	costPerTypeDiy: Record<string, number>;
+	materialProfile: MaterialProfile;
 };

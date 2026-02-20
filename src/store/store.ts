@@ -426,7 +426,7 @@ export const useStore = create<Store>()(
 			}),
 			{
 				name: "golf-planner-state",
-				version: 4,
+				version: 5,
 				partialize: (state) => ({
 					holes: state.holes,
 					holeOrder: state.holeOrder,
@@ -454,6 +454,17 @@ export const useStore = create<Store>()(
 
 					if (version < 4 && p) {
 						migrateToV4(p);
+					}
+
+					if (version < 5 && p) {
+						if (
+							p.budgetConfig &&
+							!("materialProfile" in p.budgetConfig)
+						) {
+							(
+								p.budgetConfig as Record<string, unknown>
+							).materialProfile = "standard_diy";
+						}
 					}
 
 					return p;

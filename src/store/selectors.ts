@@ -2,6 +2,7 @@ import {
 	COURSE_CATEGORY_ID,
 	DEFAULT_COST_PER_TYPE,
 	DEFAULT_HOLE_COST,
+	MATERIAL_PROFILE_MULTIPLIERS,
 } from "../constants/budget";
 import { HOLE_TYPE_MAP } from "../constants/holeTypes";
 import type { BudgetCategoryV2, RiskTolerance } from "../types/budget";
@@ -20,10 +21,18 @@ export function selectCourseCost(state: Store): number {
 				? DEFAULT_COST_PER_TYPE
 				: state.budgetConfig.costPerType; // mixed = user-editable
 
-	return state.holeOrder.reduce(
+	const materialMultiplier =
+		buildMode === "professional"
+			? 1.0
+			: MATERIAL_PROFILE_MULTIPLIERS[state.budgetConfig.materialProfile] ??
+				1.0;
+
+	const raw = state.holeOrder.reduce(
 		(sum, id) => sum + (costMap[state.holes[id]?.type] ?? DEFAULT_HOLE_COST),
 		0,
 	);
+
+	return Math.round(raw * materialMultiplier);
 }
 
 export type CourseBreakdownItem = {
@@ -43,6 +52,12 @@ export function selectCourseBreakdown(state: Store): CourseBreakdownItem[] {
 				? DEFAULT_COST_PER_TYPE
 				: state.budgetConfig.costPerType;
 
+	const materialMultiplier =
+		buildMode === "professional"
+			? 1.0
+			: MATERIAL_PROFILE_MULTIPLIERS[state.budgetConfig.materialProfile] ??
+				1.0;
+
 	const counts: Record<string, number> = {};
 	for (const id of state.holeOrder) {
 		const hole = state.holes[id];
@@ -53,7 +68,8 @@ export function selectCourseBreakdown(state: Store): CourseBreakdownItem[] {
 
 	return Object.entries(counts)
 		.map(([type, count]) => {
-			const unitCost = costMap[type] ?? DEFAULT_HOLE_COST;
+			const baseCost = costMap[type] ?? DEFAULT_HOLE_COST;
+			const unitCost = Math.round(baseCost * materialMultiplier);
 			return {
 				type,
 				label: HOLE_TYPE_MAP[type]?.label ?? type,

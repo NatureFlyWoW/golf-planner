@@ -32,7 +32,7 @@ describe("buildExportData", () => {
 	const hall = { width: 10, length: 20 } as Hall;
 	const emptyExpenses: ExpenseEntry[] = [];
 
-	it("builds a v4 export object", () => {
+	it("builds a v5 export object", () => {
 		const holes: Record<string, Hole> = {
 			"abc-123": {
 				id: "abc-123",
@@ -64,7 +64,7 @@ describe("buildExportData", () => {
 			emptyExpenses,
 		);
 
-		expect(result.version).toBe(4);
+		expect(result.version).toBe(5);
 		expect(result.exportedAt).toBeDefined();
 		expect(result.hall.width).toBe(10);
 		expect(result.holes).toHaveLength(2);

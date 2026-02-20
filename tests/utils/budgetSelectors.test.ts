@@ -20,6 +20,7 @@ function resetStore() {
 		budgetConfig: {
 			costPerType: { ...DEFAULT_COST_PER_TYPE },
 			costPerTypeDiy: { ...DEFAULT_COST_PER_TYPE_DIY },
+			materialProfile: "standard_diy",
 		},
 		financialSettings: {
 			vatRegistered: false,
@@ -126,6 +127,7 @@ describe("selectCourseCost", () => {
 			budgetConfig: {
 				costPerType: { ...DEFAULT_COST_PER_TYPE, straight: 5000 },
 				costPerTypeDiy: { ...DEFAULT_COST_PER_TYPE_DIY },
+				materialProfile: "standard_diy",
 			},
 		});
 
@@ -175,5 +177,78 @@ describe("selectCourseBreakdown", () => {
 		const breakdown = selectCourseBreakdown(useStore.getState());
 		expect(breakdown[0].type).toBe("ramp");
 		expect(breakdown[1].type).toBe("tunnel");
+	});
+});
+
+describe("material profile multiplier", () => {
+	beforeEach(resetStore);
+
+	it("applies material profile multiplier in DIY mode", () => {
+		useStore.setState({
+			financialSettings: {
+				vatRegistered: false,
+				displayMode: "gross",
+				inflationFactor: 1.0,
+				riskTolerance: "balanced",
+				buildMode: "diy",
+			},
+			budgetConfig: {
+				costPerType: { ...DEFAULT_COST_PER_TYPE },
+				costPerTypeDiy: { ...DEFAULT_COST_PER_TYPE_DIY },
+				materialProfile: "semi_pro",
+			},
+		});
+
+		const store = useStore.getState();
+		store.addHole("straight", { x: 1, z: 1 }); // DIY base: 800
+
+		const cost = selectCourseCost(useStore.getState());
+		expect(cost).toBe(1440); // 800 * 1.8 = 1440
+	});
+
+	it("does not apply material multiplier in professional mode", () => {
+		useStore.setState({
+			financialSettings: {
+				vatRegistered: false,
+				displayMode: "gross",
+				inflationFactor: 1.0,
+				riskTolerance: "balanced",
+				buildMode: "professional",
+			},
+			budgetConfig: {
+				costPerType: { ...DEFAULT_COST_PER_TYPE },
+				costPerTypeDiy: { ...DEFAULT_COST_PER_TYPE_DIY },
+				materialProfile: "semi_pro",
+			},
+		});
+
+		const store = useStore.getState();
+		store.addHole("straight", { x: 1, z: 1 }); // Pro base: 2000
+
+		const cost = selectCourseCost(useStore.getState());
+		expect(cost).toBe(2000); // no multiplier in professional mode
+	});
+
+	it("applies budget_diy multiplier (0.65x) in DIY mode", () => {
+		useStore.setState({
+			financialSettings: {
+				vatRegistered: false,
+				displayMode: "gross",
+				inflationFactor: 1.0,
+				riskTolerance: "balanced",
+				buildMode: "diy",
+			},
+			budgetConfig: {
+				costPerType: { ...DEFAULT_COST_PER_TYPE },
+				costPerTypeDiy: { ...DEFAULT_COST_PER_TYPE_DIY },
+				materialProfile: "budget_diy",
+			},
+		});
+
+		const store = useStore.getState();
+		store.addHole("windmill", { x: 1, z: 1 }); // DIY base: 1800
+
+		const cost = selectCourseCost(useStore.getState());
+		expect(cost).toBe(1170); // 1800 * 0.65 = 1170
 	});
 });

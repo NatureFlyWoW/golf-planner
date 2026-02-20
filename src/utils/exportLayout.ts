@@ -28,7 +28,7 @@ export function buildExportData(
 	expenses: ExpenseEntry[],
 ): ExportData {
 	return {
-		version: 4,
+		version: 5,
 		exportedAt: new Date().toISOString(),
 		hall: { width: hall.width, length: hall.length },
 		holes: holeOrder.map((id) => holes[id]).filter(Boolean),

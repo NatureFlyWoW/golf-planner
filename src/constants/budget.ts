@@ -5,6 +5,7 @@ import type {
 	BudgetConfigV2,
 	ConfidenceTier,
 	FinancialSettings,
+	MaterialProfile,
 } from "../types";
 
 export const COURSE_CATEGORY_ID = "course";
@@ -145,9 +146,16 @@ export const DEFAULT_COST_PER_TYPE_DIY: Record<string, number> = {
 	tunnel: 1100,
 };
 
+export const MATERIAL_PROFILE_MULTIPLIERS: Record<MaterialProfile, number> = {
+	budget_diy: 0.65,
+	standard_diy: 1.0,
+	semi_pro: 1.8,
+};
+
 export const DEFAULT_BUDGET_CONFIG_V2: BudgetConfigV2 = {
 	costPerType: DEFAULT_COST_PER_TYPE,
 	costPerTypeDiy: DEFAULT_COST_PER_TYPE_DIY,
+	materialProfile: "standard_diy",
 };
 
 export const DEFAULT_FINANCIAL_SETTINGS: FinancialSettings = {
