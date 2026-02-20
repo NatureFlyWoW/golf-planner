@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_BUDGET_CONFIG_V2 } from "../../src/constants/budget";
+import {
+	DEFAULT_BUDGET_CONFIG_V2,
+	DEFAULT_FINANCIAL_SETTINGS,
+} from "../../src/constants/budget";
 import type {
 	BudgetCategoryV2,
 	ExpenseEntry,
@@ -57,6 +60,7 @@ describe("buildExportData", () => {
 			budget,
 			hall,
 			DEFAULT_BUDGET_CONFIG_V2,
+			DEFAULT_FINANCIAL_SETTINGS,
 			emptyExpenses,
 		);
 
@@ -68,6 +72,8 @@ describe("buildExportData", () => {
 		expect(result.holes[1].name).toBe("Hole 2");
 		expect(result.budgetConfig.costPerType).toBeDefined();
 		expect(result.budgetConfig.costPerType.straight).toBe(2000);
+		expect(result.financialSettings).toBeDefined();
+		expect(result.financialSettings.riskTolerance).toBe("balanced");
 		expect(result.expenses).toEqual([]);
 	});
 
@@ -98,6 +104,7 @@ describe("buildExportData", () => {
 			{},
 			hall,
 			DEFAULT_BUDGET_CONFIG_V2,
+			DEFAULT_FINANCIAL_SETTINGS,
 			emptyExpenses,
 		);
 
@@ -123,6 +130,7 @@ describe("buildExportData", () => {
 			budget,
 			hall,
 			DEFAULT_BUDGET_CONFIG_V2,
+			DEFAULT_FINANCIAL_SETTINGS,
 			emptyExpenses,
 		);
 

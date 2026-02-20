@@ -183,6 +183,7 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 	const budget = useStore((s) => s.budget);
 	const hall = useStore((s) => s.hall);
 	const budgetConfig = useStore((s) => s.budgetConfig);
+	const financialSettings = useStore((s) => s.financialSettings);
 	const expenses = useStore((s) => s.expenses);
 	const setActivePanel = useStore((s) => s.setActivePanel);
 
@@ -241,6 +242,7 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 							budget,
 							hall,
 							budgetConfig,
+							financialSettings,
 							expenses,
 						);
 						downloadJson(data);

@@ -2,6 +2,7 @@ import type {
 	BudgetCategoryV2,
 	BudgetConfigV2,
 	ExpenseEntry,
+	FinancialSettings,
 	Hall,
 	Hole,
 } from "../types";
@@ -13,6 +14,7 @@ export type ExportData = {
 	holes: Hole[];
 	budget: BudgetCategoryV2[];
 	budgetConfig: BudgetConfigV2;
+	financialSettings: FinancialSettings;
 	expenses: ExpenseEntry[];
 };
 
@@ -22,6 +24,7 @@ export function buildExportData(
 	budget: Record<string, BudgetCategoryV2>,
 	hall: Hall,
 	budgetConfig: BudgetConfigV2,
+	financialSettings: FinancialSettings,
 	expenses: ExpenseEntry[],
 ): ExportData {
 	return {
@@ -31,6 +34,7 @@ export function buildExportData(
 		holes: holeOrder.map((id) => holes[id]).filter(Boolean),
 		budget: Object.values(budget),
 		budgetConfig,
+		financialSettings,
 		expenses,
 	};
 }

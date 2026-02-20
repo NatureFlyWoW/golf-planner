@@ -7,6 +7,7 @@ export function ExportButton() {
 	const budget = useStore((s) => s.budget);
 	const hall = useStore((s) => s.hall);
 	const budgetConfig = useStore((s) => s.budgetConfig);
+	const financialSettings = useStore((s) => s.financialSettings);
 	const expenses = useStore((s) => s.expenses);
 
 	function handleExport() {
@@ -16,6 +17,7 @@ export function ExportButton() {
 			budget,
 			hall,
 			budgetConfig,
+			financialSettings,
 			expenses,
 		);
 		downloadJson(data);
