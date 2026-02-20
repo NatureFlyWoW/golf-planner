@@ -50,7 +50,9 @@ export function HoleDetail() {
 					min={1}
 					max={6}
 					onChange={(e) =>
-						updateHole(selectedId, { par: Number(e.target.value) })
+						updateHole(selectedId, {
+							par: Math.min(6, Math.max(1, Number(e.target.value))),
+						})
 					}
 					className="w-20 rounded border border-gray-200 px-2 py-1 text-sm"
 				/>

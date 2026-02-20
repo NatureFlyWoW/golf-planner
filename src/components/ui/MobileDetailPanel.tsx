@@ -74,7 +74,9 @@ export function MobileDetailPanel() {
 							min={1}
 							max={6}
 							onChange={(e) =>
-								updateHole(selectedId, { par: Number(e.target.value) })
+								updateHole(selectedId, {
+									par: Math.min(6, Math.max(1, Number(e.target.value))),
+								})
 							}
 							className="w-24 rounded-lg border border-gray-200 px-3 py-2.5 text-base"
 						/>

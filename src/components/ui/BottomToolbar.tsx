@@ -177,9 +177,12 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 	return (
 		<>
 			{/* Backdrop */}
-			{/* biome-ignore lint/a11y/useKeyWithClickEvents: mobile backdrop */}
 			{/* biome-ignore lint/a11y/noStaticElementInteractions: mobile backdrop */}
-			<div className="fixed inset-0 z-40" onClick={onClose} />
+			<div
+				className="fixed inset-0 z-40 bg-black/10"
+				onClick={onClose}
+				role="presentation"
+			/>
 			{/* Popover */}
 			<div className="absolute bottom-16 right-2 z-50 grid grid-cols-2 gap-2 rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
 				<ToggleBtn label="Snap" active={snapEnabled} onTap={toggleSnap} />

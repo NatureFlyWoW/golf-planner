@@ -22,11 +22,11 @@ export function HoleDrawer() {
 	return (
 		<>
 			{/* Backdrop — tapping outside closes drawer */}
-			{/* biome-ignore lint/a11y/useKeyWithClickEvents: mobile drawer backdrop */}
 			{/* biome-ignore lint/a11y/noStaticElementInteractions: backdrop dismiss pattern */}
 			<div
 				className="fixed inset-0 z-30 bg-black/20 md:hidden"
 				onClick={handleClose}
+				role="presentation"
 			/>
 			{/* Drawer */}
 			<div className="fixed inset-x-0 bottom-0 z-40 flex max-h-[40vh] flex-col rounded-t-2xl bg-white shadow-2xl md:hidden">
