@@ -1,16 +1,14 @@
 import { useMemo } from "react";
 import * as THREE from "three";
+import { useStore } from "../../../store";
 import {
 	BUMPER_HEIGHT,
 	BUMPER_THICKNESS,
-	bumperMaterial,
 	CUP_RADIUS,
-	cupMaterial,
-	feltMaterial,
 	SURFACE_THICKNESS,
 	TEE_RADIUS,
-	teeMaterial,
 } from "./shared";
+import { useMaterials } from "./useMaterials";
 
 const RAMP_HEIGHT = 0.15;
 const RAMP_SLOPE_LENGTH = 0.5;
@@ -28,6 +26,9 @@ export function HoleRamp({
 	length: number;
 	color: string;
 }) {
+	const { felt, bumper, tee, cup } = useMaterials();
+	const uvMode = useStore((s) => s.ui.uvMode);
+
 	const halfW = width / 2;
 	const halfL = length / 2;
 	const laneW = width - BUMPER_THICKNESS * 2;
@@ -84,18 +85,24 @@ export function HoleRamp({
 	// Coloured felt material for the ramp surfaces.
 	const rampMaterial = useMemo(
 		() =>
-			new THREE.MeshStandardMaterial({
-				color,
-				roughness: 0.7,
-				metalness: 0,
-			}),
-		[color],
+			new THREE.MeshStandardMaterial(
+				uvMode
+					? {
+							color: "#1A001A",
+							emissive: "#FF00FF",
+							emissiveIntensity: 0.5,
+							roughness: 0.7,
+							metalness: 0,
+						}
+					: { color, roughness: 0.7, metalness: 0 },
+			),
+		[color, uvMode],
 	);
 
 	return (
 		<group>
 			{/* ── Base flat felt surface (spans full lane, sits under ramp) ── */}
-			<mesh position={[0, SURFACE_THICKNESS / 2, 0]} material={feltMaterial}>
+			<mesh position={[0, SURFACE_THICKNESS / 2, 0]} material={felt}>
 				<boxGeometry
 					args={[laneW, SURFACE_THICKNESS, length - BUMPER_THICKNESS * 2]}
 				/>
@@ -143,7 +150,7 @@ export function HoleRamp({
 					SURFACE_THICKNESS + SIDE_BUMPER_HEIGHT / 2,
 					0,
 				]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[BUMPER_THICKNESS, SIDE_BUMPER_HEIGHT, length]} />
 			</mesh>
@@ -155,7 +162,7 @@ export function HoleRamp({
 					SURFACE_THICKNESS + SIDE_BUMPER_HEIGHT / 2,
 					0,
 				]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[BUMPER_THICKNESS, SIDE_BUMPER_HEIGHT, length]} />
 			</mesh>
@@ -167,7 +174,7 @@ export function HoleRamp({
 					SURFACE_THICKNESS + BUMPER_HEIGHT / 2,
 					-halfL + BUMPER_THICKNESS / 2,
 				]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[laneW, BUMPER_HEIGHT, BUMPER_THICKNESS]} />
 			</mesh>
@@ -179,7 +186,7 @@ export function HoleRamp({
 					SURFACE_THICKNESS + BUMPER_HEIGHT / 2,
 					halfL - BUMPER_THICKNESS / 2,
 				]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[laneW, BUMPER_HEIGHT, BUMPER_THICKNESS]} />
 			</mesh>
@@ -188,7 +195,7 @@ export function HoleRamp({
 			<mesh
 				position={[0, SURFACE_THICKNESS + 0.001, -halfL + 0.15]}
 				rotation={[-Math.PI / 2, 0, 0]}
-				material={teeMaterial}
+				material={tee}
 			>
 				<circleGeometry args={[TEE_RADIUS, 16]} />
 			</mesh>
@@ -197,7 +204,7 @@ export function HoleRamp({
 			<mesh
 				position={[0, SURFACE_THICKNESS + 0.001, halfL - 0.15]}
 				rotation={[-Math.PI / 2, 0, 0]}
-				material={cupMaterial}
+				material={cup}
 			>
 				<circleGeometry args={[CUP_RADIUS, 16]} />
 			</mesh>

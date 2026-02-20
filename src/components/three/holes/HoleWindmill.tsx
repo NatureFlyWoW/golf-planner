@@ -1,16 +1,14 @@
 import { useMemo } from "react";
 import * as THREE from "three";
+import { useStore } from "../../../store";
 import {
 	BUMPER_HEIGHT,
 	BUMPER_THICKNESS,
-	bumperMaterial,
 	CUP_RADIUS,
-	cupMaterial,
-	feltMaterial,
 	SURFACE_THICKNESS,
 	TEE_RADIUS,
-	teeMaterial,
 } from "./shared";
+import { useMaterials } from "./useMaterials";
 
 // ── Windmill obstacle constants ───────────────────────────────────────────────
 const PILLAR_RADIUS = 0.05;
@@ -37,6 +35,9 @@ export function HoleWindmill({
 	length: number;
 	color: string;
 }) {
+	const { felt, bumper, tee, cup } = useMaterials();
+	const uvMode = useStore((s) => s.ui.uvMode);
+
 	const bt = BUMPER_THICKNESS;
 	const st = SURFACE_THICKNESS;
 	const halfL = length / 2;
@@ -45,29 +46,41 @@ export function HoleWindmill({
 	// Gray cylinder material for the central pillar
 	const pillarMaterial = useMemo(
 		() =>
-			new THREE.MeshStandardMaterial({
-				color: "#757575",
-				roughness: 0.4,
-				metalness: 0.3,
-			}),
-		[],
+			new THREE.MeshStandardMaterial(
+				uvMode
+					? {
+							color: "#1A0011",
+							emissive: "#FF1493",
+							emissiveIntensity: 0.3,
+							roughness: 0.4,
+							metalness: 0.3,
+						}
+					: { color: "#757575", roughness: 0.4, metalness: 0.3 },
+			),
+		[uvMode],
 	);
 
 	// Blade material uses the hole's accent color (typically pink/magenta)
 	const bladeMaterial = useMemo(
 		() =>
-			new THREE.MeshStandardMaterial({
-				color,
-				roughness: 0.5,
-				metalness: 0.1,
-			}),
-		[color],
+			new THREE.MeshStandardMaterial(
+				uvMode
+					? {
+							color: "#1A0011",
+							emissive: "#FF1493",
+							emissiveIntensity: 0.5,
+							roughness: 0.5,
+							metalness: 0.1,
+						}
+					: { color, roughness: 0.5, metalness: 0.1 },
+			),
+		[color, uvMode],
 	);
 
 	return (
 		<group>
 			{/* ── Felt surface — narrow lane, inset by bumper thickness at each end ── */}
-			<mesh position={[0, st / 2, 0]} material={feltMaterial}>
+			<mesh position={[0, st / 2, 0]} material={felt}>
 				<boxGeometry args={[LANE_WIDTH, st, length - bt * 2]} />
 			</mesh>
 
@@ -98,7 +111,7 @@ export function HoleWindmill({
 			{/* ── Left side bumper (full length) ── */}
 			<mesh
 				position={[-halfLaneW - bt / 2, st + BUMPER_HEIGHT / 2, 0]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[bt, BUMPER_HEIGHT, length]} />
 			</mesh>
@@ -106,7 +119,7 @@ export function HoleWindmill({
 			{/* ── Right side bumper (full length) ── */}
 			<mesh
 				position={[halfLaneW + bt / 2, st + BUMPER_HEIGHT / 2, 0]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[bt, BUMPER_HEIGHT, length]} />
 			</mesh>
@@ -114,7 +127,7 @@ export function HoleWindmill({
 			{/* ── Back end bumper (-Z, tee end) ── */}
 			<mesh
 				position={[0, st + BUMPER_HEIGHT / 2, -halfL + bt / 2]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[LANE_WIDTH, BUMPER_HEIGHT, bt]} />
 			</mesh>
@@ -122,7 +135,7 @@ export function HoleWindmill({
 			{/* ── Front end bumper (+Z, cup end) ── */}
 			<mesh
 				position={[0, st + BUMPER_HEIGHT / 2, halfL - bt / 2]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[LANE_WIDTH, BUMPER_HEIGHT, bt]} />
 			</mesh>
@@ -131,7 +144,7 @@ export function HoleWindmill({
 			<mesh
 				position={[0, st + 0.001, -halfL + 0.15]}
 				rotation={[-Math.PI / 2, 0, 0]}
-				material={teeMaterial}
+				material={tee}
 			>
 				<circleGeometry args={[TEE_RADIUS, 16]} />
 			</mesh>
@@ -140,7 +153,7 @@ export function HoleWindmill({
 			<mesh
 				position={[0, st + 0.001, halfL - 0.15]}
 				rotation={[-Math.PI / 2, 0, 0]}
-				material={cupMaterial}
+				material={cup}
 			>
 				<circleGeometry args={[CUP_RADIUS, 16]} />
 			</mesh>

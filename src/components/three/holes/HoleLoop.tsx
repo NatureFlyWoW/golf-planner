@@ -1,16 +1,14 @@
 import { useMemo } from "react";
 import * as THREE from "three";
+import { useStore } from "../../../store";
 import {
 	BUMPER_HEIGHT,
 	BUMPER_THICKNESS,
-	bumperMaterial,
 	CUP_RADIUS,
-	cupMaterial,
-	feltMaterial,
 	SURFACE_THICKNESS,
 	TEE_RADIUS,
-	teeMaterial,
 } from "./shared";
+import { useMaterials } from "./useMaterials";
 
 const LOOP_RADIUS = 0.3; // main radius of torus ring
 const TUBE_RADIUS = 0.04; // tube cross-section thickness
@@ -27,6 +25,9 @@ export function HoleLoop({
 	length: number;
 	color: string;
 }) {
+	const { felt, bumper, tee, cup } = useMaterials();
+	const uvMode = useStore((s) => s.ui.uvMode);
+
 	const halfW = width / 2;
 	const halfL = length / 2;
 	const bt = BUMPER_THICKNESS;
@@ -35,12 +36,18 @@ export function HoleLoop({
 	// Color material for the loop arch and pillars — recreated only when color changes
 	const loopMaterial = useMemo(
 		() =>
-			new THREE.MeshStandardMaterial({
-				color,
-				roughness: 0.4,
-				metalness: 0.2,
-			}),
-		[color],
+			new THREE.MeshStandardMaterial(
+				uvMode
+					? {
+							color: "#001A1A",
+							emissive: "#00FFFF",
+							emissiveIntensity: 0.5,
+							roughness: 0.4,
+							metalness: 0.2,
+						}
+					: { color, roughness: 0.4, metalness: 0.2 },
+			),
+		[color, uvMode],
 	);
 
 	// Base Y of the torus center: sits on top of the pillars
@@ -49,7 +56,7 @@ export function HoleLoop({
 	return (
 		<group>
 			{/* ── Felt surface (lane-width only, full hole length minus bumper ends) ── */}
-			<mesh position={[0, st / 2, 0]} material={feltMaterial}>
+			<mesh position={[0, st / 2, 0]} material={felt}>
 				<boxGeometry args={[LANE_WIDTH, st, length - bt * 2]} />
 			</mesh>
 
@@ -106,7 +113,7 @@ export function HoleLoop({
 			{/* Left side bumper — full hole length */}
 			<mesh
 				position={[-halfW + bt / 2, st + BUMPER_HEIGHT / 2, 0]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[bt, BUMPER_HEIGHT, length]} />
 			</mesh>
@@ -114,7 +121,7 @@ export function HoleLoop({
 			{/* Right side bumper — full hole length */}
 			<mesh
 				position={[halfW - bt / 2, st + BUMPER_HEIGHT / 2, 0]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[bt, BUMPER_HEIGHT, length]} />
 			</mesh>
@@ -122,7 +129,7 @@ export function HoleLoop({
 			{/* Back end bumper (-Z) — lane width only */}
 			<mesh
 				position={[0, st + BUMPER_HEIGHT / 2, -halfL + bt / 2]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[LANE_WIDTH, BUMPER_HEIGHT, bt]} />
 			</mesh>
@@ -130,7 +137,7 @@ export function HoleLoop({
 			{/* Front end bumper (+Z) — lane width only */}
 			<mesh
 				position={[0, st + BUMPER_HEIGHT / 2, halfL - bt / 2]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[LANE_WIDTH, BUMPER_HEIGHT, bt]} />
 			</mesh>
@@ -139,7 +146,7 @@ export function HoleLoop({
 			<mesh
 				position={[0, st + 0.001, -halfL + 0.15]}
 				rotation={[-Math.PI / 2, 0, 0]}
-				material={teeMaterial}
+				material={tee}
 			>
 				<circleGeometry args={[TEE_RADIUS, 16]} />
 			</mesh>
@@ -148,7 +155,7 @@ export function HoleLoop({
 			<mesh
 				position={[0, st + 0.001, halfL - 0.15]}
 				rotation={[-Math.PI / 2, 0, 0]}
-				material={cupMaterial}
+				material={cup}
 			>
 				<circleGeometry args={[CUP_RADIUS, 16]} />
 			</mesh>

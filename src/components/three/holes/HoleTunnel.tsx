@@ -1,16 +1,14 @@
 import { useMemo } from "react";
 import * as THREE from "three";
+import { useStore } from "../../../store";
 import {
 	BUMPER_HEIGHT,
 	BUMPER_THICKNESS,
-	bumperMaterial,
 	CUP_RADIUS,
-	cupMaterial,
-	feltMaterial,
 	SURFACE_THICKNESS,
 	TEE_RADIUS,
-	teeMaterial,
 } from "./shared";
+import { useMaterials } from "./useMaterials";
 
 const TUNNEL_LENGTH = 1.6;
 const TUNNEL_SEGMENTS = 16;
@@ -24,6 +22,9 @@ export function HoleTunnel({
 	length: number;
 	color: string;
 }) {
+	const { felt, bumper, tee, cup } = useMaterials();
+	const uvMode = useStore((s) => s.ui.uvMode);
+
 	const bt = BUMPER_THICKNESS;
 	const st = SURFACE_THICKNESS;
 	const halfW = width / 2;
@@ -42,18 +43,24 @@ export function HoleTunnel({
 
 	const tunnelMaterial = useMemo(
 		() =>
-			new THREE.MeshStandardMaterial({
-				color: "#455A64",
-				roughness: 0.6,
-				metalness: 0.1,
-			}),
-		[],
+			new THREE.MeshStandardMaterial(
+				uvMode
+					? {
+							color: "#0D001A",
+							emissive: "#9933FF",
+							emissiveIntensity: 0.5,
+							roughness: 0.6,
+							metalness: 0.1,
+						}
+					: { color: "#455A64", roughness: 0.6, metalness: 0.1 },
+			),
+		[uvMode],
 	);
 
 	return (
 		<group>
 			{/* Green felt surface — full lane, inset by bumper thickness at each end */}
-			<mesh position={[0, st / 2, 0]} material={feltMaterial}>
+			<mesh position={[0, st / 2, 0]} material={felt}>
 				<boxGeometry args={[laneW, st, length - bt * 2]} />
 			</mesh>
 
@@ -85,13 +92,13 @@ export function HoleTunnel({
 			{/* ── Side bumpers — entry zone (left and right) ── */}
 			<mesh
 				position={[-halfW + bt / 2, st + BUMPER_HEIGHT / 2, entryCenterZ]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[bt, BUMPER_HEIGHT, openLength]} />
 			</mesh>
 			<mesh
 				position={[halfW - bt / 2, st + BUMPER_HEIGHT / 2, entryCenterZ]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[bt, BUMPER_HEIGHT, openLength]} />
 			</mesh>
@@ -99,13 +106,13 @@ export function HoleTunnel({
 			{/* ── Side bumpers — exit zone (left and right) ── */}
 			<mesh
 				position={[-halfW + bt / 2, st + BUMPER_HEIGHT / 2, exitCenterZ]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[bt, BUMPER_HEIGHT, openLength]} />
 			</mesh>
 			<mesh
 				position={[halfW - bt / 2, st + BUMPER_HEIGHT / 2, exitCenterZ]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[bt, BUMPER_HEIGHT, openLength]} />
 			</mesh>
@@ -113,7 +120,7 @@ export function HoleTunnel({
 			{/* Back end bumper (-Z, full lane width) */}
 			<mesh
 				position={[0, st + BUMPER_HEIGHT / 2, -halfL + bt / 2]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[laneW, BUMPER_HEIGHT, bt]} />
 			</mesh>
@@ -121,7 +128,7 @@ export function HoleTunnel({
 			{/* Front end bumper (+Z, full lane width) */}
 			<mesh
 				position={[0, st + BUMPER_HEIGHT / 2, halfL - bt / 2]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[laneW, BUMPER_HEIGHT, bt]} />
 			</mesh>
@@ -130,7 +137,7 @@ export function HoleTunnel({
 			<mesh
 				position={[0, st + 0.001, -halfL + 0.15]}
 				rotation={[-Math.PI / 2, 0, 0]}
-				material={teeMaterial}
+				material={tee}
 			>
 				<circleGeometry args={[TEE_RADIUS, 16]} />
 			</mesh>
@@ -139,7 +146,7 @@ export function HoleTunnel({
 			<mesh
 				position={[0, st + 0.001, halfL - 0.15]}
 				rotation={[-Math.PI / 2, 0, 0]}
-				material={cupMaterial}
+				material={cup}
 			>
 				<circleGeometry args={[CUP_RADIUS, 16]} />
 			</mesh>
