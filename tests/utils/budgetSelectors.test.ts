@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
 	COURSE_CATEGORY_ID,
 	DEFAULT_COST_PER_TYPE,
+	DEFAULT_COST_PER_TYPE_DIY,
 	DEFAULT_HOLE_COST,
 } from "../../src/constants/budget";
 import { useStore } from "../../src/store";
@@ -16,7 +17,10 @@ function resetStore() {
 		holeOrder: [],
 		selectedId: null,
 		budget: {},
-		budgetConfig: { costPerType: { ...DEFAULT_COST_PER_TYPE } },
+		budgetConfig: {
+			costPerType: { ...DEFAULT_COST_PER_TYPE },
+			costPerTypeDiy: { ...DEFAULT_COST_PER_TYPE_DIY },
+		},
 	});
 }
 
@@ -66,10 +70,14 @@ describe("selectCourseCost", () => {
 				[COURSE_CATEGORY_ID]: {
 					id: COURSE_CATEGORY_ID,
 					name: "Mini golf course",
-					estimated: 50000,
-					actual: 0,
+					estimatedNet: 50000,
 					notes: "",
 					manualOverride: true,
+					vatProfile: "standard_20",
+					confidenceTier: "high",
+					uncertainty: { min: 30000, mode: 50000, max: 80000 },
+					mandatory: true,
+					phase: "fit-out",
 				},
 			},
 		});
@@ -80,17 +88,21 @@ describe("selectCourseCost", () => {
 
 	it("computes from holes when manualOverride is false", () => {
 		const store = useStore.getState();
-		store.addHole("ramp", { x: 1, z: 1 }); // €3,000
+		store.addHole("ramp", { x: 1, z: 1 }); // EUR3,000
 
 		useStore.setState({
 			budget: {
 				[COURSE_CATEGORY_ID]: {
 					id: COURSE_CATEGORY_ID,
 					name: "Mini golf course",
-					estimated: 99999,
-					actual: 0,
+					estimatedNet: 99999,
 					notes: "",
 					manualOverride: false,
+					vatProfile: "standard_20",
+					confidenceTier: "high",
+					uncertainty: { min: 0, mode: 99999, max: 99999 },
+					mandatory: true,
+					phase: "fit-out",
 				},
 			},
 		});
@@ -106,6 +118,7 @@ describe("selectCourseCost", () => {
 		useStore.setState({
 			budgetConfig: {
 				costPerType: { ...DEFAULT_COST_PER_TYPE, straight: 5000 },
+				costPerTypeDiy: { ...DEFAULT_COST_PER_TYPE_DIY },
 			},
 		});
 

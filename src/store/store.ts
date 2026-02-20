@@ -442,11 +442,13 @@ export const useStore = create<Store>()(
 							(p.budgetConfig ?? {}) as Parameters<
 								typeof migrateBudgetConfig
 							>[0],
-						) as BudgetConfigV2;
+						) as unknown as BudgetConfigV2;
 						if (p.budget) {
 							p.budget = migrateBudgetCategories(
-								p.budget as Parameters<typeof migrateBudgetCategories>[0],
-							) as Record<string, BudgetCategoryV2>;
+								p.budget as unknown as Parameters<
+									typeof migrateBudgetCategories
+								>[0],
+							) as unknown as Record<string, BudgetCategoryV2>;
 						}
 					}
 

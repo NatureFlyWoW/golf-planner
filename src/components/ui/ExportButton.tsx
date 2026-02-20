@@ -7,9 +7,17 @@ export function ExportButton() {
 	const budget = useStore((s) => s.budget);
 	const hall = useStore((s) => s.hall);
 	const budgetConfig = useStore((s) => s.budgetConfig);
+	const expenses = useStore((s) => s.expenses);
 
 	function handleExport() {
-		const data = buildExportData(holes, holeOrder, budget, hall, budgetConfig);
+		const data = buildExportData(
+			holes,
+			holeOrder,
+			budget,
+			hall,
+			budgetConfig,
+			expenses,
+		);
 		downloadJson(data);
 	}
 

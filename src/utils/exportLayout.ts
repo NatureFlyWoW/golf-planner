@@ -1,28 +1,37 @@
-import type { BudgetCategory, BudgetConfig, Hall, Hole } from "../types";
+import type {
+	BudgetCategoryV2,
+	BudgetConfigV2,
+	ExpenseEntry,
+	Hall,
+	Hole,
+} from "../types";
 
 export type ExportData = {
 	version: number;
 	exportedAt: string;
 	hall: { width: number; length: number };
 	holes: Hole[];
-	budget: BudgetCategory[];
-	budgetConfig: BudgetConfig;
+	budget: BudgetCategoryV2[];
+	budgetConfig: BudgetConfigV2;
+	expenses: ExpenseEntry[];
 };
 
 export function buildExportData(
 	holes: Record<string, Hole>,
 	holeOrder: string[],
-	budget: Record<string, BudgetCategory>,
+	budget: Record<string, BudgetCategoryV2>,
 	hall: Hall,
-	budgetConfig: BudgetConfig,
+	budgetConfig: BudgetConfigV2,
+	expenses: ExpenseEntry[],
 ): ExportData {
 	return {
-		version: 3,
+		version: 4,
 		exportedAt: new Date().toISOString(),
 		hall: { width: hall.width, length: hall.length },
 		holes: holeOrder.map((id) => holes[id]).filter(Boolean),
 		budget: Object.values(budget),
 		budgetConfig,
+		expenses,
 	};
 }
 
