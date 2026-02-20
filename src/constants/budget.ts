@@ -1,7 +1,29 @@
 import type { BudgetCategory, BudgetConfig } from "../types";
 
+export const COURSE_CATEGORY_ID = "course";
+export const DEFAULT_HOLE_COST = 2700;
+
+export const DEFAULT_COST_PER_TYPE: Record<string, number> = {
+	straight: 2000,
+	"l-shape": 2500,
+	dogleg: 2800,
+	ramp: 3000,
+	loop: 3200,
+	windmill: 3500,
+	tunnel: 2800,
+};
+
 export const DEFAULT_BUDGET_CONFIG: BudgetConfig = {
-	costPerHole: 2700,
+	costPerType: { ...DEFAULT_COST_PER_TYPE },
+};
+
+export const BUDGET_HINTS: Record<string, string> = {
+	"uv-lighting":
+		"Industry mid-range: \u20ac5,500\u2013\u20ac9,000 for 12\u201318 holes",
+	electrical:
+		"Industry mid-range: \u20ac10,000\u2013\u20ac15,000 for 12\u201318 holes",
+	equipment:
+		"Industry mid-range: \u20ac10,000\u2013\u20ac15,000 for indoor mini golf",
 };
 
 export const DEFAULT_BUDGET_CATEGORIES: BudgetCategory[] = [
@@ -101,6 +123,7 @@ export const DEFAULT_BUDGET_CATEGORIES: BudgetCategory[] = [
 		name: "Insurance (annual)",
 		estimated: 2200,
 		actual: 0,
-		notes: "Annual Betriebshaftpflicht — multiply by operating years for total",
+		notes:
+			"Annual Betriebshaftpflicht \u2014 multiply by operating years for total",
 	},
 ];

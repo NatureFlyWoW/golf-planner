@@ -4,8 +4,9 @@ export type BudgetCategory = {
 	estimated: number;
 	actual: number;
 	notes: string;
+	manualOverride?: boolean;
 };
 
 export type BudgetConfig = {
-	costPerHole: number;
+	costPerType: Record<string, number>;
 };
