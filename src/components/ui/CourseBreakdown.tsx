@@ -1,5 +1,9 @@
 import { useMemo, useState } from "react";
-import { COURSE_CATEGORY_ID, DEFAULT_HOLE_COST } from "../../constants/budget";
+import {
+	COURSE_CATEGORY_ID,
+	DEFAULT_COST_PER_TYPE,
+	DEFAULT_HOLE_COST,
+} from "../../constants/budget";
 import { HOLE_TYPE_MAP } from "../../constants/holeTypes";
 import { useStore } from "../../store";
 import type { CourseBreakdownItem } from "../../store/selectors";
@@ -17,9 +21,17 @@ export function CourseBreakdown({ onOpenSettings }: Props) {
 	const [expanded, setExpanded] = useState(true);
 	const holeOrder = useStore((s) => s.holeOrder);
 	const holes = useStore((s) => s.holes);
-	const costPerType = useStore((s) => s.budgetConfig.costPerType);
+	const buildMode = useStore((s) => s.financialSettings.buildMode);
+	const budgetConfig = useStore((s) => s.budgetConfig);
 	const courseCost = useStore(selectCourseCost);
 	const holeCount = holeOrder.length;
+
+	const costMap =
+		buildMode === "diy"
+			? budgetConfig.costPerTypeDiy
+			: buildMode === "professional"
+				? DEFAULT_COST_PER_TYPE
+				: budgetConfig.costPerType;
 
 	const breakdown: CourseBreakdownItem[] = useMemo(() => {
 		const counts: Record<string, number> = {};
@@ -29,7 +41,7 @@ export function CourseBreakdown({ onOpenSettings }: Props) {
 		}
 		return Object.entries(counts)
 			.map(([type, count]) => {
-				const unitCost = costPerType[type] ?? DEFAULT_HOLE_COST;
+				const unitCost = costMap[type] ?? DEFAULT_HOLE_COST;
 				return {
 					type,
 					label: HOLE_TYPE_MAP[type]?.label ?? type,
@@ -39,7 +51,7 @@ export function CourseBreakdown({ onOpenSettings }: Props) {
 				};
 			})
 			.sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
-	}, [holeOrder, holes, costPerType]);
+	}, [holeOrder, holes, costMap]);
 	const manualOverride = useStore(
 		(s) => s.budget[COURSE_CATEGORY_ID]?.manualOverride ?? false,
 	);
@@ -55,14 +67,25 @@ export function CourseBreakdown({ onOpenSettings }: Props) {
 	return (
 		<div className="border-b border-gray-200">
 			<div className="flex items-center justify-between px-3 py-2">
-				<button
-					type="button"
-					onClick={() => setExpanded(!expanded)}
-					className="flex items-center gap-1 text-xs font-medium text-gray-700"
-				>
-					<span>{expanded ? "▼" : "▶"}</span>
-					<span>Course Cost Breakdown</span>
-				</button>
+				<div className="flex items-center gap-2">
+					<button
+						type="button"
+						onClick={() => setExpanded(!expanded)}
+						className="flex items-center gap-1 text-xs font-medium text-gray-700"
+					>
+						<span>{expanded ? "▼" : "▶"}</span>
+						<span>Course Cost Breakdown</span>
+					</button>
+					<span className="text-[10px] text-gray-400">
+						(
+						{buildMode === "diy"
+							? "DIY"
+							: buildMode === "professional"
+								? "Pro"
+								: "Mixed"}{" "}
+						costs)
+					</span>
+				</div>
 				<button
 					type="button"
 					onClick={onOpenSettings}

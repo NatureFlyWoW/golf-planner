@@ -21,6 +21,13 @@ function resetStore() {
 			costPerType: { ...DEFAULT_COST_PER_TYPE },
 			costPerTypeDiy: { ...DEFAULT_COST_PER_TYPE_DIY },
 		},
+		financialSettings: {
+			vatRegistered: false,
+			displayMode: "gross",
+			inflationFactor: 1.0,
+			riskTolerance: "balanced",
+			buildMode: "mixed",
+		},
 	});
 }
 

@@ -1,4 +1,8 @@
-import { COURSE_CATEGORY_ID, DEFAULT_HOLE_COST } from "../constants/budget";
+import {
+	COURSE_CATEGORY_ID,
+	DEFAULT_COST_PER_TYPE,
+	DEFAULT_HOLE_COST,
+} from "../constants/budget";
 import { HOLE_TYPE_MAP } from "../constants/holeTypes";
 import type { BudgetCategoryV2, RiskTolerance } from "../types/budget";
 import { reclaimableVat, riskBuffer, roundEur } from "../utils/financial";
@@ -7,11 +11,17 @@ import type { Store } from "./store";
 export function selectCourseCost(state: Store): number {
 	const cat = state.budget[COURSE_CATEGORY_ID];
 	if (cat?.manualOverride) return cat.estimatedNet;
+
+	const { buildMode } = state.financialSettings;
+	const costMap =
+		buildMode === "diy"
+			? state.budgetConfig.costPerTypeDiy
+			: buildMode === "professional"
+				? DEFAULT_COST_PER_TYPE
+				: state.budgetConfig.costPerType; // mixed = user-editable
+
 	return state.holeOrder.reduce(
-		(sum, id) =>
-			sum +
-			(state.budgetConfig.costPerType[state.holes[id]?.type] ??
-				DEFAULT_HOLE_COST),
+		(sum, id) => sum + (costMap[state.holes[id]?.type] ?? DEFAULT_HOLE_COST),
 		0,
 	);
 }
@@ -25,6 +35,14 @@ export type CourseBreakdownItem = {
 };
 
 export function selectCourseBreakdown(state: Store): CourseBreakdownItem[] {
+	const { buildMode } = state.financialSettings;
+	const costMap =
+		buildMode === "diy"
+			? state.budgetConfig.costPerTypeDiy
+			: buildMode === "professional"
+				? DEFAULT_COST_PER_TYPE
+				: state.budgetConfig.costPerType;
+
 	const counts: Record<string, number> = {};
 	for (const id of state.holeOrder) {
 		const hole = state.holes[id];
@@ -35,8 +53,7 @@ export function selectCourseBreakdown(state: Store): CourseBreakdownItem[] {
 
 	return Object.entries(counts)
 		.map(([type, count]) => {
-			const unitCost =
-				state.budgetConfig.costPerType[type] ?? DEFAULT_HOLE_COST;
+			const unitCost = costMap[type] ?? DEFAULT_HOLE_COST;
 			return {
 				type,
 				label: HOLE_TYPE_MAP[type]?.label ?? type,
