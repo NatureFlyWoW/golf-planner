@@ -1,47 +1,83 @@
-# Session Handoff — 2026-02-20 (Phase 8)
+# Session Handoff — 2026-02-20 (Phase 9A)
 
 ## Completed This Session
-- `26b3d44` docs: add Phase 8 cost estimation design document
-- `0a9bd2a` docs: add Phase 8 implementation plan (8 tasks)
-- `c7199e6` feat(phase8): add v2 budget types, constants, and VAT utilities
-- `5155da6` feat(phase8): migrate store to v4 with financial settings and expenses
-- `21b86dd` feat(phase8): add risk selectors, financial settings modal, and expense tracking
-- `eb380dd` feat: add budget panel enhancements and DIY/pro cost toggle (Phase 8, Tasks 5+7)
-- `9a65616` feat: add financialSettings to export v4 format (Phase 8, Task 8)
-- `667d48a` docs: add Phase 8 cost estimation screenshots
+- `f877a5e` docs: Phase 9A design doc + implementation plan + expert analyses
+- `a229e66` feat: add material profile selector with cost multipliers (0.65x/1.0x/1.8x)
+- `e2e92cc` feat: wire inflation factor to display + add quote expiry tracking
+- `7881383` feat: SVG floor plan export with hole positions, flow path, and scale bar
+- `5d48b5a` feat: 3D visual overhaul — shadows, UV bloom/fog/vignette, material PBR presets
+- `2942f9e` feat: code-split Three.js, React, Zustand into separate vendor chunks
+- `565f3b6` feat: add screenshot export capturing 3D view including UV bloom effects
+- `5648666` docs: add Phase 9A feature screenshots (9 screenshots)
 
 ## Current State
 - **Branch**: master
 - **Working tree**: clean
-- **Stash**: empty
-- **Tests**: 101 passing, 0 failing (13 test files)
-- **Build**: passing (1,346 KB JS bundle, PWA v1.2.0)
+- **Tests**: 114 passing, 0 failing
+- **Build**: passing (main chunk ~74 KB after code-splitting; vendor-three ~1.1 MB)
 - **Type check**: passing (zero errors)
 - **Lint**: 0 errors, 6 pre-existing warnings (noExplicitAny in migrateBudgetConfig test)
-- **Remote sync**: up to date with origin/master
+- **Remote sync**: 8 commits ahead of origin/master (need to push)
 
-## What Phase 8 Added
-- **BudgetCategoryV2** type: net-basis estimates, VAT profiles, confidence tiers, construction phases, mandatory flags
-- **Store v4** with migration from v3 (gross-to-net conversion, new categories seeded, actuals migrated to expenses)
-- **5 risk selectors**: computeSubtotalNet, computeRiskBuffer, computeTotalReclaimableVat, computeActualTotal, computeCategoryActual
-- **Financial Settings modal**: VAT registration, display mode (net/gross/both), risk tolerance (optimistic/balanced/conservative), build mode (DIY/professional/mixed), inflation adjustment
-- **Expense tracking**: per-category CRUD with vendor, date, note fields
-- **BudgetPanel enhancements**: risk-weighted buffer, net/gross display, confidence tier badges + dropdowns, mandatory lock icons, budget health warnings, Vorsteuer display
-- **DIY/Professional toggle**: build-mode-aware cost maps in selectors, CourseBreakdown, and CostSettingsModal
-- **Export v4**: includes financialSettings and expenses in JSON export
+## What Phase 9A Added
+
+### Task 1: Material Profile Selector
+- 3 global presets: Budget DIY (0.65x), Standard DIY (1.0x), Semi-Pro (1.8x)
+- `materialProfile` in Zustand store (persisted, undo-tracked)
+- Dropdown in CostSettingsModal applies multiplier to all per-type hole costs
+
+### Task 2: 3D Visual Overhaul
+- Sun-driven directional shadow maps (1024px desktop, 512px mobile)
+- UV mode: bloom (UnrealBloomPass), fog, vignette via @react-three/postprocessing (lazy-loaded)
+- PBR material presets per material profile (roughness/metalness vary by tier)
+- Centralized UV_EMISSIVE_INTENSITY constant across all 7 hole components
+- Proper material disposal via useEffect cleanup
+
+### Task 3: Financial Quick Wins
+- Inflation adjustment wired to display (inflatedEstimate utility)
+- Quote expiry tracking: QuoteInfo type with color-coded badges (green/amber/red)
+- BORGA Hall shows "Quoted" badge with expiry date awareness
+
+### Task 4: SVG Floor Plan Export
+- generateFloorPlanSVG() renders hall outline, holes with numbers, flow path, scale bar
+- downloadSVG() triggers browser download
+- "SVG" button in toolbar
+
+### Task 5: Code-Splitting
+- Vite manualChunks: vendor-three, vendor-react, vendor-state
+- React.lazy() for ThreeCanvas component
+- Main bundle reduced from 1,346 KB to ~74 KB
+
+### Task 6: Screenshot Export
+- Store-registered callback via useThree() + canvas.toBlob()
+- iOS fallback via toDataURL
+- High-DPI capture (2x device pixel ratio, max 4x)
+- "Snap" button in toolbar (disabled until 3D scene registers)
+
+## Screenshots
+9 feature screenshots in `docs/screenshots/phase9a-*.png`:
+1. Overview with shadows and toolbar
+2. 3D view with sun shadows
+3. UV bloom/fog/vignette in 3D
+4. UV mode top-down with neon flow path
+5. Budget panel with quote badges and confidence tiers
+6. Cost Settings Modal with Material Tier dropdown
+7. Financial Settings Modal (VAT, risk, build mode, inflation)
+8. Normal view with holes panel
+9. 3D normal view with walls and shadows
 
 ## Remaining Work
-- **Plan file**: `golf-planner/docs/plans/2026-02-20-phase8-implementation-index.md`
-- **Current phase**: Phase 8 — COMPLETE (all 8 tasks done)
-- All 8 planned phases (1-8) are complete
+- **Phase 9A**: COMPLETE (all 6 tasks done)
+- **All 9 phases complete** (1-8 + 9A)
 - No further implementation plans exist yet
-- Potential future work: code-splitting (bundle is 1,346 KB), sidebar UV theming, more hole types, probabilistic Monte Carlo risk simulation (deferred from Phase 8)
+- Potential future work: more hole types, Monte Carlo risk simulation, mobile UV sidebar theming, additional export formats
 
 ## Known Issues / Blockers
-- THREE.Clock warning — upstream, harmless, no action needed
-- Chunk size warning (1,346 KB) — consider code-splitting if performance becomes a concern
-- Playwright cannot click on R3F canvas via standard mouse events — use `import('/src/store/index.ts')` via Vite HMR to manipulate store directly for testing
-- 6 Biome warnings (noExplicitAny) in `tests/utils/migrateBudgetConfig.test.ts` — pre-existing, harmless
+- THREE.Clock warning — upstream, harmless
+- vendor-react chunk is empty (Vite 7 handles React internally) — cosmetic, no impact
+- CanvasSkeleton.tsx created but unused (Suspense fallback is null) — can remove or wire up later
+- Playwright cannot click on R3F canvas reliably — use store manipulation via Vite HMR imports for testing
+- 6 Biome warnings (noExplicitAny) in `tests/utils/migrateBudgetConfig.test.ts` — pre-existing
 
 ## Environment Notes
 - fnm must be sourced: `export PATH="/home/ben/.local/share/fnm:$PATH" && eval "$(fnm env)"`
@@ -49,14 +85,4 @@
 - Biome uses **tabs** for indentation
 - PostToolUse hook runs `npx tsc --noEmit` automatically after edits
 - Playwright MCP runs on Windows side — WSL paths fail for screenshots; use relative filenames
-- For R3F interaction via Playwright: `await page.evaluate('async () => { const mod = await import("/src/store/index.ts"); mod.useStore.getState().addHole(...) }')`
-
-## Conversation Context
-- Phase 8 design doc and implementation plan were created in the previous session (before power loss)
-- This session pushed those 2 commits, then implemented all 8 tasks using subagent-driven development
-- Execution used 5 waves respecting task dependencies, with up to 3 parallel subagents per wave
-- Wave 3 (Tasks 3, 4, 6) committed as single commit due to overlapping files (BudgetPanel, selectors)
-- Wave 4 (Tasks 5, 7) also committed together for the same reason
-- Task 8 (export v4) was small enough to do directly in the parent agent
-- Screenshots captured via Playwright MCP with store manipulation via Vite HMR imports
-- Session spanned a context compaction (power loss recovery + full phase implementation)
+- SSH remote: `git@github.com:NatureFlyWoW/golf-planner.git`
