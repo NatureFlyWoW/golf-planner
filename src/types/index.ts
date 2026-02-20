@@ -1,4 +1,17 @@
-export type { BudgetCategory, BudgetConfig } from "./budget";
+export type {
+	BudgetCategory,
+	BudgetCategoryV2,
+	BudgetConfig,
+	BudgetConfigV2,
+	BuildMode,
+	ConfidenceTier,
+	ConstructionPhase,
+	ExpenseEntry,
+	FinancialSettings,
+	RiskTolerance,
+	UncertaintyParams,
+	VatProfile,
+} from "./budget";
 export type { DoorSpec, Hall, Wall, WindowSpec } from "./hall";
 export type { Hole, HoleRotation, HoleType, HoleTypeDefinition } from "./hole";
 export type { ActivePanel, SidebarTab, Tool, UIState, ViewMode } from "./ui";
