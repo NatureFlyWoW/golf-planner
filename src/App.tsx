@@ -12,6 +12,7 @@ import { HoleDrawer } from "./components/ui/HoleDrawer";
 import { KeyboardHelp } from "./components/ui/KeyboardHelp";
 import { LocationBar } from "./components/ui/LocationBar";
 import { MiniMap } from "./components/ui/MiniMap";
+import { MobileBudgetPanel } from "./components/ui/MobileBudgetPanel";
 import { MobileDetailPanel } from "./components/ui/MobileDetailPanel";
 import { MobileSunControls } from "./components/ui/MobileSunControls";
 import { Sidebar } from "./components/ui/Sidebar";
@@ -71,6 +72,7 @@ export default function App() {
 			<HoleDrawer />
 			<MobileDetailPanel />
 			<MobileSunControls />
+			<MobileBudgetPanel />
 		</div>
 	);
 }
