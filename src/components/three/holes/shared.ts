@@ -50,3 +50,38 @@ export const cupMaterial = new THREE.MeshStandardMaterial({
 	roughness: 0.5,
 	metalness: 0,
 });
+
+// ── UV Materials (neon emissive for blacklight preview) ──
+export const uvFeltMaterial = new THREE.MeshStandardMaterial({
+	color: "#003300",
+	emissive: "#00FF66",
+	emissiveIntensity: 0.5,
+	roughness: 0.9,
+	metalness: 0,
+	polygonOffset: true,
+	polygonOffsetFactor: -1,
+});
+
+export const uvBumperMaterial = new THREE.MeshStandardMaterial({
+	color: "#001A33",
+	emissive: "#00CCFF",
+	emissiveIntensity: 0.5,
+	roughness: 0.3,
+	metalness: 0.1,
+});
+
+export const uvTeeMaterial = new THREE.MeshStandardMaterial({
+	color: "#333300",
+	emissive: "#FFFF00",
+	emissiveIntensity: 0.5,
+	roughness: 0.5,
+	metalness: 0,
+});
+
+export const uvCupMaterial = new THREE.MeshStandardMaterial({
+	color: "#331A00",
+	emissive: "#FF6600",
+	emissiveIntensity: 0.5,
+	roughness: 0.5,
+	metalness: 0,
+});
