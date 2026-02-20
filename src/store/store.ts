@@ -2,6 +2,7 @@ import { temporal } from "zundo";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
+	COURSE_CATEGORY_ID,
 	DEFAULT_BUDGET_CATEGORIES,
 	DEFAULT_BUDGET_CONFIG,
 } from "../constants/budget";
@@ -43,6 +44,7 @@ type StoreActions = {
 	updateBudget: (id: string, updates: Partial<BudgetCategory>) => void;
 	initBudget: () => void;
 	setBudgetConfig: (updates: Partial<BudgetConfig>) => void;
+	toggleCourseOverride: () => void;
 };
 
 export type Store = StoreState & StoreActions;
@@ -201,6 +203,22 @@ export const useStore = create<Store>()(
 					set((state) => ({
 						budgetConfig: { ...state.budgetConfig, ...updates },
 					}));
+				},
+
+				toggleCourseOverride: () => {
+					set((state) => {
+						const cat = state.budget[COURSE_CATEGORY_ID];
+						if (!cat) return state;
+						return {
+							budget: {
+								...state.budget,
+								[COURSE_CATEGORY_ID]: {
+									...cat,
+									manualOverride: !cat.manualOverride,
+								},
+							},
+						};
+					});
 				},
 			}),
 			{

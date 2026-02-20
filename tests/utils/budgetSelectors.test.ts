@@ -5,7 +5,10 @@ import {
 	DEFAULT_HOLE_COST,
 } from "../../src/constants/budget";
 import { useStore } from "../../src/store";
-import { selectCourseCost } from "../../src/store/selectors";
+import {
+	selectCourseBreakdown,
+	selectCourseCost,
+} from "../../src/store/selectors";
 
 function resetStore() {
 	useStore.setState({
@@ -108,5 +111,49 @@ describe("selectCourseCost", () => {
 
 		const cost = selectCourseCost(useStore.getState());
 		expect(cost).toBe(5000);
+	});
+});
+
+describe("selectCourseBreakdown", () => {
+	beforeEach(resetStore);
+
+	it("returns empty array when no holes placed", () => {
+		const breakdown = selectCourseBreakdown(useStore.getState());
+		expect(breakdown).toEqual([]);
+	});
+
+	it("groups holes by type with count and subtotal", () => {
+		const store = useStore.getState();
+		store.addHole("straight", { x: 1, z: 1 });
+		store.addHole("straight", { x: 3, z: 3 });
+		store.addHole("windmill", { x: 5, z: 5 });
+
+		const breakdown = selectCourseBreakdown(useStore.getState());
+		expect(breakdown).toEqual([
+			{
+				type: "straight",
+				label: "Straight",
+				count: 2,
+				unitCost: 2000,
+				subtotal: 4000,
+			},
+			{
+				type: "windmill",
+				label: "Windmill",
+				count: 1,
+				unitCost: 3500,
+				subtotal: 3500,
+			},
+		]);
+	});
+
+	it("sorts by count descending, then alphabetically", () => {
+		const store = useStore.getState();
+		store.addHole("tunnel", { x: 1, z: 1 });
+		store.addHole("ramp", { x: 3, z: 3 });
+
+		const breakdown = selectCourseBreakdown(useStore.getState());
+		expect(breakdown[0].type).toBe("ramp");
+		expect(breakdown[1].type).toBe("tunnel");
 	});
 });
