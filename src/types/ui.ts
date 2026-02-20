@@ -14,4 +14,5 @@ export type UIState = {
 	showFlowPath: boolean;
 	activePanel: ActivePanel;
 	sunDate: Date | undefined;
+	uvMode: boolean;
 };

@@ -49,6 +49,7 @@ type StoreActions = {
 	initBudget: () => void;
 	setBudgetConfig: (updates: Partial<BudgetConfig>) => void;
 	toggleCourseOverride: () => void;
+	toggleUvMode: () => void;
 };
 
 export type Store = StoreState & StoreActions;
@@ -70,6 +71,7 @@ const DEFAULT_UI: UIState = {
 	showFlowPath: true,
 	activePanel: null,
 	sunDate: undefined,
+	uvMode: false,
 };
 
 export const useStore = create<Store>()(
@@ -231,6 +233,12 @@ export const useStore = create<Store>()(
 							},
 						};
 					});
+				},
+
+				toggleUvMode: () => {
+					set((state) => ({
+						ui: { ...state.ui, uvMode: !state.ui.uvMode },
+					}));
 				},
 			}),
 			{
