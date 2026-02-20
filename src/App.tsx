@@ -1,5 +1,4 @@
 import { Canvas } from "@react-three/fiber";
-import { useState } from "react";
 import { CameraControls } from "./components/three/CameraControls";
 import { FloorGrid } from "./components/three/FloorGrid";
 import { FlowPath } from "./components/three/FlowPath";
@@ -22,7 +21,7 @@ import { isMobile } from "./utils/isMobile";
 
 export default function App() {
 	const tool = useStore((s) => s.ui.tool);
-	const [sunDate, setSunDate] = useState<Date | undefined>(undefined);
+	const sunDate = useStore((s) => s.ui.sunDate);
 	const sunData = useSunPosition(sunDate);
 
 	return (
@@ -52,7 +51,7 @@ export default function App() {
 						<FlowPath />
 						<SunIndicator sunData={sunData} />
 					</Canvas>
-					<SunControls selectedDate={sunDate} onDateChange={setSunDate} />
+					<SunControls />
 					<KeyboardHelp />
 					<MiniMap />
 				</div>

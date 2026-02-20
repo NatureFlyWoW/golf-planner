@@ -27,6 +27,7 @@ type StoreActions = {
 	toggleSnap: () => void;
 	toggleFlowPath: () => void;
 	setActivePanel: (panel: UIState["activePanel"]) => void;
+	setSunDate: (date: Date | undefined) => void;
 	updateBudget: (id: string, updates: Partial<BudgetCategory>) => void;
 };
 
@@ -40,6 +41,7 @@ const DEFAULT_UI: UIState = {
 	snapEnabled: false,
 	showFlowPath: true,
 	activePanel: null,
+	sunDate: undefined,
 };
 
 export const useStore = create<Store>()(
@@ -157,6 +159,10 @@ export const useStore = create<Store>()(
 					set((state) => ({
 						ui: { ...state.ui, activePanel: panel },
 					}));
+				},
+
+				setSunDate: (date) => {
+					set((state) => ({ ui: { ...state.ui, sunDate: date } }));
 				},
 
 				updateBudget: (id, updates) => {

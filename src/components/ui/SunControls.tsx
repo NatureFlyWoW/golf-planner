@@ -1,10 +1,6 @@
 // src/components/ui/SunControls.tsx
 import { useState } from "react";
-
-type SunControlsProps = {
-	selectedDate: Date | undefined;
-	onDateChange: (date: Date | undefined) => void;
-};
+import { useStore } from "../../store";
 
 const PRESETS = [
 	{ label: "Now", date: undefined },
@@ -12,7 +8,9 @@ const PRESETS = [
 	{ label: "Winter noon", date: new Date(2026, 11, 21, 12, 0) },
 ] as const;
 
-export function SunControls({ selectedDate, onDateChange }: SunControlsProps) {
+export function SunControls() {
+	const selectedDate = useStore((s) => s.ui.sunDate);
+	const onDateChange = useStore((s) => s.setSunDate);
 	const [showCustom, setShowCustom] = useState(false);
 
 	const activePreset =
