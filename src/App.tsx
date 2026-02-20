@@ -1,4 +1,5 @@
 import { Canvas } from "@react-three/fiber";
+import { useEffect } from "react";
 import { CameraControls } from "./components/three/CameraControls";
 import { FloorGrid } from "./components/three/FloorGrid";
 import { FlowPath } from "./components/three/FlowPath";
@@ -24,6 +25,14 @@ export default function App() {
 	const tool = useStore((s) => s.ui.tool);
 	const sunDate = useStore((s) => s.ui.sunDate);
 	const sunData = useSunPosition(sunDate);
+	const budgetSize = useStore((s) => Object.keys(s.budget).length);
+	const initBudget = useStore((s) => s.initBudget);
+
+	useEffect(() => {
+		if (budgetSize === 0) {
+			initBudget();
+		}
+	}, [budgetSize, initBudget]);
 
 	return (
 		<div className="flex h-screen w-screen flex-col overflow-hidden bg-gray-100">

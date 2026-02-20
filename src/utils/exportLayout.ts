@@ -1,4 +1,4 @@
-import type { BudgetCategory, Hall, Hole } from "../types";
+import type { BudgetCategory, BudgetConfig, Hall, Hole } from "../types";
 
 export type ExportData = {
 	version: number;
@@ -6,6 +6,7 @@ export type ExportData = {
 	hall: { width: number; length: number };
 	holes: Hole[];
 	budget: BudgetCategory[];
+	budgetConfig: BudgetConfig;
 };
 
 export function buildExportData(
@@ -13,13 +14,15 @@ export function buildExportData(
 	holeOrder: string[],
 	budget: Record<string, BudgetCategory>,
 	hall: Hall,
+	budgetConfig: BudgetConfig,
 ): ExportData {
 	return {
-		version: 1,
+		version: 2,
 		exportedAt: new Date().toISOString(),
 		hall: { width: hall.width, length: hall.length },
 		holes: holeOrder.map((id) => holes[id]).filter(Boolean),
 		budget: Object.values(budget),
+		budgetConfig,
 	};
 }
 

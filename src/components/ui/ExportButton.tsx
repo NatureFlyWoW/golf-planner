@@ -6,9 +6,10 @@ export function ExportButton() {
 	const holeOrder = useStore((s) => s.holeOrder);
 	const budget = useStore((s) => s.budget);
 	const hall = useStore((s) => s.hall);
+	const budgetConfig = useStore((s) => s.budgetConfig);
 
 	function handleExport() {
-		const data = buildExportData(holes, holeOrder, budget, hall);
+		const data = buildExportData(holes, holeOrder, budget, hall, budgetConfig);
 		downloadJson(data);
 	}
 

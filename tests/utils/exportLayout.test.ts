@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { DEFAULT_BUDGET_CONFIG } from "../../src/constants/budget";
 import type { BudgetCategory, Hall, Hole } from "../../src/types";
 import { buildExportData } from "../../src/utils/exportLayout";
 
@@ -26,9 +27,15 @@ describe("buildExportData", () => {
 		const budget: Record<string, BudgetCategory> = {};
 		const hall = { width: 10, length: 20 } as Hall;
 
-		const result = buildExportData(holes, holeOrder, budget, hall);
+		const result = buildExportData(
+			holes,
+			holeOrder,
+			budget,
+			hall,
+			DEFAULT_BUDGET_CONFIG,
+		);
 
-		expect(result.version).toBe(1);
+		expect(result.version).toBe(2);
 		expect(result.exportedAt).toBeDefined();
 		expect(result.hall.width).toBe(10);
 		expect(result.holes).toHaveLength(2);
@@ -57,10 +64,16 @@ describe("buildExportData", () => {
 		};
 		const holeOrder = ["a", "b"];
 
-		const result = buildExportData(holes, holeOrder, {}, {
-			width: 10,
-			length: 20,
-		} as Hall);
+		const result = buildExportData(
+			holes,
+			holeOrder,
+			{},
+			{
+				width: 10,
+				length: 20,
+			} as Hall,
+			DEFAULT_BUDGET_CONFIG,
+		);
 
 		expect(result.holes[0].name).toBe("First");
 		expect(result.holes[1].name).toBe("Second");

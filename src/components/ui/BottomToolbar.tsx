@@ -173,6 +173,7 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 	const holeOrder = useStore((s) => s.holeOrder);
 	const budget = useStore((s) => s.budget);
 	const hall = useStore((s) => s.hall);
+	const budgetConfig = useStore((s) => s.budgetConfig);
 	const setActivePanel = useStore((s) => s.setActivePanel);
 
 	return (
@@ -217,7 +218,13 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 				<button
 					type="button"
 					onClick={() => {
-						const data = buildExportData(holes, holeOrder, budget, hall);
+						const data = buildExportData(
+							holes,
+							holeOrder,
+							budget,
+							hall,
+							budgetConfig,
+						);
 						downloadJson(data);
 						onClose();
 					}}
