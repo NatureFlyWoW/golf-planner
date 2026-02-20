@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import { useStore } from "../../../store";
+import { UV_EMISSIVE_INTENSITY } from "./materialPresets";
 import {
 	BUMPER_HEIGHT,
 	BUMPER_THICKNESS,
@@ -41,7 +42,7 @@ export function HoleLoop({
 					? {
 							color: "#001A1A",
 							emissive: "#00FFFF",
-							emissiveIntensity: 0.5,
+							emissiveIntensity: UV_EMISSIVE_INTENSITY,
 							roughness: 0.4,
 							metalness: 0.2,
 						}
@@ -81,6 +82,7 @@ export function HoleLoop({
 			 *  [0, st+PILLAR_HEIGHT+LOOP_RADIUS, 0].
 			 * ─────────────────────────────────────────────────────────────────────── */}
 			<mesh
+				castShadow
 				position={[0, torusCenterY, 0]}
 				rotation={[Math.PI / 2, Math.PI / 2, 0]}
 				material={loopMaterial}
@@ -91,6 +93,7 @@ export function HoleLoop({
 			{/* ── Support pillars ───────────────────────────────────────────────── */}
 			{/* Back pillar (-Z foot of arch) */}
 			<mesh
+				castShadow
 				position={[0, st + PILLAR_HEIGHT / 2, -LOOP_RADIUS]}
 				material={loopMaterial}
 			>
@@ -101,6 +104,7 @@ export function HoleLoop({
 
 			{/* Front pillar (+Z foot of arch) */}
 			<mesh
+				castShadow
 				position={[0, st + PILLAR_HEIGHT / 2, LOOP_RADIUS]}
 				material={loopMaterial}
 			>
@@ -112,6 +116,7 @@ export function HoleLoop({
 			{/* ── Bumper walls ─────────────────────────────────────────────────── */}
 			{/* Left side bumper — full hole length */}
 			<mesh
+				castShadow
 				position={[-halfW + bt / 2, st + BUMPER_HEIGHT / 2, 0]}
 				material={bumper}
 			>
@@ -120,6 +125,7 @@ export function HoleLoop({
 
 			{/* Right side bumper — full hole length */}
 			<mesh
+				castShadow
 				position={[halfW - bt / 2, st + BUMPER_HEIGHT / 2, 0]}
 				material={bumper}
 			>
@@ -128,6 +134,7 @@ export function HoleLoop({
 
 			{/* Back end bumper (-Z) — lane width only */}
 			<mesh
+				castShadow
 				position={[0, st + BUMPER_HEIGHT / 2, -halfL + bt / 2]}
 				material={bumper}
 			>
@@ -136,6 +143,7 @@ export function HoleLoop({
 
 			{/* Front end bumper (+Z) — lane width only */}
 			<mesh
+				castShadow
 				position={[0, st + BUMPER_HEIGHT / 2, halfL - bt / 2]}
 				material={bumper}
 			>

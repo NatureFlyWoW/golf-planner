@@ -83,12 +83,13 @@ export function HoleLShape({ width, length }: Props) {
 			{/* ── Bumper walls ──────────────────────────────────────────── */}
 
 			{/* Right wall — full bounding-box height, right edge */}
-			<mesh position={[halfW - BT / 2, bumperY, 0]} material={bumper}>
+			<mesh castShadow position={[halfW - BT / 2, bumperY, 0]} material={bumper}>
 				<boxGeometry args={[BT, BH, length]} />
 			</mesh>
 
 			{/* Bottom wall — closes the entry lane at -Z */}
 			<mesh
+				castShadow
 				position={[entryLaneCX, bumperY, -halfL + BT / 2]}
 				material={bumper}
 			>
@@ -96,18 +97,19 @@ export function HoleLShape({ width, length }: Props) {
 			</mesh>
 
 			{/* Top wall — full bounding-box width, +Z edge */}
-			<mesh position={[0, bumperY, halfL - BT / 2]} material={bumper}>
+			<mesh castShadow position={[0, bumperY, halfL - BT / 2]} material={bumper}>
 				<boxGeometry args={[width, BH, BT]} />
 			</mesh>
 
 			{/* Left wall — only the exit lane section, -X edge */}
-			<mesh position={[-halfW + BT / 2, bumperY, exitLaneCZ]} material={bumper}>
+			<mesh castShadow position={[-halfW + BT / 2, bumperY, exitLaneCZ]} material={bumper}>
 				<boxGeometry args={[BT, BH, LANE_WIDTH]} />
 			</mesh>
 
 			{/* Inner bottom of exit lane — horizontal segment from -X to inner corner */}
 			{/* Runs from -halfW to innerEdgeX at Z = innerEdgeZ */}
 			<mesh
+				castShadow
 				position={[exitFeltCX, bumperY, innerEdgeZ + BT / 2]}
 				material={bumper}
 			>
@@ -117,6 +119,7 @@ export function HoleLShape({ width, length }: Props) {
 			{/* Inner right of entry lane — vertical segment from -Z to inner corner */}
 			{/* Runs from -halfL to innerEdgeZ at X = innerEdgeX */}
 			<mesh
+				castShadow
 				position={[innerEdgeX - BT / 2, bumperY, (-halfL + innerEdgeZ) / 2]}
 				material={bumper}
 			>

@@ -1,9 +1,10 @@
-import type * as THREE from "three";
+import { useEffect, useMemo } from "react";
+import * as THREE from "three";
 import { useStore } from "../../../store";
+import type { MaterialProfile } from "../../../types/budget";
+import { BUMPER_PBR, FELT_PBR } from "./materialPresets";
 import {
-	bumperMaterial,
 	cupMaterial,
-	feltMaterial,
 	teeMaterial,
 	uvBumperMaterial,
 	uvCupMaterial,
@@ -18,13 +19,6 @@ export type MaterialSet = {
 	cup: THREE.MeshStandardMaterial;
 };
 
-const planningMaterials: MaterialSet = {
-	felt: feltMaterial,
-	bumper: bumperMaterial,
-	tee: teeMaterial,
-	cup: cupMaterial,
-};
-
 const uvMaterials: MaterialSet = {
 	felt: uvFeltMaterial,
 	bumper: uvBumperMaterial,
@@ -32,8 +26,39 @@ const uvMaterials: MaterialSet = {
 	cup: uvCupMaterial,
 };
 
-/** Returns the correct material set based on UV mode state. */
 export function useMaterials(): MaterialSet {
 	const uvMode = useStore((s) => s.ui.uvMode);
+	const materialProfile: MaterialProfile = useStore(
+		(s) => s.budgetConfig.materialProfile,
+	);
+
+	const planningMaterials = useMemo(() => {
+		const feltProps = FELT_PBR[materialProfile];
+		const bumperProps = BUMPER_PBR[materialProfile];
+
+		const felt = new THREE.MeshStandardMaterial({
+			color: feltProps.color,
+			roughness: feltProps.roughness,
+			metalness: feltProps.metalness,
+			polygonOffset: true,
+			polygonOffsetFactor: -1,
+		});
+
+		const bumper = new THREE.MeshStandardMaterial({
+			color: bumperProps.color,
+			roughness: bumperProps.roughness,
+			metalness: bumperProps.metalness,
+		});
+
+		return { felt, bumper, tee: teeMaterial, cup: cupMaterial };
+	}, [materialProfile]);
+
+	useEffect(() => {
+		return () => {
+			planningMaterials.felt.dispose();
+			planningMaterials.bumper.dispose();
+		};
+	}, [planningMaterials]);
+
 	return uvMode ? uvMaterials : planningMaterials;
 }

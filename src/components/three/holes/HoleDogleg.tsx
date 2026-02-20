@@ -90,6 +90,7 @@ export function HoleDogleg({
 
 			{/* Left outer bumper (full length, at -X bounding edge) */}
 			<mesh
+				castShadow
 				position={[-halfW + BUMPER_THICKNESS / 2, bumperY, 0]}
 				material={bumper}
 			>
@@ -98,6 +99,7 @@ export function HoleDogleg({
 
 			{/* Right outer bumper (full length, at +X bounding edge) */}
 			<mesh
+				castShadow
 				position={[halfW - BUMPER_THICKNESS / 2, bumperY, 0]}
 				material={bumper}
 			>
@@ -108,6 +110,7 @@ export function HoleDogleg({
 
 			{/* Back end bumper (-Z, tee end) */}
 			<mesh
+				castShadow
 				position={[0, bumperY, -halfL + BUMPER_THICKNESS / 2]}
 				material={bumper}
 			>
@@ -116,6 +119,7 @@ export function HoleDogleg({
 
 			{/* Front end bumper (+Z, cup end) */}
 			<mesh
+				castShadow
 				position={[0, bumperY, halfL - BUMPER_THICKNESS / 2]}
 				material={bumper}
 			>
@@ -130,6 +134,7 @@ export function HoleDogleg({
 			 * Positioned between the entry and middle segments.
 			 */}
 			<mesh
+				castShadow
 				position={[
 					OFFSET + LANE_WIDTH / 2 + BUMPER_THICKNESS / 2,
 					guideBumperY,
@@ -146,6 +151,7 @@ export function HoleDogleg({
 			 * Positioned between the middle and exit segments.
 			 */}
 			<mesh
+				castShadow
 				position={[
 					-OFFSET - LANE_WIDTH / 2 - BUMPER_THICKNESS / 2,
 					guideBumperY,

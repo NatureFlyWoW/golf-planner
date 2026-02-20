@@ -7,6 +7,7 @@ import { Hall } from "./components/three/Hall";
 import { PlacedHoles } from "./components/three/PlacedHoles";
 import { PlacementHandler } from "./components/three/PlacementHandler";
 import { SunIndicator } from "./components/three/SunIndicator";
+import { UVEffects } from "./components/three/UVEffects";
 import { BottomToolbar } from "./components/ui/BottomToolbar";
 import { HoleDrawer } from "./components/ui/HoleDrawer";
 import { KeyboardHelp } from "./components/ui/KeyboardHelp";
@@ -51,17 +52,54 @@ export default function App() {
 					<Canvas
 						dpr={isMobile ? [1, 1.5] : [1, 2]}
 						frameloop="demand"
-						gl={{ antialias: !isMobile }}
+						shadows={!uvMode ? "soft" : undefined}
+						gl={{
+							antialias: !isMobile,
+							preserveDrawingBuffer: true,
+						}}
 					>
 						<ambientLight
 							color={uvMode ? "#220044" : "#ffffff"}
 							intensity={uvMode ? 0.3 : 0.8}
 						/>
-						<directionalLight
-							position={[10, 20, 5]}
-							color={uvMode ? "#6600CC" : "#ffffff"}
-							intensity={uvMode ? 0.4 : 0.5}
-						/>
+						{uvMode ? (
+							<directionalLight
+								position={[10, 20, 5]}
+								color="#6600CC"
+								intensity={0.4}
+							/>
+						) : (
+							<directionalLight
+								position={
+									sunData
+										? [
+												-Math.sin(sunData.azimuth) *
+													Math.cos(sunData.altitude) *
+													30 +
+													5,
+												Math.sin(sunData.altitude) * 30,
+												Math.cos(sunData.azimuth) *
+													Math.cos(sunData.altitude) *
+													30 +
+													10,
+											]
+										: [10, 20, 5]
+								}
+								color="#ffffff"
+								intensity={0.5}
+								castShadow
+								shadow-mapSize-width={isMobile ? 512 : 1024}
+								shadow-mapSize-height={isMobile ? 512 : 1024}
+								shadow-camera-left={-12}
+								shadow-camera-right={12}
+								shadow-camera-top={25}
+								shadow-camera-bottom={-15}
+								shadow-bias={-0.001}
+							/>
+						)}
+						{uvMode && (
+							<fog attach="fog" args={["#0A0A1A", 8, 25]} />
+						)}
 						<CameraControls />
 						<FloorGrid />
 						<Hall sunData={sunData} />
@@ -69,6 +107,7 @@ export default function App() {
 						<PlacedHoles />
 						<FlowPath />
 						<SunIndicator sunData={sunData} />
+						<UVEffects />
 					</Canvas>
 					<SunControls />
 					<KeyboardHelp />

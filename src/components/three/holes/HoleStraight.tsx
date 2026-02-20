@@ -25,6 +25,7 @@ export function HoleStraight({ width, length }: Props) {
 
 			{/* Left bumper */}
 			<mesh
+				castShadow
 				position={[
 					-halfW + BUMPER_THICKNESS / 2,
 					SURFACE_THICKNESS + BUMPER_HEIGHT / 2,
@@ -37,6 +38,7 @@ export function HoleStraight({ width, length }: Props) {
 
 			{/* Right bumper */}
 			<mesh
+				castShadow
 				position={[
 					halfW - BUMPER_THICKNESS / 2,
 					SURFACE_THICKNESS + BUMPER_HEIGHT / 2,
@@ -49,6 +51,7 @@ export function HoleStraight({ width, length }: Props) {
 
 			{/* Back bumper (-Z) */}
 			<mesh
+				castShadow
 				position={[
 					0,
 					SURFACE_THICKNESS + BUMPER_HEIGHT / 2,
@@ -61,6 +64,7 @@ export function HoleStraight({ width, length }: Props) {
 
 			{/* Front bumper (+Z) */}
 			<mesh
+				castShadow
 				position={[
 					0,
 					SURFACE_THICKNESS + BUMPER_HEIGHT / 2,

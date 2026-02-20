@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import { useStore } from "../../../store";
+import { UV_EMISSIVE_INTENSITY } from "./materialPresets";
 import {
 	BUMPER_HEIGHT,
 	BUMPER_THICKNESS,
@@ -90,7 +91,7 @@ export function HoleRamp({
 					? {
 							color: "#1A001A",
 							emissive: "#FF00FF",
-							emissiveIntensity: 0.5,
+							emissiveIntensity: UV_EMISSIVE_INTENSITY,
 							roughness: 0.7,
 							metalness: 0,
 						}
@@ -116,6 +117,7 @@ export function HoleRamp({
 				slope rises from rampUpStartZ to rampUpStartZ+RAMP_SLOPE_LENGTH.
 			*/}
 			<mesh
+				castShadow
 				geometry={rampUpGeo}
 				material={rampMaterial}
 				position={[laneW / 2, 0, rampUpStartZ]}
@@ -124,6 +126,7 @@ export function HoleRamp({
 
 			{/* ── Plateau ─────────────────────────────────────────────────── */}
 			<mesh
+				castShadow
 				position={[0, RAMP_HEIGHT / 2 + SURFACE_THICKNESS, plateauCenterZ]}
 				material={rampMaterial}
 			>
@@ -136,6 +139,7 @@ export function HoleRamp({
 				and descends to floor at local X=RAMP_SLOPE_LENGTH (→ model Z=rampDownStartZ+RAMP_SLOPE_LENGTH).
 			*/}
 			<mesh
+				castShadow
 				geometry={rampDownGeo}
 				material={rampMaterial}
 				position={[laneW / 2, 0, rampDownStartZ]}
@@ -145,6 +149,7 @@ export function HoleRamp({
 			{/* ── Side bumpers (taller to contain ball over ramp) ─────────── */}
 			{/* Left bumper */}
 			<mesh
+				castShadow
 				position={[
 					-halfW + BUMPER_THICKNESS / 2,
 					SURFACE_THICKNESS + SIDE_BUMPER_HEIGHT / 2,
@@ -157,6 +162,7 @@ export function HoleRamp({
 
 			{/* Right bumper */}
 			<mesh
+				castShadow
 				position={[
 					halfW - BUMPER_THICKNESS / 2,
 					SURFACE_THICKNESS + SIDE_BUMPER_HEIGHT / 2,
@@ -169,6 +175,7 @@ export function HoleRamp({
 
 			{/* Back bumper (-Z, tee end) */}
 			<mesh
+				castShadow
 				position={[
 					0,
 					SURFACE_THICKNESS + BUMPER_HEIGHT / 2,
@@ -181,6 +188,7 @@ export function HoleRamp({
 
 			{/* Front bumper (+Z, cup end) */}
 			<mesh
+				castShadow
 				position={[
 					0,
 					SURFACE_THICKNESS + BUMPER_HEIGHT / 2,

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import { useStore } from "../../../store";
+import { UV_EMISSIVE_INTENSITY } from "./materialPresets";
 import {
 	BUMPER_HEIGHT,
 	BUMPER_THICKNESS,
@@ -48,7 +49,7 @@ export function HoleTunnel({
 					? {
 							color: "#0D001A",
 							emissive: "#9933FF",
-							emissiveIntensity: 0.5,
+							emissiveIntensity: UV_EMISSIVE_INTENSITY,
 							roughness: 0.6,
 							metalness: 0.1,
 						}
@@ -71,6 +72,7 @@ export function HoleTunnel({
 			    world space — curving upward over the felt.
 			    thetaStart=0, thetaLength=PI gives the top semicircle. */}
 			<mesh
+				castShadow
 				position={[0, st, 0]}
 				rotation={[-Math.PI / 2, 0, 0]}
 				material={tunnelMaterial}
@@ -91,12 +93,14 @@ export function HoleTunnel({
 
 			{/* ── Side bumpers — entry zone (left and right) ── */}
 			<mesh
+				castShadow
 				position={[-halfW + bt / 2, st + BUMPER_HEIGHT / 2, entryCenterZ]}
 				material={bumper}
 			>
 				<boxGeometry args={[bt, BUMPER_HEIGHT, openLength]} />
 			</mesh>
 			<mesh
+				castShadow
 				position={[halfW - bt / 2, st + BUMPER_HEIGHT / 2, entryCenterZ]}
 				material={bumper}
 			>
@@ -105,12 +109,14 @@ export function HoleTunnel({
 
 			{/* ── Side bumpers — exit zone (left and right) ── */}
 			<mesh
+				castShadow
 				position={[-halfW + bt / 2, st + BUMPER_HEIGHT / 2, exitCenterZ]}
 				material={bumper}
 			>
 				<boxGeometry args={[bt, BUMPER_HEIGHT, openLength]} />
 			</mesh>
 			<mesh
+				castShadow
 				position={[halfW - bt / 2, st + BUMPER_HEIGHT / 2, exitCenterZ]}
 				material={bumper}
 			>
@@ -119,6 +125,7 @@ export function HoleTunnel({
 
 			{/* Back end bumper (-Z, full lane width) */}
 			<mesh
+				castShadow
 				position={[0, st + BUMPER_HEIGHT / 2, -halfL + bt / 2]}
 				material={bumper}
 			>
@@ -127,6 +134,7 @@ export function HoleTunnel({
 
 			{/* Front end bumper (+Z, full lane width) */}
 			<mesh
+				castShadow
 				position={[0, st + BUMPER_HEIGHT / 2, halfL - bt / 2]}
 				material={bumper}
 			>

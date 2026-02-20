@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import { useStore } from "../../../store";
+import { UV_EMISSIVE_INTENSITY } from "./materialPresets";
 import {
 	BUMPER_HEIGHT,
 	BUMPER_THICKNESS,
@@ -51,7 +52,7 @@ export function HoleWindmill({
 					? {
 							color: "#1A0011",
 							emissive: "#FF1493",
-							emissiveIntensity: 0.3,
+							emissiveIntensity: UV_EMISSIVE_INTENSITY,
 							roughness: 0.4,
 							metalness: 0.3,
 						}
@@ -68,7 +69,7 @@ export function HoleWindmill({
 					? {
 							color: "#1A0011",
 							emissive: "#FF1493",
-							emissiveIntensity: 0.5,
+							emissiveIntensity: UV_EMISSIVE_INTENSITY,
 							roughness: 0.5,
 							metalness: 0.1,
 						}
@@ -85,7 +86,7 @@ export function HoleWindmill({
 			</mesh>
 
 			{/* ── Central pillar ── */}
-			<mesh position={[0, st + PILLAR_HEIGHT / 2, 0]} material={pillarMaterial}>
+			<mesh castShadow position={[0, st + PILLAR_HEIGHT / 2, 0]} material={pillarMaterial}>
 				<cylinderGeometry
 					args={[PILLAR_RADIUS, PILLAR_RADIUS, PILLAR_HEIGHT, 12]}
 				/>
@@ -94,6 +95,7 @@ export function HoleWindmill({
 			{/* ── Windmill blades (static, frozen at BLADE_OFFSET_DEG) ── */}
 			{BLADE_ANGLES.map((angle) => (
 				<mesh
+					castShadow
 					key={angle.toFixed(5)}
 					position={[
 						Math.sin(angle) * (BLADE_LENGTH / 2 + PILLAR_RADIUS),
@@ -110,6 +112,7 @@ export function HoleWindmill({
 
 			{/* ── Left side bumper (full length) ── */}
 			<mesh
+				castShadow
 				position={[-halfLaneW - bt / 2, st + BUMPER_HEIGHT / 2, 0]}
 				material={bumper}
 			>
@@ -118,6 +121,7 @@ export function HoleWindmill({
 
 			{/* ── Right side bumper (full length) ── */}
 			<mesh
+				castShadow
 				position={[halfLaneW + bt / 2, st + BUMPER_HEIGHT / 2, 0]}
 				material={bumper}
 			>
@@ -126,6 +130,7 @@ export function HoleWindmill({
 
 			{/* ── Back end bumper (-Z, tee end) ── */}
 			<mesh
+				castShadow
 				position={[0, st + BUMPER_HEIGHT / 2, -halfL + bt / 2]}
 				material={bumper}
 			>
@@ -134,6 +139,7 @@ export function HoleWindmill({
 
 			{/* ── Front end bumper (+Z, cup end) ── */}
 			<mesh
+				castShadow
 				position={[0, st + BUMPER_HEIGHT / 2, halfL - bt / 2]}
 				material={bumper}
 			>
