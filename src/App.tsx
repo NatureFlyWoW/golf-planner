@@ -24,6 +24,7 @@ import { isMobile } from "./utils/isMobile";
 
 export default function App() {
 	const tool = useStore((s) => s.ui.tool);
+	const uvMode = useStore((s) => s.ui.uvMode);
 	const sunDate = useStore((s) => s.ui.sunDate);
 	const sunData = useSunPosition(sunDate);
 	const budgetSize = useStore((s) => Object.keys(s.budget).length);
@@ -52,8 +53,15 @@ export default function App() {
 						frameloop="demand"
 						gl={{ antialias: !isMobile }}
 					>
-						<ambientLight intensity={0.8} />
-						<directionalLight position={[10, 20, 5]} intensity={0.5} />
+						<ambientLight
+							color={uvMode ? "#220044" : "#ffffff"}
+							intensity={uvMode ? 0.3 : 0.8}
+						/>
+						<directionalLight
+							position={[10, 20, 5]}
+							color={uvMode ? "#6600CC" : "#ffffff"}
+							intensity={uvMode ? 0.4 : 0.5}
+						/>
 						<CameraControls />
 						<FloorGrid />
 						<Hall sunData={sunData} />
