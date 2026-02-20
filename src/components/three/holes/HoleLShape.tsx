@@ -1,14 +1,11 @@
 import {
 	BUMPER_HEIGHT,
 	BUMPER_THICKNESS,
-	bumperMaterial,
 	CUP_RADIUS,
-	cupMaterial,
-	feltMaterial,
 	SURFACE_THICKNESS,
 	TEE_RADIUS,
-	teeMaterial,
 } from "./shared";
+import { useMaterials } from "./useMaterials";
 
 // Lane width is fixed regardless of overall bounding box dimensions.
 const LANE_WIDTH = 0.5;
@@ -42,6 +39,7 @@ type Props = { width: number; length: number };
  *   2. Exit lane   — top strip, left portion only (avoids double-covering turn)
  */
 export function HoleLShape({ width, length }: Props) {
+	const { felt, bumper, tee, cup } = useMaterials();
 	const halfW = width / 2; // +X edge
 	const halfL = length / 2; // +Z edge
 	const BT = BUMPER_THICKNESS;
@@ -73,43 +71,37 @@ export function HoleLShape({ width, length }: Props) {
 			{/* ── Felt surfaces ─────────────────────────────────────────── */}
 
 			{/* 1. Entry lane: right column, full bounding-box height */}
-			<mesh position={[entryLaneCX, surfaceY, 0]} material={feltMaterial}>
+			<mesh position={[entryLaneCX, surfaceY, 0]} material={felt}>
 				<boxGeometry args={[LANE_WIDTH, ST, length]} />
 			</mesh>
 
 			{/* 2. Exit lane: top strip, left portion (excludes turn square) */}
-			<mesh
-				position={[exitFeltCX, surfaceY, exitLaneCZ]}
-				material={feltMaterial}
-			>
+			<mesh position={[exitFeltCX, surfaceY, exitLaneCZ]} material={felt}>
 				<boxGeometry args={[exitFeltW, ST, LANE_WIDTH]} />
 			</mesh>
 
 			{/* ── Bumper walls ──────────────────────────────────────────── */}
 
 			{/* Right wall — full bounding-box height, right edge */}
-			<mesh position={[halfW - BT / 2, bumperY, 0]} material={bumperMaterial}>
+			<mesh position={[halfW - BT / 2, bumperY, 0]} material={bumper}>
 				<boxGeometry args={[BT, BH, length]} />
 			</mesh>
 
 			{/* Bottom wall — closes the entry lane at -Z */}
 			<mesh
 				position={[entryLaneCX, bumperY, -halfL + BT / 2]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[LANE_WIDTH, BH, BT]} />
 			</mesh>
 
 			{/* Top wall — full bounding-box width, +Z edge */}
-			<mesh position={[0, bumperY, halfL - BT / 2]} material={bumperMaterial}>
+			<mesh position={[0, bumperY, halfL - BT / 2]} material={bumper}>
 				<boxGeometry args={[width, BH, BT]} />
 			</mesh>
 
 			{/* Left wall — only the exit lane section, -X edge */}
-			<mesh
-				position={[-halfW + BT / 2, bumperY, exitLaneCZ]}
-				material={bumperMaterial}
-			>
+			<mesh position={[-halfW + BT / 2, bumperY, exitLaneCZ]} material={bumper}>
 				<boxGeometry args={[BT, BH, LANE_WIDTH]} />
 			</mesh>
 
@@ -117,7 +109,7 @@ export function HoleLShape({ width, length }: Props) {
 			{/* Runs from -halfW to innerEdgeX at Z = innerEdgeZ */}
 			<mesh
 				position={[exitFeltCX, bumperY, innerEdgeZ + BT / 2]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[exitFeltW, BH, BT]} />
 			</mesh>
@@ -126,7 +118,7 @@ export function HoleLShape({ width, length }: Props) {
 			{/* Runs from -halfL to innerEdgeZ at X = innerEdgeX */}
 			<mesh
 				position={[innerEdgeX - BT / 2, bumperY, (-halfL + innerEdgeZ) / 2]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[BT, BH, innerEdgeZ - -halfL]} />
 			</mesh>
@@ -136,7 +128,7 @@ export function HoleLShape({ width, length }: Props) {
 			<mesh
 				position={[entryLaneCX, ST + 0.001, -halfL + 0.15]}
 				rotation={[-Math.PI / 2, 0, 0]}
-				material={teeMaterial}
+				material={tee}
 			>
 				<circleGeometry args={[TEE_RADIUS, 16]} />
 			</mesh>
@@ -146,7 +138,7 @@ export function HoleLShape({ width, length }: Props) {
 			<mesh
 				position={[-halfW + 0.15, ST + 0.001, exitLaneCZ]}
 				rotation={[-Math.PI / 2, 0, 0]}
-				material={cupMaterial}
+				material={cup}
 			>
 				<circleGeometry args={[CUP_RADIUS, 16]} />
 			</mesh>

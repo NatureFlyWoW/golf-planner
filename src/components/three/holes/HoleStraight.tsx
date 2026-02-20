@@ -1,18 +1,16 @@
 import {
 	BUMPER_HEIGHT,
 	BUMPER_THICKNESS,
-	bumperMaterial,
 	CUP_RADIUS,
-	cupMaterial,
-	feltMaterial,
 	SURFACE_THICKNESS,
 	TEE_RADIUS,
-	teeMaterial,
 } from "./shared";
+import { useMaterials } from "./useMaterials";
 
 type Props = { width: number; length: number };
 
 export function HoleStraight({ width, length }: Props) {
+	const { felt, bumper, tee, cup } = useMaterials();
 	const halfW = width / 2;
 	const halfL = length / 2;
 	const laneW = width - BUMPER_THICKNESS * 2;
@@ -21,7 +19,7 @@ export function HoleStraight({ width, length }: Props) {
 	return (
 		<group>
 			{/* Green felt surface */}
-			<mesh position={[0, SURFACE_THICKNESS / 2, 0]} material={feltMaterial}>
+			<mesh position={[0, SURFACE_THICKNESS / 2, 0]} material={felt}>
 				<boxGeometry args={[laneW, SURFACE_THICKNESS, laneL]} />
 			</mesh>
 
@@ -32,7 +30,7 @@ export function HoleStraight({ width, length }: Props) {
 					SURFACE_THICKNESS + BUMPER_HEIGHT / 2,
 					0,
 				]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[BUMPER_THICKNESS, BUMPER_HEIGHT, length]} />
 			</mesh>
@@ -44,7 +42,7 @@ export function HoleStraight({ width, length }: Props) {
 					SURFACE_THICKNESS + BUMPER_HEIGHT / 2,
 					0,
 				]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[BUMPER_THICKNESS, BUMPER_HEIGHT, length]} />
 			</mesh>
@@ -56,7 +54,7 @@ export function HoleStraight({ width, length }: Props) {
 					SURFACE_THICKNESS + BUMPER_HEIGHT / 2,
 					-halfL + BUMPER_THICKNESS / 2,
 				]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[laneW, BUMPER_HEIGHT, BUMPER_THICKNESS]} />
 			</mesh>
@@ -68,7 +66,7 @@ export function HoleStraight({ width, length }: Props) {
 					SURFACE_THICKNESS + BUMPER_HEIGHT / 2,
 					halfL - BUMPER_THICKNESS / 2,
 				]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[laneW, BUMPER_HEIGHT, BUMPER_THICKNESS]} />
 			</mesh>
@@ -77,7 +75,7 @@ export function HoleStraight({ width, length }: Props) {
 			<mesh
 				position={[0, SURFACE_THICKNESS + 0.001, -halfL + 0.15]}
 				rotation={[-Math.PI / 2, 0, 0]}
-				material={teeMaterial}
+				material={tee}
 			>
 				<circleGeometry args={[TEE_RADIUS, 16]} />
 			</mesh>
@@ -86,7 +84,7 @@ export function HoleStraight({ width, length }: Props) {
 			<mesh
 				position={[0, SURFACE_THICKNESS + 0.001, halfL - 0.15]}
 				rotation={[-Math.PI / 2, 0, 0]}
-				material={cupMaterial}
+				material={cup}
 			>
 				<circleGeometry args={[CUP_RADIUS, 16]} />
 			</mesh>

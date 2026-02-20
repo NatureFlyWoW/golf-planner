@@ -1,14 +1,11 @@
 import {
 	BUMPER_HEIGHT,
 	BUMPER_THICKNESS,
-	bumperMaterial,
 	CUP_RADIUS,
-	cupMaterial,
-	feltMaterial,
 	SURFACE_THICKNESS,
 	TEE_RADIUS,
-	teeMaterial,
 } from "./shared";
+import { useMaterials } from "./useMaterials";
 
 // ── Lane constants ───────────────────────────────────────────────────────────
 const LANE_WIDTH = 0.6;
@@ -21,6 +18,7 @@ export function HoleDogleg({
 	width: number;
 	length: number;
 }) {
+	const { felt, bumper, tee, cup } = useMaterials();
 	const halfW = width / 2;
 	const halfL = length / 2;
 
@@ -56,17 +54,17 @@ export function HoleDogleg({
 			{/* ── Felt surfaces ─────────────────────────────────────────────── */}
 
 			{/* Entry segment: offset right (+X) */}
-			<mesh position={[OFFSET, surfaceY, zEntry]} material={feltMaterial}>
+			<mesh position={[OFFSET, surfaceY, zEntry]} material={felt}>
 				<boxGeometry args={[LANE_WIDTH, SURFACE_THICKNESS, segLen]} />
 			</mesh>
 
 			{/* Middle segment: centred */}
-			<mesh position={[0, surfaceY, zMid]} material={feltMaterial}>
+			<mesh position={[0, surfaceY, zMid]} material={felt}>
 				<boxGeometry args={[LANE_WIDTH, SURFACE_THICKNESS, segLen]} />
 			</mesh>
 
 			{/* Exit segment: offset left (-X) */}
-			<mesh position={[-OFFSET, surfaceY, zExit]} material={feltMaterial}>
+			<mesh position={[-OFFSET, surfaceY, zExit]} material={felt}>
 				<boxGeometry args={[LANE_WIDTH, SURFACE_THICKNESS, segLen]} />
 			</mesh>
 
@@ -76,7 +74,7 @@ export function HoleDogleg({
 			 * Bend 1 (entry → middle): entry is at +OFFSET, middle is at 0.
 			 * The patch is centred between them → X = +OFFSET/2
 			 */}
-			<mesh position={[OFFSET / 2, surfaceY, zBend1]} material={feltMaterial}>
+			<mesh position={[OFFSET / 2, surfaceY, zBend1]} material={felt}>
 				<boxGeometry args={[transitionW, SURFACE_THICKNESS, transitionL]} />
 			</mesh>
 
@@ -84,7 +82,7 @@ export function HoleDogleg({
 			 * Bend 2 (middle → exit): middle is at 0, exit is at -OFFSET.
 			 * The patch is centred between them → X = -OFFSET/2
 			 */}
-			<mesh position={[-OFFSET / 2, surfaceY, zBend2]} material={feltMaterial}>
+			<mesh position={[-OFFSET / 2, surfaceY, zBend2]} material={felt}>
 				<boxGeometry args={[transitionW, SURFACE_THICKNESS, transitionL]} />
 			</mesh>
 
@@ -93,7 +91,7 @@ export function HoleDogleg({
 			{/* Left outer bumper (full length, at -X bounding edge) */}
 			<mesh
 				position={[-halfW + BUMPER_THICKNESS / 2, bumperY, 0]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[BUMPER_THICKNESS, BUMPER_HEIGHT, length]} />
 			</mesh>
@@ -101,7 +99,7 @@ export function HoleDogleg({
 			{/* Right outer bumper (full length, at +X bounding edge) */}
 			<mesh
 				position={[halfW - BUMPER_THICKNESS / 2, bumperY, 0]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[BUMPER_THICKNESS, BUMPER_HEIGHT, length]} />
 			</mesh>
@@ -111,7 +109,7 @@ export function HoleDogleg({
 			{/* Back end bumper (-Z, tee end) */}
 			<mesh
 				position={[0, bumperY, -halfL + BUMPER_THICKNESS / 2]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[width, BUMPER_HEIGHT, BUMPER_THICKNESS]} />
 			</mesh>
@@ -119,7 +117,7 @@ export function HoleDogleg({
 			{/* Front end bumper (+Z, cup end) */}
 			<mesh
 				position={[0, bumperY, halfL - BUMPER_THICKNESS / 2]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[width, BUMPER_HEIGHT, BUMPER_THICKNESS]} />
 			</mesh>
@@ -137,7 +135,7 @@ export function HoleDogleg({
 					guideBumperY,
 					zBend1,
 				]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[BUMPER_THICKNESS, guideBumperH, guideBumperLen]} />
 			</mesh>
@@ -153,7 +151,7 @@ export function HoleDogleg({
 					guideBumperY,
 					zBend2,
 				]}
-				material={bumperMaterial}
+				material={bumper}
 			>
 				<boxGeometry args={[BUMPER_THICKNESS, guideBumperH, guideBumperLen]} />
 			</mesh>
@@ -162,7 +160,7 @@ export function HoleDogleg({
 			<mesh
 				position={[OFFSET, SURFACE_THICKNESS + 0.001, -halfL + 0.15]}
 				rotation={[-Math.PI / 2, 0, 0]}
-				material={teeMaterial}
+				material={tee}
 			>
 				<circleGeometry args={[TEE_RADIUS, 16]} />
 			</mesh>
@@ -171,7 +169,7 @@ export function HoleDogleg({
 			<mesh
 				position={[-OFFSET, SURFACE_THICKNESS + 0.001, halfL - 0.15]}
 				rotation={[-Math.PI / 2, 0, 0]}
-				material={cupMaterial}
+				material={cup}
 			>
 				<circleGeometry args={[CUP_RADIUS, 16]} />
 			</mesh>
