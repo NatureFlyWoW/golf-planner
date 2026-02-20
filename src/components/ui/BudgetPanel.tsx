@@ -97,34 +97,37 @@ export function BudgetPanel() {
 								}}
 								className="rounded-lg border border-gray-200 bg-white"
 							>
-								{/* Card header — clickable to expand */}
+								{/* Card header */}
+								<div className="flex items-center gap-1 px-2.5 pt-2">
+									<button
+										type="button"
+										onClick={() => handleExpand(cat.id)}
+										className="flex-1 text-left text-xs font-medium text-gray-700"
+									>
+										{cat.name}
+									</button>
+									{isCourse && (
+										<button
+											type="button"
+											onClick={() => toggleCourseOverride()}
+											className="rounded p-0.5 text-gray-400 hover:text-gray-600"
+											title={
+												cat.manualOverride
+													? "Unlock auto-calculation"
+													: "Pin estimate"
+											}
+										>
+											<span className="text-xs">
+												{cat.manualOverride ? "🔒" : "🔓"}
+											</span>
+										</button>
+									)}
+								</div>
 								<button
 									type="button"
 									onClick={() => handleExpand(cat.id)}
-									className="w-full px-2.5 py-2 text-left"
+									className="w-full px-2.5 pb-2 text-left"
 								>
-									<div className="flex items-center text-xs font-medium text-gray-700">
-										<span>{cat.name}</span>
-										{isCourse && (
-											<button
-												type="button"
-												onClick={(e) => {
-													e.stopPropagation();
-													toggleCourseOverride();
-												}}
-												className="ml-auto rounded p-0.5 text-gray-400 hover:text-gray-600"
-												title={
-													cat.manualOverride
-														? "Unlock auto-calculation"
-														: "Pin estimate"
-												}
-											>
-												<span className="text-xs">
-													{cat.manualOverride ? "🔒" : "🔓"}
-												</span>
-											</button>
-										)}
-									</div>
 									{BUDGET_HINTS[cat.id] && (
 										<div className="text-[10px] text-gray-400 italic">
 											{BUDGET_HINTS[cat.id]}

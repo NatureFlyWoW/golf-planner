@@ -1,7 +1,9 @@
-import { useState } from "react";
-import { COURSE_CATEGORY_ID } from "../../constants/budget";
+import { useMemo, useState } from "react";
+import { COURSE_CATEGORY_ID, DEFAULT_HOLE_COST } from "../../constants/budget";
+import { HOLE_TYPE_MAP } from "../../constants/holeTypes";
 import { useStore } from "../../store";
-import { selectCourseBreakdown, selectCourseCost } from "../../store/selectors";
+import type { CourseBreakdownItem } from "../../store/selectors";
+import { selectCourseCost } from "../../store/selectors";
 
 function formatEur(n: number): string {
 	return `€${n.toLocaleString("de-AT", { maximumFractionDigits: 0 })}`;
@@ -13,9 +15,31 @@ type Props = {
 
 export function CourseBreakdown({ onOpenSettings }: Props) {
 	const [expanded, setExpanded] = useState(true);
-	const breakdown = useStore(selectCourseBreakdown);
+	const holeOrder = useStore((s) => s.holeOrder);
+	const holes = useStore((s) => s.holes);
+	const costPerType = useStore((s) => s.budgetConfig.costPerType);
 	const courseCost = useStore(selectCourseCost);
-	const holeCount = useStore((s) => s.holeOrder.length);
+	const holeCount = holeOrder.length;
+
+	const breakdown: CourseBreakdownItem[] = useMemo(() => {
+		const counts: Record<string, number> = {};
+		for (const id of holeOrder) {
+			const hole = holes[id];
+			if (hole) counts[hole.type] = (counts[hole.type] ?? 0) + 1;
+		}
+		return Object.entries(counts)
+			.map(([type, count]) => {
+				const unitCost = costPerType[type] ?? DEFAULT_HOLE_COST;
+				return {
+					type,
+					label: HOLE_TYPE_MAP[type]?.label ?? type,
+					count,
+					unitCost,
+					subtotal: count * unitCost,
+				};
+			})
+			.sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+	}, [holeOrder, holes, costPerType]);
 	const manualOverride = useStore(
 		(s) => s.budget[COURSE_CATEGORY_ID]?.manualOverride ?? false,
 	);
