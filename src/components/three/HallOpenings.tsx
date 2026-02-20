@@ -42,10 +42,12 @@ function Door({
 	door,
 	hallWidth,
 	hallLength,
+	uvMode,
 }: {
 	door: DoorSpec;
 	hallWidth: number;
 	hallLength: number;
+	uvMode: boolean;
 }) {
 	const centerY = door.height / 2;
 	const position = getWallPosition(
@@ -57,12 +59,21 @@ function Door({
 		door.width,
 	);
 	const rotation = getWallRotation(door.wall);
-	const color = door.type === "sectional" ? "#4CAF50" : "#81C784";
+	const color = uvMode
+		? "#001A00"
+		: door.type === "sectional"
+			? "#4CAF50"
+			: "#81C784";
 
 	return (
 		<mesh position={position} rotation={rotation}>
 			<planeGeometry args={[door.width, door.height]} />
-			<meshStandardMaterial color={color} side={2} />
+			<meshStandardMaterial
+				color={color}
+				side={2}
+				emissive={uvMode ? "#00FF44" : "#000000"}
+				emissiveIntensity={uvMode ? 0.3 : 0}
+			/>
 		</mesh>
 	);
 }
@@ -72,11 +83,13 @@ function Window({
 	hallWidth,
 	hallLength,
 	sunExposure,
+	uvMode,
 }: {
 	window: WindowSpec;
 	hallWidth: number;
 	hallLength: number;
 	sunExposure: number;
+	uvMode: boolean;
 }) {
 	const centerY = win.sillHeight + win.height / 2;
 	const position = getWallPosition(
@@ -90,15 +103,15 @@ function Window({
 	const rotation = getWallRotation(win.wall);
 
 	// Interpolate between default blue and warm yellow based on sun exposure
-	const color = sunExposure > 0 ? "#FFD54F" : "#64B5F6";
+	const color = uvMode ? "#3300AA" : sunExposure > 0 ? "#FFD54F" : "#64B5F6";
 
 	return (
 		<mesh position={position} rotation={rotation}>
 			<planeGeometry args={[win.width, win.height]} />
 			<meshStandardMaterial
 				color={color}
-				opacity={sunExposure > 0 ? 0.8 : 1}
-				transparent={sunExposure > 0}
+				opacity={uvMode ? 0.6 : sunExposure > 0 ? 0.8 : 1}
+				transparent={uvMode || sunExposure > 0}
 				side={2}
 			/>
 		</mesh>
@@ -111,6 +124,7 @@ type HallOpeningsProps = {
 
 export function HallOpenings({ sunData }: HallOpeningsProps) {
 	const { doors, windows, width, length } = useStore((s) => s.hall);
+	const uvMode = useStore((s) => s.ui.uvMode);
 	const exposure = sunData
 		? getWallExposure(sunData.azimuth, sunData.altitudeDeg)
 		: { north: 0, south: 0, east: 0, west: 0 };
@@ -118,7 +132,13 @@ export function HallOpenings({ sunData }: HallOpeningsProps) {
 	return (
 		<group>
 			{doors.map((door) => (
-				<Door key={door.id} door={door} hallWidth={width} hallLength={length} />
+				<Door
+					key={door.id}
+					door={door}
+					hallWidth={width}
+					hallLength={length}
+					uvMode={uvMode}
+				/>
 			))}
 			{windows.map((win) => (
 				<Window
@@ -127,6 +147,7 @@ export function HallOpenings({ sunData }: HallOpeningsProps) {
 					hallWidth={width}
 					hallLength={length}
 					sunExposure={exposure[win.wall as keyof typeof exposure] ?? 0}
+					uvMode={uvMode}
 				/>
 			))}
 		</group>

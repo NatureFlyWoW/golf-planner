@@ -1,11 +1,14 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import { HOLE_TYPE_MAP } from "../../constants";
+import { useStore } from "../../store";
 import type { HoleType } from "../../types";
 
 const HOLE_HEIGHT = 0.3;
 const GREEN = new THREE.Color("#4CAF50");
 const RED = new THREE.Color("#EF5350");
+const UV_GREEN = new THREE.Color("#00FF66");
+const UV_RED = new THREE.Color("#FF3333");
 
 type GhostHoleProps = {
 	type: HoleType;
@@ -20,8 +23,9 @@ export function GhostHole({
 	rotation,
 	isValid,
 }: GhostHoleProps) {
+	const uvMode = useStore((s) => s.ui.uvMode);
 	const definition = HOLE_TYPE_MAP[type];
-	const color = isValid ? GREEN : RED;
+	const color = isValid ? (uvMode ? UV_GREEN : GREEN) : uvMode ? UV_RED : RED;
 	const rotationRad = (rotation * Math.PI) / 180;
 
 	const material = useMemo(

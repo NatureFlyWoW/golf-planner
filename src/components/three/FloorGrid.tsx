@@ -3,17 +3,18 @@ import { useStore } from "../../store";
 
 export function FloorGrid() {
 	const { width, length } = useStore((s) => s.hall);
+	const uvMode = useStore((s) => s.ui.uvMode);
 
 	return (
 		<Grid
 			position={[width / 2, 0.01, length / 2]}
 			args={[width, length]}
 			cellSize={1}
-			cellThickness={0.5}
-			cellColor="#cccccc"
+			cellThickness={uvMode ? 0.3 : 0.5}
+			cellColor={uvMode ? "#2A2A5E" : "#cccccc"}
 			sectionSize={5}
-			sectionThickness={1}
-			sectionColor="#999999"
+			sectionThickness={uvMode ? 0.5 : 1}
+			sectionColor={uvMode ? "#2A2A5E" : "#999999"}
 			fadeDistance={50}
 			infiniteGrid={false}
 		/>

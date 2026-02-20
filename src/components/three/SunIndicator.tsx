@@ -45,6 +45,9 @@ export function SunIndicator({ sunData }: SunIndicatorProps) {
 		};
 	}, [sunData.azimuth, sunData.isDay, width, length]);
 
+	const uvMode = useStore((s) => s.ui.uvMode);
+
+	if (uvMode) return null;
 	if (!visible) return null;
 
 	return (

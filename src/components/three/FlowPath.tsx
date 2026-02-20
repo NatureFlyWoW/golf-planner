@@ -8,6 +8,7 @@ export function FlowPath() {
 	const showFlowPath = useStore((s) => s.ui.showFlowPath);
 	const holes = useStore((s) => s.holes);
 	const holeOrder = useStore((s) => s.holeOrder);
+	const uvMode = useStore((s) => s.ui.uvMode);
 
 	if (!showFlowPath || holeOrder.length < 2) return null;
 
@@ -24,7 +25,7 @@ export function FlowPath() {
 		<group>
 			<Line
 				points={points}
-				color="white"
+				color={uvMode ? "#00FFFF" : "white"}
 				lineWidth={2}
 				dashed
 				dashSize={0.3}
@@ -43,11 +44,11 @@ export function FlowPath() {
 					>
 						<Text
 							fontSize={0.35}
-							color="white"
+							color={uvMode ? "#00FFFF" : "white"}
 							anchorX="center"
 							anchorY="middle"
 							outlineWidth={0.03}
-							outlineColor="black"
+							outlineColor={uvMode ? "#0A0A1A" : "black"}
 						>
 							{index + 1}
 						</Text>

@@ -3,7 +3,8 @@ import { useStore } from "../../store";
 export function HallWalls() {
 	const { width, length, wallHeight, wallThickness } = useStore((s) => s.hall);
 	const halfH = wallHeight / 2;
-	const color = "#B0B0B0";
+	const uvMode = useStore((s) => s.ui.uvMode);
+	const color = uvMode ? "#1A1A2E" : "#B0B0B0";
 
 	return (
 		<group>
