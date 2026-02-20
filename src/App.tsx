@@ -1,13 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { useEffect } from "react";
-import { CameraControls } from "./components/three/CameraControls";
-import { FloorGrid } from "./components/three/FloorGrid";
-import { FlowPath } from "./components/three/FlowPath";
-import { Hall } from "./components/three/Hall";
-import { PlacedHoles } from "./components/three/PlacedHoles";
-import { PlacementHandler } from "./components/three/PlacementHandler";
-import { SunIndicator } from "./components/three/SunIndicator";
-import { UVEffects } from "./components/three/UVEffects";
+import { Suspense, lazy, useEffect } from "react";
 import { BottomToolbar } from "./components/ui/BottomToolbar";
 import { HoleDrawer } from "./components/ui/HoleDrawer";
 import { KeyboardHelp } from "./components/ui/KeyboardHelp";
@@ -22,6 +14,8 @@ import { Toolbar } from "./components/ui/Toolbar";
 import { useSunPosition } from "./hooks/useSunPosition";
 import { useStore } from "./store";
 import { isMobile } from "./utils/isMobile";
+
+const ThreeCanvas = lazy(() => import("./components/three/ThreeCanvas"));
 
 export default function App() {
 	const tool = useStore((s) => s.ui.tool);
@@ -58,56 +52,9 @@ export default function App() {
 							preserveDrawingBuffer: true,
 						}}
 					>
-						<ambientLight
-							color={uvMode ? "#220044" : "#ffffff"}
-							intensity={uvMode ? 0.3 : 0.8}
-						/>
-						{uvMode ? (
-							<directionalLight
-								position={[10, 20, 5]}
-								color="#6600CC"
-								intensity={0.4}
-							/>
-						) : (
-							<directionalLight
-								position={
-									sunData
-										? [
-												-Math.sin(sunData.azimuth) *
-													Math.cos(sunData.altitude) *
-													30 +
-													5,
-												Math.sin(sunData.altitude) * 30,
-												Math.cos(sunData.azimuth) *
-													Math.cos(sunData.altitude) *
-													30 +
-													10,
-											]
-										: [10, 20, 5]
-								}
-								color="#ffffff"
-								intensity={0.5}
-								castShadow
-								shadow-mapSize-width={isMobile ? 512 : 1024}
-								shadow-mapSize-height={isMobile ? 512 : 1024}
-								shadow-camera-left={-12}
-								shadow-camera-right={12}
-								shadow-camera-top={25}
-								shadow-camera-bottom={-15}
-								shadow-bias={-0.001}
-							/>
-						)}
-						{uvMode && (
-							<fog attach="fog" args={["#0A0A1A", 8, 25]} />
-						)}
-						<CameraControls />
-						<FloorGrid />
-						<Hall sunData={sunData} />
-						<PlacementHandler />
-						<PlacedHoles />
-						<FlowPath />
-						<SunIndicator sunData={sunData} />
-						<UVEffects />
+						<Suspense fallback={null}>
+							<ThreeCanvas sunData={sunData} />
+						</Suspense>
 					</Canvas>
 					<SunControls />
 					<KeyboardHelp />
