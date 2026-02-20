@@ -173,6 +173,7 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 	const holeOrder = useStore((s) => s.holeOrder);
 	const budget = useStore((s) => s.budget);
 	const hall = useStore((s) => s.hall);
+	const setActivePanel = useStore((s) => s.setActivePanel);
 
 	return (
 		<>
@@ -196,7 +197,8 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 					label="Sun"
 					active={false}
 					onTap={() => {
-						/* TODO: open sun controls overlay in future iteration */
+						setActivePanel("sun");
+						onClose();
 					}}
 				/>
 				<button

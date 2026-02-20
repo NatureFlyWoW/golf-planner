@@ -12,6 +12,7 @@ import { KeyboardHelp } from "./components/ui/KeyboardHelp";
 import { LocationBar } from "./components/ui/LocationBar";
 import { MiniMap } from "./components/ui/MiniMap";
 import { MobileDetailPanel } from "./components/ui/MobileDetailPanel";
+import { MobileSunControls } from "./components/ui/MobileSunControls";
 import { Sidebar } from "./components/ui/Sidebar";
 import { SunControls } from "./components/ui/SunControls";
 import { Toolbar } from "./components/ui/Toolbar";
@@ -60,6 +61,7 @@ export default function App() {
 			<BottomToolbar />
 			<HoleDrawer />
 			<MobileDetailPanel />
+			<MobileSunControls />
 		</div>
 	);
 }

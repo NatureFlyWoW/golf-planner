@@ -15,6 +15,7 @@ describe("activePanel", () => {
 				snapEnabled: false,
 				showFlowPath: true,
 				activePanel: null,
+				sunDate: undefined,
 			},
 		});
 	});
@@ -35,7 +36,7 @@ describe("activePanel", () => {
 	});
 
 	it("setActivePanel cycles through all valid values", () => {
-		for (const panel of ["holes", "detail", "budget"] as const) {
+		for (const panel of ["holes", "detail", "budget", "sun"] as const) {
 			useStore.getState().setActivePanel(panel);
 			expect(useStore.getState().ui.activePanel).toBe(panel);
 		}
