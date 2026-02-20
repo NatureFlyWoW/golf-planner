@@ -1,7 +1,13 @@
 # Session Handoff — 2026-02-20
 
 ## Completed
-**Phases 1-5 — ALL COMPLETE** (all pushed to origin/master)
+**Phases 1-6 — ALL COMPLETE** (Phase 6 not yet pushed)
+
+### Phase 6: Realistic 3D Hole Models (4 commits)
+- T1: shared.ts — constants, materials (feltMaterial, bumperMaterial, teeMaterial, cupMaterial)
+- T2: HoleModel dispatcher + MiniGolfHole integration (invisible overlay mesh, MODEL_HEIGHTS)
+- T3-9: 7 procedural hole models (Straight, L-Shape, Dogleg, Ramp, Loop, Windmill, Tunnel)
+- All models: green felt surface, white bumper walls, yellow tee, black cup, type-specific obstacles
 
 ### Phase 5: Cost Auto-Estimation (9 commits)
 - T1-2: Data model (BudgetConfig.costPerType, manualOverride, COURSE_CATEGORY_ID, DEFAULT_HOLE_COST)
@@ -18,14 +24,15 @@
 ### Phases 1-3: Core + Polish + Mobile/PWA
 
 ## Current State
-- **Branch:** master, fully pushed to origin
+- **Branch:** master, 4 commits ahead of origin
 - **Tests:** 66 passing (11 test files)
-- **Lint:** 55 files clean
-- **Build:** passes (1,312 KB JS bundle)
-- **Screenshots:** `docs/screenshots/phase5-*.png` (3 files)
+- **Lint:** 83 files clean
+- **Build:** passes (1,323 KB JS bundle)
+- **Screenshots:** `docs/screenshots/phase6-*.png` (3 files)
 
 ## What's Built
 - Full hall layout with 7 hole types, drag/rotate/delete
+- **Realistic 3D hole models** — procedural geometry per type (felt, bumpers, obstacles)
 - 3D toggle, collision detection, flow path, snap, undo/redo
 - Geo features (sun indicator, sun controls, minimap, location bar)
 - Mobile/PWA with responsive layout
@@ -34,13 +41,13 @@
 
 ## Known Issues
 - THREE.Clock upstream warning (harmless)
-- Chunk size warning (1,312 KB) — consider code-splitting if needed
-- PRESETS array duplicated between SunControls.tsx and MobileSunControls.tsx (cosmetic)
+- Chunk size warning (1,323 KB) — consider code-splitting if needed
 
 ## Potential Future Work
 - Code-splitting to reduce bundle size
-- Extract shared PRESETS constant
 - PDF floor plan export
 - UV/blacklight theme toggle
 - Share layout via URL
 - Deploy to Vercel
+- Animated windmill blades (currently static)
+- Top-down LOD (simplified view when in 2D mode)
