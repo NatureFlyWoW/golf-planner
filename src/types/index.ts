@@ -9,6 +9,7 @@ export type {
 	ExpenseEntry,
 	FinancialSettings,
 	MaterialProfile,
+	QuoteInfo,
 	RiskTolerance,
 	UncertaintyParams,
 	VatProfile,

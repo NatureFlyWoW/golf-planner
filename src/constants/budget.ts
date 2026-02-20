@@ -199,6 +199,13 @@ export const DEFAULT_BUDGET_CATEGORIES_V2: BudgetCategoryV2[] = [
 		uncertainty: { min: 88200, mode: 90000, max: 91800 },
 		mandatory: true,
 		phase: "construction",
+		quote: {
+			vendor: "BORGA Stahlhallen",
+			quoteDate: "2026-02-15",
+			validUntil: "2026-03-17",
+			quoteRef: "015-659208",
+			isBinding: true,
+		},
 	},
 	{
 		id: "foundation",

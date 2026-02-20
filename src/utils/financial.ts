@@ -33,6 +33,16 @@ export function reclaimableVat(
 	return roundEur(net * 0.2);
 }
 
+/** Apply inflation factor to non-fixed categories */
+export function inflatedEstimate(
+	estimatedNet: number,
+	tier: ConfidenceTier,
+	factor: number,
+): number {
+	if (tier === "fixed") return estimatedNet;
+	return roundEur(estimatedNet * factor);
+}
+
 export function formatEur(n: number): string {
 	return n.toLocaleString("de-AT", {
 		style: "currency",

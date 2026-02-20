@@ -36,6 +36,14 @@ export type UncertaintyParams = {
 	max: number;
 };
 
+export type QuoteInfo = {
+	vendor: string;
+	quoteDate: string;
+	validUntil: string;
+	quoteRef: string;
+	isBinding: boolean;
+};
+
 export type BudgetCategoryV2 = {
 	id: string;
 	name: string;
@@ -47,6 +55,7 @@ export type BudgetCategoryV2 = {
 	uncertainty: UncertaintyParams;
 	mandatory: boolean;
 	phase: ConstructionPhase;
+	quote?: QuoteInfo;
 };
 
 export type ExpenseEntry = {

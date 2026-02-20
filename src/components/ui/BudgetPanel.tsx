@@ -9,7 +9,8 @@ import {
 	computeTotalReclaimableVat,
 	selectCourseCost,
 } from "../../store/selectors";
-import type { ConfidenceTier } from "../../types/budget";
+import type { ConfidenceTier, QuoteInfo } from "../../types/budget";
+import { inflatedEstimate } from "../../utils/financial";
 import { CostSettingsModal } from "./CostSettingsModal";
 import { CourseBreakdown } from "./CourseBreakdown";
 import { ExpenseList } from "./ExpenseList";
@@ -32,6 +33,31 @@ type BudgetWarning = {
 	severity: "critical" | "warning" | "info";
 	title: string;
 };
+
+function quoteStatusBadge(quote: QuoteInfo | undefined): {
+	label: string;
+	className: string;
+} | null {
+	if (!quote) return null;
+	const now = new Date();
+	const validUntil = new Date(quote.validUntil);
+	const daysRemaining = Math.ceil(
+		(validUntil.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+	);
+	if (daysRemaining < 0) {
+		return {
+			label: `Expired ${Math.abs(daysRemaining)}d ago`,
+			className: "bg-red-100 text-red-700",
+		};
+	}
+	if (daysRemaining <= 14) {
+		return {
+			label: `Expires in ${daysRemaining}d`,
+			className: "bg-amber-100 text-amber-700",
+		};
+	}
+	return { label: "Quoted", className: "bg-green-100 text-green-700" };
+}
 
 export function BudgetPanel() {
 	const budget = useStore((s) => s.budget);
@@ -73,6 +99,18 @@ export function BudgetPanel() {
 		budget,
 		financialSettings.vatRegistered,
 	);
+
+	// Inflation adjustment
+	const { inflationFactor } = financialSettings;
+	const hasInflation = inflationFactor > 1.0;
+	const inflationPct = hasInflation
+		? Math.round((inflationFactor - 1.0) * 1000) / 10
+		: 0;
+	const inflatedSubtotalNet = categories.reduce((sum, cat) => {
+		const catNet =
+			cat.id === COURSE_CATEGORY_ID ? courseCost : cat.estimatedNet;
+		return sum + inflatedEstimate(catNet, cat.confidenceTier, inflationFactor);
+	}, 0);
 
 	// Risk tolerance label
 	const toleranceLabel =
@@ -178,6 +216,16 @@ export function BudgetPanel() {
 						{displayEur(subtotalNet)}
 					</span>
 				</div>
+				{hasInflation && (
+					<div className="flex items-baseline justify-between">
+						<span className="text-xs text-amber-600">
+							Inflated (+{inflationPct}%)
+						</span>
+						<span className="text-xs font-medium text-amber-600">
+							{displayEur(inflatedSubtotalNet)}
+						</span>
+					</div>
+				)}
 				<div className="flex items-baseline justify-between">
 					<span className="text-xs text-gray-500">
 						Risk buffer ({toleranceLabel}, {riskPercent}%)
@@ -267,6 +315,17 @@ export function BudgetPanel() {
 											: cat.confidenceTier.charAt(0).toUpperCase() +
 												cat.confidenceTier.slice(1)}
 									</span>
+									{(() => {
+										const badge = quoteStatusBadge(cat.quote);
+										if (!badge) return null;
+										return (
+											<span
+												className={`rounded px-1 py-0.5 text-[9px] font-medium ${badge.className}`}
+											>
+												{badge.label}
+											</span>
+										);
+									})()}
 									{isCourse && (
 										<button
 											type="button"
