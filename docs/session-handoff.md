@@ -1,53 +1,53 @@
 # Session Handoff — 2026-02-20
 
-## Completed
-**Phases 1-6 — ALL COMPLETE** (Phase 6 not yet pushed)
-
-### Phase 6: Realistic 3D Hole Models (4 commits)
-- T1: shared.ts — constants, materials (feltMaterial, bumperMaterial, teeMaterial, cupMaterial)
-- T2: HoleModel dispatcher + MiniGolfHole integration (invisible overlay mesh, MODEL_HEIGHTS)
-- T3-9: 7 procedural hole models (Straight, L-Shape, Dogleg, Ramp, Loop, Windmill, Tunnel)
-- All models: green felt surface, white bumper walls, yellow tee, black cup, type-specific obstacles
-
-### Phase 5: Cost Auto-Estimation (9 commits)
-- T1-2: Data model (BudgetConfig.costPerType, manualOverride, COURSE_CATEGORY_ID, DEFAULT_HOLE_COST)
-- T3-4: Selectors (selectCourseCost, selectCourseBreakdown, toggleCourseOverride) + 9 tests
-- T5-7: BudgetPanel UI (CourseBreakdown component, lock/unlock toggle, dashboard hints)
-- T8: CostSettingsModal (per-type cost editing with reset defaults)
-- T9-10: Export v3 format + v2-to-v3 localStorage migration
-- Bugfix: infinite re-render from unstable selector + nested button HTML
-
-### Phase 4: Polish + Budget (11 commits)
-- Polish fixes (favicon, par clamp, backdrop a11y)
-- Mobile sun controls, budget store, budget panel (desktop + mobile)
-
-### Phases 1-3: Core + Polish + Mobile/PWA
+## Completed This Session
+- `2abddcc` feat(phase7): add uvMode state and toggleUvMode action
+- `da1322a` feat(phase7): add UV material singletons and useMaterials hook
+- `04aa6b3` feat(phase7): wire useMaterials hook into Straight, LShape, Dogleg
+- `191fab5` feat(phase7): wire useMaterials + UV accents into Ramp, Loop, Windmill, Tunnel
+- `8786751` feat(phase7): add UV color switching to hall, grid, flow path, ghost, sun indicator
+- `84e971e` feat(phase7): conditional UV lighting in App.tsx
+- `9e66e2c` feat(phase7): UV styling for desktop and mobile toolbars
+- `e82342a` docs: add Phase 5 and Phase 7 screenshots
 
 ## Current State
-- **Branch:** master, 4 commits ahead of origin
-- **Tests:** 66 passing (11 test files)
-- **Lint:** 83 files clean
-- **Build:** passes (1,323 KB JS bundle)
-- **Screenshots:** `docs/screenshots/phase6-*.png` (3 files)
+- **Branch**: master
+- **Working tree**: clean
+- **Stash**: empty
+- **Tests**: 66 passing, 0 failing (11 test files)
+- **Build**: passing (1,326 KB JS bundle, PWA v1.2.0)
+- **Type check**: passing (zero errors)
+- **Remote sync**: up to date with origin/master
 
-## What's Built
+## What's Built (Phases 1-7)
 - Full hall layout with 7 hole types, drag/rotate/delete
-- **Realistic 3D hole models** — procedural geometry per type (felt, bumpers, obstacles)
+- Realistic 3D hole models — procedural geometry per type (felt, bumpers, obstacles)
+- **UV/blacklight preview mode** — toggle between planning and UV mode
 - 3D toggle, collision detection, flow path, snap, undo/redo
 - Geo features (sun indicator, sun controls, minimap, location bar)
 - Mobile/PWA with responsive layout
-- Budget tracker with 14 categories, editable fields, progress bars
-- Cost auto-estimation: per-type hole costs, course breakdown, settings modal, lock/pin
+- Budget tracker with 14 categories, cost auto-estimation, settings modal
 
-## Known Issues
-- THREE.Clock upstream warning (harmless)
-- Chunk size warning (1,323 KB) — consider code-splitting if needed
+## Remaining Work
+- **All 7 planned phases are COMPLETE**
+- No further implementation plans exist yet
+- Potential future work: code-splitting, sidebar UV theming, animated windmill, PDF export, URL sharing, Vercel deploy
 
-## Potential Future Work
-- Code-splitting to reduce bundle size
-- PDF floor plan export
-- UV/blacklight theme toggle
-- Share layout via URL
-- Deploy to Vercel
-- Animated windmill blades (currently static)
-- Top-down LOD (simplified view when in 2D mode)
+## Known Issues / Blockers
+- THREE.Clock warning — upstream, harmless, no action needed
+- Chunk size warning (1,326 KB) — consider code-splitting if performance becomes a concern
+- Playwright headless Chrome cannot render WebGL/R3F canvas — non-headless with swiftshader works
+- Sidebar does not theme in UV mode (was not in Phase 7 scope)
+
+## Environment Notes
+- fnm must be sourced: `export PATH="/home/ben/.local/share/fnm:$PATH" && eval "$(fnm env)"`
+- Git configured in golf-planner/ (user: Golf Planner Dev)
+- Biome uses **tabs** for indentation
+- PostToolUse hook runs `npx tsc --noEmit` automatically after edits
+
+## Conversation Context
+- Phase 7 implemented using subagent-driven development (8 tasks, 7 commits)
+- Used fresh subagent per task with spec compliance review
+- Screenshots captured via custom Playwright Node script (non-headless, swiftshader WebGL)
+- Session updated MEMORY.md to reflect phases 5-7 completion
+- Previous session set up new skills and strengthened CLAUDE.md
