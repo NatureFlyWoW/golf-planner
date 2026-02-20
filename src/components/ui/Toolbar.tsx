@@ -1,5 +1,9 @@
 import { useStore } from "../../store";
 import type { Tool } from "../../types";
+import {
+	downloadSVG,
+	generateFloorPlanSVG,
+} from "../../utils/floorPlanExport";
 import { ExportButton } from "./ExportButton";
 import { SaveManager } from "./SaveManager";
 
@@ -20,6 +24,18 @@ export function Toolbar() {
 	const setView = useStore((s) => s.setView);
 	const uvMode = useStore((s) => s.ui.uvMode);
 	const toggleUvMode = useStore((s) => s.toggleUvMode);
+	const holes = useStore((s) => s.holes);
+	const holeOrder = useStore((s) => s.holeOrder);
+	const hall = useStore((s) => s.hall);
+
+	function handleFloorPlanExport() {
+		const svg = generateFloorPlanSVG(
+			{ width: hall.width, length: hall.length },
+			holes,
+			holeOrder,
+		);
+		downloadSVG(svg);
+	}
 
 	const barClass = uvMode
 		? "hidden items-center gap-1 border-b border-indigo-900 bg-gray-900 px-3 py-2 md:flex"
@@ -147,6 +163,14 @@ export function Toolbar() {
 			</button>
 
 			<div className="ml-auto flex items-center gap-1">
+				<button
+					type="button"
+					onClick={handleFloorPlanExport}
+					className={neutralBtnClass}
+					title="Export floor plan as SVG"
+				>
+					SVG
+				</button>
 				<SaveManager />
 				<ExportButton />
 			</div>
