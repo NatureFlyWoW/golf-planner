@@ -30,7 +30,7 @@ See docs/reference/ for full offer and feasibility study.
 
 ## Architecture
 - Single Zustand store: hall, holes, holeOrder, budget, ui slices
-- Persist only holes + holeOrder + budget (partialize excludes ui state)
+- Persist only holes + holeOrder + budget + budgetConfig (partialize excludes ui state)
 - 3D: top-down default view, isometric toggle (Phase 2)
 - Placement: pointer events + raycasting + grid snap + AABB collision
 - Player flow: numbered path connecting holes in sequence
@@ -54,3 +54,30 @@ See docs/reference/ for full offer and feasibility study.
 ## Design Docs
 - docs/plans/index_document.md — design doc index
 - docs/reference/ — BORGA offer + feasibility study
+
+## Context Window Management
+This project uses heavy subagent orchestration. Keep the parent conversation lean:
+- Minimize verbose TaskUpdate messages; prefer brief status summaries
+- When orchestrating 5+ subagent tasks, batch status updates rather than reporting each individually
+- If context is growing large, proactively suggest compaction or session handoff before hitting limits
+
+## Git Operations
+- Always use SSH remotes (git@github.com:...) not HTTPS — HTTPS auth is not configured in this environment
+- Before merging branches, run `git stash` or commit working changes first
+- After subagent work, verify we're on the correct branch and no commits were lost before proceeding
+- When merging long-lived feature branches, expect conflicts and resolve them inline
+
+## Subagent / Task Agent Guidelines
+- When dispatching domain-expert subagents, use Explore agent type to avoid MCP tool name conflicts
+- Never check out a different branch from within a subagent — work on the current branch or create a new one
+- Confirm the exact number of agents/tasks with the user before spawning them
+- Keep subagent scopes small enough to complete within usage 
+
+## Screenshots & Artifacts
+When capturing screenshots or generating any file artifacts, always save them to a persistent project directory (e.g., `./docs/screenshots/` or `./artifacts/`). Never rely on transient/ephemeral storage. Confirm the file exists on disk after saving.
+
+## Session Handoff Protocol
+This project uses multi-session development. At the end of every session:
+1. Commit and push all work (via SSH remote)
+2. Write a brief handoff note to `docs/session-handoff.md` with: completed tasks, current branch, next steps, known issues
+3. Reference the relevant implementation plan document and which tasks/phases remain
