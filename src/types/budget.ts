@@ -5,3 +5,7 @@ export type BudgetCategory = {
 	actual: number;
 	notes: string;
 };
+
+export type BudgetConfig = {
+	costPerHole: number;
+};
