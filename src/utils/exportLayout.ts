@@ -17,7 +17,7 @@ export function buildExportData(
 	budgetConfig: BudgetConfig,
 ): ExportData {
 	return {
-		version: 2,
+		version: 3,
 		exportedAt: new Date().toISOString(),
 		hall: { width: hall.width, length: hall.length },
 		holes: holeOrder.map((id) => holes[id]).filter(Boolean),

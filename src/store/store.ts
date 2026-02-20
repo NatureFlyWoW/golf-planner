@@ -16,6 +16,10 @@ import type {
 	HoleType,
 	UIState,
 } from "../types";
+import {
+	migrateBudgetCategories,
+	migrateBudgetConfig,
+} from "../utils/migrateBudgetConfig";
 
 type StoreState = {
 	hall: Hall;
@@ -48,6 +52,14 @@ type StoreActions = {
 };
 
 export type Store = StoreState & StoreActions;
+
+/** Shape of the persisted slice written to localStorage. */
+type PersistedSlice = {
+	holes?: Record<string, Hole>;
+	holeOrder?: string[];
+	budget?: Record<string, BudgetCategory>;
+	budgetConfig?: BudgetConfig | { costPerHole?: number };
+};
 
 const DEFAULT_UI: UIState = {
 	tool: "select",
@@ -223,12 +235,27 @@ export const useStore = create<Store>()(
 			}),
 			{
 				name: "golf-planner-state",
+				version: 3,
 				partialize: (state) => ({
 					holes: state.holes,
 					holeOrder: state.holeOrder,
 					budget: state.budget,
 					budgetConfig: state.budgetConfig,
 				}),
+				migrate: (persisted: unknown, version: number) => {
+					const p = persisted as PersistedSlice;
+					if (version < 3 && p) {
+						p.budgetConfig = migrateBudgetConfig(
+							(p.budgetConfig ?? {}) as Parameters<
+								typeof migrateBudgetConfig
+							>[0],
+						);
+						if (p.budget) {
+							p.budget = migrateBudgetCategories(p.budget);
+						}
+					}
+					return p;
+				},
 			},
 		),
 		{
