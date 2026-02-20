@@ -1,9 +1,20 @@
 import { temporal } from "zundo";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import {
+	DEFAULT_BUDGET_CATEGORIES,
+	DEFAULT_BUDGET_CONFIG,
+} from "../constants/budget";
 import { HALL } from "../constants/hall";
 import { HOLE_TYPE_MAP } from "../constants/holeTypes";
-import type { BudgetCategory, Hall, Hole, HoleType, UIState } from "../types";
+import type {
+	BudgetCategory,
+	BudgetConfig,
+	Hall,
+	Hole,
+	HoleType,
+	UIState,
+} from "../types";
 
 type StoreState = {
 	hall: Hall;
@@ -11,6 +22,7 @@ type StoreState = {
 	holeOrder: string[];
 	selectedId: string | null;
 	budget: Record<string, BudgetCategory>;
+	budgetConfig: BudgetConfig;
 	ui: UIState;
 };
 
@@ -29,6 +41,8 @@ type StoreActions = {
 	setActivePanel: (panel: UIState["activePanel"]) => void;
 	setSunDate: (date: Date | undefined) => void;
 	updateBudget: (id: string, updates: Partial<BudgetCategory>) => void;
+	initBudget: () => void;
+	setBudgetConfig: (updates: Partial<BudgetConfig>) => void;
 };
 
 export type Store = StoreState & StoreActions;
@@ -53,6 +67,7 @@ export const useStore = create<Store>()(
 				holeOrder: [],
 				selectedId: null,
 				budget: {},
+				budgetConfig: DEFAULT_BUDGET_CONFIG,
 				ui: DEFAULT_UI,
 
 				addHole: (type, position) => {
@@ -173,6 +188,20 @@ export const useStore = create<Store>()(
 						},
 					}));
 				},
+
+				initBudget: () => {
+					const budget: Record<string, BudgetCategory> = {};
+					for (const cat of DEFAULT_BUDGET_CATEGORIES) {
+						budget[cat.id] = { ...cat };
+					}
+					set({ budget });
+				},
+
+				setBudgetConfig: (updates) => {
+					set((state) => ({
+						budgetConfig: { ...state.budgetConfig, ...updates },
+					}));
+				},
 			}),
 			{
 				name: "golf-planner-state",
@@ -180,6 +209,7 @@ export const useStore = create<Store>()(
 					holes: state.holes,
 					holeOrder: state.holeOrder,
 					budget: state.budget,
+					budgetConfig: state.budgetConfig,
 				}),
 			},
 		),
