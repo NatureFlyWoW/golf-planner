@@ -7,6 +7,7 @@ import { FlowPath } from "./FlowPath";
 import { Hall } from "./Hall";
 import { PlacedHoles } from "./PlacedHoles";
 import { PlacementHandler } from "./PlacementHandler";
+import { ScreenshotCapture } from "./ScreenshotCapture";
 import { SunIndicator } from "./SunIndicator";
 import { UVEffects } from "./UVEffects";
 
@@ -67,6 +68,7 @@ export default function ThreeCanvas({ sunData }: ThreeCanvasProps) {
 			<FlowPath />
 			<SunIndicator sunData={sunData} />
 			<UVEffects />
+			<ScreenshotCapture />
 		</>
 	);
 }

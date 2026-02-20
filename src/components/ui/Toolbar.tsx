@@ -24,6 +24,7 @@ export function Toolbar() {
 	const setView = useStore((s) => s.setView);
 	const uvMode = useStore((s) => s.ui.uvMode);
 	const toggleUvMode = useStore((s) => s.toggleUvMode);
+	const captureScreenshot = useStore((s) => s.captureScreenshot);
 	const holes = useStore((s) => s.holes);
 	const holeOrder = useStore((s) => s.holeOrder);
 	const hall = useStore((s) => s.hall);
@@ -163,6 +164,15 @@ export function Toolbar() {
 			</button>
 
 			<div className="ml-auto flex items-center gap-1">
+				<button
+					type="button"
+					onClick={() => captureScreenshot?.()}
+					className={neutralBtnClass}
+					title="Capture screenshot"
+					disabled={!captureScreenshot}
+				>
+					Snap
+				</button>
 				<button
 					type="button"
 					onClick={handleFloorPlanExport}

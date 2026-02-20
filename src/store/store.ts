@@ -40,6 +40,7 @@ type StoreState = {
 	financialSettings: FinancialSettings;
 	expenses: ExpenseEntry[];
 	ui: UIState;
+	captureScreenshot: (() => void) | null;
 };
 
 type StoreActions = {
@@ -65,6 +66,7 @@ type StoreActions = {
 	addExpense: (expense: ExpenseEntry) => void;
 	deleteExpense: (expenseId: string) => void;
 	updateCategoryTier: (id: string, tier: ConfidenceTier) => void;
+	registerScreenshotCapture: (fn: () => void) => void;
 };
 
 export type Store = StoreState & StoreActions;
@@ -225,6 +227,7 @@ export const useStore = create<Store>()(
 				financialSettings: DEFAULT_FINANCIAL_SETTINGS,
 				expenses: [],
 				ui: DEFAULT_UI,
+				captureScreenshot: null,
 
 				addHole: (type, position) => {
 					const id = crypto.randomUUID();
@@ -423,6 +426,8 @@ export const useStore = create<Store>()(
 							},
 						};
 					}),
+
+				registerScreenshotCapture: (fn) => set({ captureScreenshot: fn }),
 			}),
 			{
 				name: "golf-planner-state",
