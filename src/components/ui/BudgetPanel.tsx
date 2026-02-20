@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { BUDGET_HINTS, COURSE_CATEGORY_ID } from "../../constants/budget";
 import { useStore } from "../../store";
 import { selectCourseCost } from "../../store/selectors";
+import { CostSettingsModal } from "./CostSettingsModal";
 import { CourseBreakdown } from "./CourseBreakdown";
 
 /** Format number as €X,XXX for display */
@@ -248,8 +249,9 @@ export function BudgetPanel() {
 				</div>
 			</div>
 
-			{/* Settings panel placeholder — wired up in Task 6/7 */}
-			{showSettings && <div className="hidden" aria-hidden="true" />}
+			{showSettings && (
+				<CostSettingsModal onClose={() => setShowSettings(false)} />
+			)}
 		</div>
 	);
 }
