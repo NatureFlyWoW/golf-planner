@@ -18,35 +18,82 @@ export function Toolbar() {
 	const toggleFlowPath = useStore((s) => s.toggleFlowPath);
 	const view = useStore((s) => s.ui.view);
 	const setView = useStore((s) => s.setView);
+	const uvMode = useStore((s) => s.ui.uvMode);
+	const toggleUvMode = useStore((s) => s.toggleUvMode);
+
+	const barClass = uvMode
+		? "hidden items-center gap-1 border-b border-indigo-900 bg-gray-900 px-3 py-2 md:flex"
+		: "hidden items-center gap-1 border-b border-gray-200 bg-white px-3 py-2 md:flex";
+
+	const btnClass = (active: boolean) =>
+		uvMode
+			? `rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+					active
+						? "bg-purple-600 text-white"
+						: "bg-gray-800 text-gray-300 hover:bg-gray-700"
+				}`
+			: `rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+					active
+						? "bg-blue-600 text-white"
+						: "bg-gray-100 text-gray-700 hover:bg-gray-200"
+				}`;
+
+	const neutralBtnClass = uvMode
+		? "rounded bg-gray-800 px-3 py-1.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-700"
+		: "rounded bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200";
+
+	const smallBtnClass = uvMode
+		? "rounded bg-gray-800 px-2 py-1.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-700"
+		: "rounded bg-gray-100 px-2 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200";
+
+	const dividerClass = uvMode
+		? "mx-2 h-6 w-px bg-gray-700"
+		: "mx-2 h-6 w-px bg-gray-200";
+
+	const snapBtnClass = uvMode
+		? `rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+				snapEnabled
+					? "bg-purple-600 text-white"
+					: "bg-gray-800 text-gray-300 hover:bg-gray-700"
+			}`
+		: `rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+				snapEnabled
+					? "bg-green-600 text-white"
+					: "bg-gray-100 text-gray-700 hover:bg-gray-200"
+			}`;
+
+	const flowBtnClass = uvMode
+		? `rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+				showFlowPath
+					? "bg-purple-600 text-white"
+					: "bg-gray-800 text-gray-300 hover:bg-gray-700"
+			}`
+		: `rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+				showFlowPath
+					? "bg-purple-600 text-white"
+					: "bg-gray-100 text-gray-700 hover:bg-gray-200"
+			}`;
 
 	return (
-		<div className="hidden items-center gap-1 border-b border-gray-200 bg-white px-3 py-2 md:flex">
+		<div className={barClass}>
 			{tools.map(({ tool, label, icon }) => (
 				<button
 					type="button"
 					key={tool}
 					onClick={() => setTool(tool)}
-					className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-						activeTool === tool
-							? "bg-blue-600 text-white"
-							: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-					}`}
+					className={btnClass(activeTool === tool)}
 				>
 					<span className="mr-1">{icon}</span>
 					{label}
 				</button>
 			))}
 
-			<div className="mx-2 h-6 w-px bg-gray-200" />
+			<div className={dividerClass} />
 
 			<button
 				type="button"
 				onClick={toggleSnap}
-				className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-					snapEnabled
-						? "bg-green-600 text-white"
-						: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-				}`}
+				className={snapBtnClass}
 				title="Toggle grid snap (G)"
 			>
 				Snap
@@ -55,11 +102,7 @@ export function Toolbar() {
 			<button
 				type="button"
 				onClick={toggleFlowPath}
-				className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-					showFlowPath
-						? "bg-purple-600 text-white"
-						: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-				}`}
+				className={flowBtnClass}
 				title="Toggle player flow path"
 			>
 				Flow
@@ -68,18 +111,27 @@ export function Toolbar() {
 			<button
 				type="button"
 				onClick={() => setView(view === "top" ? "3d" : "top")}
-				className="rounded bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
+				className={neutralBtnClass}
 				title="Toggle 2D/3D view"
 			>
 				{view === "top" ? "3D" : "2D"}
 			</button>
 
-			<div className="mx-2 h-6 w-px bg-gray-200" />
+			<button
+				type="button"
+				onClick={toggleUvMode}
+				className={btnClass(uvMode)}
+				title="Toggle UV preview mode"
+			>
+				UV
+			</button>
+
+			<div className={dividerClass} />
 
 			<button
 				type="button"
 				onClick={() => useStore.temporal?.getState()?.undo()}
-				className="rounded bg-gray-100 px-2 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
+				className={smallBtnClass}
 				title="Undo (Ctrl+Z)"
 			>
 				&#x21A9;
@@ -88,7 +140,7 @@ export function Toolbar() {
 			<button
 				type="button"
 				onClick={() => useStore.temporal?.getState()?.redo()}
-				className="rounded bg-gray-100 px-2 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
+				className={smallBtnClass}
 				title="Redo (Ctrl+Shift+Z)"
 			>
 				&#x21AA;

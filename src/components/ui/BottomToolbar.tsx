@@ -20,6 +20,7 @@ export function BottomToolbar() {
 	const holeOrder = useStore((s) => s.holeOrder);
 	const activePanel = useStore((s) => s.ui.activePanel);
 	const setActivePanel = useStore((s) => s.setActivePanel);
+	const uvMode = useStore((s) => s.ui.uvMode);
 	const [showOverflow, setShowOverflow] = useState(false);
 
 	const selectedHole = selectedId ? holes[selectedId] : null;
@@ -59,7 +60,9 @@ export function BottomToolbar() {
 
 	return (
 		<div
-			className="flex flex-col border-t border-gray-200 bg-white md:hidden"
+			className={`flex flex-col border-t md:hidden ${
+				uvMode ? "border-indigo-900 bg-gray-900" : "border-gray-200 bg-white"
+			}`}
 			style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
 		>
 			{/* Info chip row — only when hole selected */}
@@ -105,8 +108,12 @@ export function BottomToolbar() {
 						className={`flex min-w-[48px] flex-col items-center justify-center rounded-lg px-2 py-1 ${
 							activeTool === tool ||
 							(tool === "place" && activePanel === "holes")
-								? "bg-blue-600 text-white"
-								: "text-gray-600"
+								? uvMode
+									? "bg-purple-600 text-white"
+									: "bg-blue-600 text-white"
+								: uvMode
+									? "text-gray-400"
+									: "text-gray-600"
 						}`}
 					>
 						<span className="text-lg">{icon}</span>
@@ -114,13 +121,13 @@ export function BottomToolbar() {
 					</button>
 				))}
 
-				<div className="h-8 w-px bg-gray-200" />
+				<div className={`h-8 w-px ${uvMode ? "bg-gray-700" : "bg-gray-200"}`} />
 
 				{/* Undo */}
 				<button
 					type="button"
 					onClick={() => useStore.temporal?.getState()?.undo()}
-					className="flex min-w-[48px] flex-col items-center justify-center rounded-lg px-2 py-1 text-gray-600"
+					className={`flex min-w-[48px] flex-col items-center justify-center rounded-lg px-2 py-1 ${uvMode ? "text-gray-400" : "text-gray-600"}`}
 				>
 					<span className="text-lg">&#x21A9;</span>
 					<span className="text-[10px]">Undo</span>
@@ -130,13 +137,13 @@ export function BottomToolbar() {
 				<button
 					type="button"
 					onClick={() => useStore.temporal?.getState()?.redo()}
-					className="flex min-w-[48px] flex-col items-center justify-center rounded-lg px-2 py-1 text-gray-600"
+					className={`flex min-w-[48px] flex-col items-center justify-center rounded-lg px-2 py-1 ${uvMode ? "text-gray-400" : "text-gray-600"}`}
 				>
 					<span className="text-lg">&#x21AA;</span>
 					<span className="text-[10px]">Redo</span>
 				</button>
 
-				<div className="h-8 w-px bg-gray-200" />
+				<div className={`h-8 w-px ${uvMode ? "bg-gray-700" : "bg-gray-200"}`} />
 
 				{/* More (overflow) */}
 				<button
@@ -169,6 +176,8 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 	const toggleFlowPath = useStore((s) => s.toggleFlowPath);
 	const view = useStore((s) => s.ui.view);
 	const setView = useStore((s) => s.setView);
+	const uvMode = useStore((s) => s.ui.uvMode);
+	const toggleUvMode = useStore((s) => s.toggleUvMode);
 	const holes = useStore((s) => s.holes);
 	const holeOrder = useStore((s) => s.holeOrder);
 	const budget = useStore((s) => s.budget);
@@ -186,7 +195,11 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 				role="presentation"
 			/>
 			{/* Popover */}
-			<div className="absolute bottom-16 right-2 z-50 grid grid-cols-2 gap-2 rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
+			<div
+				className={`absolute bottom-16 right-2 z-50 grid grid-cols-2 gap-2 rounded-lg border p-3 shadow-lg ${
+					uvMode ? "border-indigo-900 bg-gray-900" : "border-gray-200 bg-white"
+				}`}
+			>
 				<ToggleBtn label="Snap" active={snapEnabled} onTap={toggleSnap} />
 				<ToggleBtn label="Flow" active={showFlowPath} onTap={toggleFlowPath} />
 				<ToggleBtn
@@ -194,6 +207,7 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 					active={false}
 					onTap={() => setView(view === "top" ? "3d" : "top")}
 				/>
+				<ToggleBtn label="UV" active={uvMode} onTap={toggleUvMode} />
 				<ToggleBtn
 					label="Sun"
 					active={false}
@@ -211,7 +225,9 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 						}
 						onClose();
 					}}
-					className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700"
+					className={`rounded-lg px-4 py-2 text-sm font-medium ${
+						uvMode ? "bg-gray-800 text-gray-300" : "bg-gray-100 text-gray-700"
+					}`}
 				>
 					Save
 				</button>
@@ -228,7 +244,9 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 						downloadJson(data);
 						onClose();
 					}}
-					className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700"
+					className={`rounded-lg px-4 py-2 text-sm font-medium ${
+						uvMode ? "bg-gray-800 text-gray-300" : "bg-gray-100 text-gray-700"
+					}`}
 				>
 					Export
 				</button>
@@ -238,7 +256,9 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 						setActivePanel("budget");
 						onClose();
 					}}
-					className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700"
+					className={`rounded-lg px-4 py-2 text-sm font-medium ${
+						uvMode ? "bg-gray-800 text-gray-300" : "bg-gray-100 text-gray-700"
+					}`}
 				>
 					Budget
 				</button>
@@ -256,12 +276,19 @@ function ToggleBtn({
 	active: boolean;
 	onTap: () => void;
 }) {
+	const uvMode = useStore((s) => s.ui.uvMode);
 	return (
 		<button
 			type="button"
 			onClick={onTap}
 			className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-				active ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"
+				active
+					? uvMode
+						? "bg-purple-600 text-white"
+						: "bg-blue-600 text-white"
+					: uvMode
+						? "bg-gray-800 text-gray-300"
+						: "bg-gray-100 text-gray-700"
 			}`}
 		>
 			{label}
