@@ -16,6 +16,12 @@
 | [06-phases.md](./06-phases.md) | Implementation phases with strict scope boundaries | Planning work or deciding what to build next |
 | [07-project-config.md](./07-project-config.md) | CLAUDE.md content, directory structure, git workflow, conventions | Setting up the project or onboarding |
 
+## Phase Implementation Plans
+
+| File | Phase | Status |
+|---|---|---|
+| [2026-02-20-phase9a-material-rendering-design.md](./2026-02-20-phase9a-material-rendering-design.md) | Phase 9A: Material-Aware Rendering & Cost Precision | Approved |
+
 ## Key Decisions (quick reference)
 
 - **Personal tool**, not a product — hardcode BORGA specs, optimize for this group's workflow
