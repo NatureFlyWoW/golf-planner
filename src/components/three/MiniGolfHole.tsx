@@ -7,6 +7,8 @@ import { useStore } from "../../store";
 import type { Hole } from "../../types";
 import { checkAnyCollision, checkHallBounds } from "../../utils/collision";
 import { snapToGrid } from "../../utils/snap";
+import { HoleModel } from "./holes/HoleModel";
+import { MODEL_HEIGHTS } from "./holes/shared";
 
 type Props = {
 	hole: Hole;
@@ -14,7 +16,7 @@ type Props = {
 	onClick: () => void;
 };
 
-const HOLE_HEIGHT = 0.3;
+const INTERACTION_HEIGHT = 0.3;
 const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
 export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
@@ -130,13 +132,24 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 		pointerStartScreen.current = null;
 	}
 
+	const showOverlay =
+		isDragging || isSelected || (tool === "delete" && isHovered);
+	const overlayColor = isDragging
+		? "#FFE082"
+		: tool === "delete" && isHovered
+			? "#EF5350"
+			: "#FFC107";
+	const modelHeight = MODEL_HEIGHTS[hole.type] ?? INTERACTION_HEIGHT;
+
 	return (
 		<group
-			position={[hole.position.x, HOLE_HEIGHT / 2, hole.position.z]}
+			position={[hole.position.x, 0, hole.position.z]}
 			rotation={[0, rotationRad, 0]}
 		>
+			{/* Interaction mesh — always raycastable, tinted overlay when active */}
 			{/* biome-ignore lint/a11y/noStaticElementInteractions: R3F mesh element, not HTML */}
 			<mesh
+				position={[0, INTERACTION_HEIGHT / 2, 0]}
 				onClick={(e) => {
 					e.stopPropagation();
 					if (tool === "delete") {
@@ -151,26 +164,31 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 				onPointerEnter={() => setIsHovered(true)}
 				onPointerLeave={() => setIsHovered(false)}
 			>
-				<boxGeometry args={[width, HOLE_HEIGHT, length]} />
+				<boxGeometry args={[width, INTERACTION_HEIGHT, length]} />
 				<meshStandardMaterial
-					color={
-						isDragging
-							? "#FFE082"
-							: tool === "delete" && isHovered
-								? "#EF5350"
-								: isSelected
-									? "#FFC107"
-									: definition.color
-					}
+					color={showOverlay ? overlayColor : "#000000"}
+					transparent
+					opacity={showOverlay ? 0.35 : 0}
+					depthWrite={false}
 				/>
 			</mesh>
+
+			{/* Visual model */}
+			<HoleModel
+				type={hole.type}
+				width={width}
+				length={length}
+				color={definition.color}
+			/>
+
+			{/* Selection outline — sized to model height */}
 			{isSelected && (
-				<lineSegments>
+				<lineSegments position={[0, modelHeight / 2, 0]}>
 					<edgesGeometry
 						args={[
 							new THREE.BoxGeometry(
 								width + 0.05,
-								HOLE_HEIGHT + 0.05,
+								modelHeight + 0.05,
 								length + 0.05,
 							),
 						]}
