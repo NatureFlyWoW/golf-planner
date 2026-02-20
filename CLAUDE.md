@@ -37,6 +37,12 @@ See docs/reference/ for full offer and feasibility study.
 - UI: single left sidebar (Holes/Detail/Budget tabs) + top toolbar
 - Mobile: fullscreen canvas + bottom toolbar + overlay panels
 
+## TypeScript Project Conventions
+- Always run type checking (`npx tsc --noEmit`) before committing — the PostToolUse hook does this automatically after edits
+- Resolve all TS errors before marking a task as complete
+- When modifying types/interfaces, check all downstream usages for breakage
+- Prefer strict types over `any` — use `unknown` + type guards where type is uncertain
+
 ## Conventions
 - Functional components, named exports
 - Types used in 1 file: inline. Shared across 2+ files: src/types/
@@ -49,7 +55,9 @@ See docs/reference/ for full offer and feasibility study.
 ## Git
 - Main branch only, no feature branches
 - Conventional commits: feat:, fix:, refactor:, docs:
-- Commit after each completed feature
+- **Commit-per-task discipline**: commit immediately after each task passes tests — never batch multiple tasks into one commit
+- Never skip the pre-commit test hook — if tests fail, fix before committing
+- After merging, run the full test suite before pushing
 
 ## Design Docs
 - docs/plans/index_document.md — design doc index
@@ -60,6 +68,9 @@ This project uses heavy subagent orchestration. Keep the parent conversation lea
 - Minimize verbose TaskUpdate messages; prefer brief status summaries
 - When orchestrating 5+ subagent tasks, batch status updates rather than reporting each individually
 - If context is growing large, proactively suggest compaction or session handoff before hitting limits
+- After every 3 completed tasks, write a checkpoint to `docs/checkpoints/` — use `/checkpoint` skill
+- Have subagents write results to files rather than returning large payloads in conversation
+- When context exceeds ~60% capacity, run `/handoff` and suggest starting a new session
 
 ## Git Operations
 - Always use SSH remotes (git@github.com:...) not HTTPS — HTTPS auth is not configured in this environment
@@ -77,7 +88,14 @@ This project uses heavy subagent orchestration. Keep the parent conversation lea
 When capturing screenshots or generating any file artifacts, always save them to a persistent project directory (e.g., `./docs/screenshots/` or `./artifacts/`). Never rely on transient/ephemeral storage. Confirm the file exists on disk after saving.
 
 ## Session Handoff Protocol
-This project uses multi-session development. At the end of every session:
+This project uses multi-session development. Use `/handoff` skill or follow manually:
+
+**Session start:**
+1. Read `docs/session-handoff.md` and the latest checkpoint in `docs/checkpoints/`
+2. Verify current branch, run tests to confirm baseline
+3. Confirm the plan with the user before beginning execution
+
+**Session end:**
 1. Commit and push all work (via SSH remote)
-2. Write a brief handoff note to `docs/session-handoff.md` with: completed tasks, current branch, next steps, known issues
+2. Write a handoff note to `docs/session-handoff.md` with: completed tasks, current branch, next steps, known issues
 3. Reference the relevant implementation plan document and which tasks/phases remain
