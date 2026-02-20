@@ -1,11 +1,6 @@
 import { useState } from "react";
+import { SUN_PRESETS } from "../../constants/sunPresets";
 import { useStore } from "../../store";
-
-const PRESETS = [
-	{ label: "Now", date: undefined },
-	{ label: "Summer noon", date: new Date(2026, 5, 21, 12, 0) },
-	{ label: "Winter noon", date: new Date(2026, 11, 21, 12, 0) },
-] as const;
 
 export function MobileSunControls() {
 	const activePanel = useStore((s) => s.ui.activePanel);
@@ -19,7 +14,7 @@ export function MobileSunControls() {
 	const activePreset =
 		selectedDate === undefined
 			? "Now"
-			: (PRESETS.find(
+			: (SUN_PRESETS.find(
 					(p) => p.date && p.date.getTime() === selectedDate.getTime(),
 				)?.label ?? "Custom");
 
@@ -48,7 +43,7 @@ export function MobileSunControls() {
 					<div className="flex flex-col gap-1.5">
 						<span className="text-sm font-medium text-gray-500">Presets</span>
 						<div className="flex gap-2">
-							{PRESETS.map(({ label, date }) => (
+							{SUN_PRESETS.map(({ label, date }) => (
 								<button
 									key={label}
 									type="button"

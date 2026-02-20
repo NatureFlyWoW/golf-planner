@@ -1,36 +1,46 @@
 # Session Handoff — 2026-02-20
 
 ## Completed
-**Phase 4 — COMPLETE** (12 tasks, 11 commits, all pushed to origin/master)
+**Phases 1-5 — ALL COMPLETE** (all pushed to origin/master)
 
-- T1-2: Polish fixes (favicon, par clamp 1-6, backdrop a11y + styling)
-- T3-5: Mobile sun controls (sunDate lifted to Zustand, MobileSunControls overlay, wired to overflow popover)
-- T6-8: Budget store (BudgetConfig type, 14 default categories, initBudget/setBudgetConfig actions, export v2, auto-init)
-- T9-10: Budget desktop panel (BudgetPanel component with summary/cards/progress bars/footer, wired into sidebar)
-- T11-12: Budget mobile panel (MobileBudgetPanel overlay, Budget button in overflow popover)
+### Phase 5: Cost Auto-Estimation (9 commits)
+- T1-2: Data model (BudgetConfig.costPerType, manualOverride, COURSE_CATEGORY_ID, DEFAULT_HOLE_COST)
+- T3-4: Selectors (selectCourseCost, selectCourseBreakdown, toggleCourseOverride) + 9 tests
+- T5-7: BudgetPanel UI (CourseBreakdown component, lock/unlock toggle, dashboard hints)
+- T8: CostSettingsModal (per-type cost editing with reset defaults)
+- T9-10: Export v3 format + v2-to-v3 localStorage migration
+- Bugfix: infinite re-render from unstable selector + nested button HTML
+
+### Phase 4: Polish + Budget (11 commits)
+- Polish fixes (favicon, par clamp, backdrop a11y)
+- Mobile sun controls, budget store, budget panel (desktop + mobile)
+
+### Phases 1-3: Core + Polish + Mobile/PWA
 
 ## Current State
 - **Branch:** master, fully pushed to origin
-- **Tests:** 50 passing
-- **Lint:** 67 files clean
-- **Build:** passes (1,307 KB JS bundle)
-- **Screenshots:** `docs/screenshots/phase4-*.png` (7 files, outside git repo)
+- **Tests:** 66 passing (11 test files)
+- **Lint:** 55 files clean
+- **Build:** passes (1,312 KB JS bundle)
+- **Screenshots:** `docs/screenshots/phase5-*.png` (3 files)
 
-## All Phases Complete
-Phases 1-4 are all done. The app has:
+## What's Built
 - Full hall layout with 7 hole types, drag/rotate/delete
 - 3D toggle, collision detection, flow path, snap, undo/redo
 - Geo features (sun indicator, sun controls, minimap, location bar)
 - Mobile/PWA with responsive layout
-- Budget tracker with 14 categories, editable fields, progress bars, auto-calc
+- Budget tracker with 14 categories, editable fields, progress bars
+- Cost auto-estimation: per-type hole costs, course breakdown, settings modal, lock/pin
 
 ## Known Issues
 - THREE.Clock upstream warning (harmless)
-- Chunk size warning (1,307 KB) — consider code-splitting if needed
+- Chunk size warning (1,312 KB) — consider code-splitting if needed
 - PRESETS array duplicated between SunControls.tsx and MobileSunControls.tsx (cosmetic)
 
 ## Potential Future Work
 - Code-splitting to reduce bundle size
 - Extract shared PRESETS constant
-- Add aria-labels to mobile overlay close buttons
+- PDF floor plan export
+- UV/blacklight theme toggle
+- Share layout via URL
 - Deploy to Vercel
