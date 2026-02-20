@@ -1,5 +1,6 @@
 import { useStore } from "../../store";
 import type { SidebarTab } from "../../types";
+import { BudgetPanel } from "./BudgetPanel";
 import { HoleDetail } from "./HoleDetail";
 import { HoleLibrary } from "./HoleLibrary";
 
@@ -31,12 +32,12 @@ export function Sidebar() {
 					</button>
 				))}
 			</div>
-			<div className="flex-1 overflow-y-auto p-3">
+			<div
+				className={`flex min-h-0 flex-1 flex-col ${activeTab === "budget" ? "" : "overflow-y-auto p-3"}`}
+			>
 				{activeTab === "holes" && <HoleLibrary />}
 				{activeTab === "detail" && <HoleDetail />}
-				{activeTab === "budget" && (
-					<p className="text-xs text-gray-400">Budget tracker — Phase 4</p>
-				)}
+				{activeTab === "budget" && <BudgetPanel />}
 			</div>
 		</div>
 	);
