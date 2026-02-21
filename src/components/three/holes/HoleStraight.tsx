@@ -1,10 +1,7 @@
-import {
-	BUMPER_HEIGHT,
-	BUMPER_THICKNESS,
-	CUP_RADIUS,
-	SURFACE_THICKNESS,
-	TEE_RADIUS,
-} from "./shared";
+import { BumperRail } from "./BumperRail";
+import { Cup } from "./Cup";
+import { TeePad } from "./TeePad";
+import { BUMPER_THICKNESS, SURFACE_THICKNESS } from "./shared";
 import { useMaterials } from "./useMaterials";
 
 type Props = { width: number; length: number };
@@ -23,75 +20,32 @@ export function HoleStraight({ width, length }: Props) {
 				<boxGeometry args={[laneW, SURFACE_THICKNESS, laneL]} />
 			</mesh>
 
-			{/* Left bumper */}
-			<mesh
-				castShadow
-				position={[
-					-halfW + BUMPER_THICKNESS / 2,
-					SURFACE_THICKNESS + BUMPER_HEIGHT / 2,
-					0,
-				]}
+			{/* Bumper rails */}
+			<BumperRail
+				length={length}
+				position={[-halfW + BUMPER_THICKNESS / 2, SURFACE_THICKNESS, -halfL]}
 				material={bumper}
-			>
-				<boxGeometry args={[BUMPER_THICKNESS, BUMPER_HEIGHT, length]} />
-			</mesh>
-
-			{/* Right bumper */}
-			<mesh
-				castShadow
-				position={[
-					halfW - BUMPER_THICKNESS / 2,
-					SURFACE_THICKNESS + BUMPER_HEIGHT / 2,
-					0,
-				]}
+			/>
+			<BumperRail
+				length={length}
+				position={[halfW - BUMPER_THICKNESS / 2, SURFACE_THICKNESS, -halfL]}
 				material={bumper}
-			>
-				<boxGeometry args={[BUMPER_THICKNESS, BUMPER_HEIGHT, length]} />
-			</mesh>
-
-			{/* Back bumper (-Z) */}
-			<mesh
-				castShadow
-				position={[
-					0,
-					SURFACE_THICKNESS + BUMPER_HEIGHT / 2,
-					-halfL + BUMPER_THICKNESS / 2,
-				]}
+			/>
+			<BumperRail
+				length={laneW}
+				position={[-laneW / 2, SURFACE_THICKNESS, -halfL + BUMPER_THICKNESS / 2]}
+				rotation={[0, -Math.PI / 2, 0]}
 				material={bumper}
-			>
-				<boxGeometry args={[laneW, BUMPER_HEIGHT, BUMPER_THICKNESS]} />
-			</mesh>
-
-			{/* Front bumper (+Z) */}
-			<mesh
-				castShadow
-				position={[
-					0,
-					SURFACE_THICKNESS + BUMPER_HEIGHT / 2,
-					halfL - BUMPER_THICKNESS / 2,
-				]}
+			/>
+			<BumperRail
+				length={laneW}
+				position={[-laneW / 2, SURFACE_THICKNESS, halfL - BUMPER_THICKNESS / 2]}
+				rotation={[0, -Math.PI / 2, 0]}
 				material={bumper}
-			>
-				<boxGeometry args={[laneW, BUMPER_HEIGHT, BUMPER_THICKNESS]} />
-			</mesh>
+			/>
 
-			{/* Tee marker (yellow circle, tee end at -Z) */}
-			<mesh
-				position={[0, SURFACE_THICKNESS + 0.001, -halfL + 0.15]}
-				rotation={[-Math.PI / 2, 0, 0]}
-				material={tee}
-			>
-				<circleGeometry args={[TEE_RADIUS, 16]} />
-			</mesh>
-
-			{/* Cup (black circle, cup end at +Z) */}
-			<mesh
-				position={[0, SURFACE_THICKNESS + 0.001, halfL - 0.15]}
-				rotation={[-Math.PI / 2, 0, 0]}
-				material={cup}
-			>
-				<circleGeometry args={[CUP_RADIUS, 16]} />
-			</mesh>
+			<TeePad position={[0, 0, -halfL + 0.15]} material={tee} />
+			<Cup position={[0, 0, halfL - 0.15]} material={cup} />
 		</group>
 	);
 }

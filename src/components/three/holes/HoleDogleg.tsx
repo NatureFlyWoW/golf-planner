@@ -1,184 +1,103 @@
-import {
-	BUMPER_HEIGHT,
-	BUMPER_THICKNESS,
-	CUP_RADIUS,
-	SURFACE_THICKNESS,
-	TEE_RADIUS,
-} from "./shared";
+import { BumperRail } from "./BumperRail";
+import { CornerFillet } from "./CornerFillet";
+import { Cup } from "./Cup";
+import { TeePad } from "./TeePad";
+import { BUMPER_HEIGHT, BUMPER_THICKNESS, SURFACE_THICKNESS } from "./shared";
 import { useMaterials } from "./useMaterials";
 
-// ── Lane constants ───────────────────────────────────────────────────────────
 const LANE_WIDTH = 0.6;
 const OFFSET = 0.15;
 
-export function HoleDogleg({
-	width,
-	length,
-}: {
-	width: number;
-	length: number;
-}) {
+export function HoleDogleg({ width, length }: { width: number; length: number }) {
 	const { felt, bumper, tee, cup } = useMaterials();
 	const halfW = width / 2;
 	const halfL = length / 2;
+	const BT = BUMPER_THICKNESS;
+	const ST = SURFACE_THICKNESS;
 
-	// Inner lane length after subtracting end bumpers
-	const innerL = length - BUMPER_THICKNESS * 2;
+	const innerL = length - BT * 2;
 	const segLen = innerL / 3;
 
-	// Z centres for each of the three felt segments
-	const zEntry = -halfL + BUMPER_THICKNESS + segLen / 2;
+	const zEntry = -halfL + BT + segLen / 2;
 	const zMid = 0;
-	const zExit = halfL - BUMPER_THICKNESS - segLen / 2;
+	const zExit = halfL - BT - segLen / 2;
+	const zBend1 = -halfL + BT + segLen;
+	const zBend2 = halfL - BT - segLen;
 
-	// Z boundaries between segments (world space)
-	const zBend1 = -halfL + BUMPER_THICKNESS + segLen; // entry/middle boundary
-	const zBend2 = halfL - BUMPER_THICKNESS - segLen; // middle/exit boundary
+	const transitionW = LANE_WIDTH + OFFSET;
+	const transitionL = BT;
 
-	// Transition patch dimensions – cover the gap caused by the X shift
-	// The patch spans the full combined width of both adjacent lanes
-	const transitionW = LANE_WIDTH + OFFSET; // 0.75 — bridges the offset gap
-	const transitionL = BUMPER_THICKNESS; // thin slab to fill the seam
-
-	// Shared Y positions
-	const surfaceY = SURFACE_THICKNESS / 2;
-	const bumperY = SURFACE_THICKNESS + BUMPER_HEIGHT / 2;
-
-	// Inner guide bumper dimensions
 	const guideBumperH = BUMPER_HEIGHT * 0.6;
-	const guideBumperY = SURFACE_THICKNESS + guideBumperH / 2;
-	const guideBumperLen = BUMPER_THICKNESS * 1.5;
+	const guideBumperLen = BT * 1.5;
 
 	return (
 		<group>
-			{/* ── Felt surfaces ─────────────────────────────────────────────── */}
-
-			{/* Entry segment: offset right (+X) */}
-			<mesh position={[OFFSET, surfaceY, zEntry]} material={felt}>
-				<boxGeometry args={[LANE_WIDTH, SURFACE_THICKNESS, segLen]} />
+			{/* Felt surfaces */}
+			<mesh position={[OFFSET, ST / 2, zEntry]} material={felt}>
+				<boxGeometry args={[LANE_WIDTH, ST, segLen]} />
+			</mesh>
+			<mesh position={[0, ST / 2, zMid]} material={felt}>
+				<boxGeometry args={[LANE_WIDTH, ST, segLen]} />
+			</mesh>
+			<mesh position={[-OFFSET, ST / 2, zExit]} material={felt}>
+				<boxGeometry args={[LANE_WIDTH, ST, segLen]} />
+			</mesh>
+			<mesh position={[OFFSET / 2, ST / 2, zBend1]} material={felt}>
+				<boxGeometry args={[transitionW, ST, transitionL]} />
+			</mesh>
+			<mesh position={[-OFFSET / 2, ST / 2, zBend2]} material={felt}>
+				<boxGeometry args={[transitionW, ST, transitionL]} />
 			</mesh>
 
-			{/* Middle segment: centred */}
-			<mesh position={[0, surfaceY, zMid]} material={felt}>
-				<boxGeometry args={[LANE_WIDTH, SURFACE_THICKNESS, segLen]} />
-			</mesh>
-
-			{/* Exit segment: offset left (-X) */}
-			<mesh position={[-OFFSET, surfaceY, zExit]} material={felt}>
-				<boxGeometry args={[LANE_WIDTH, SURFACE_THICKNESS, segLen]} />
-			</mesh>
-
-			{/* ── Transition felt patches ────────────────────────────────────── */}
-
-			{/*
-			 * Bend 1 (entry → middle): entry is at +OFFSET, middle is at 0.
-			 * The patch is centred between them → X = +OFFSET/2
-			 */}
-			<mesh position={[OFFSET / 2, surfaceY, zBend1]} material={felt}>
-				<boxGeometry args={[transitionW, SURFACE_THICKNESS, transitionL]} />
-			</mesh>
-
-			{/*
-			 * Bend 2 (middle → exit): middle is at 0, exit is at -OFFSET.
-			 * The patch is centred between them → X = -OFFSET/2
-			 */}
-			<mesh position={[-OFFSET / 2, surfaceY, zBend2]} material={felt}>
-				<boxGeometry args={[transitionW, SURFACE_THICKNESS, transitionL]} />
-			</mesh>
-
-			{/* ── Outer bumper walls ────────────────────────────────────────── */}
-
-			{/* Left outer bumper (full length, at -X bounding edge) */}
-			<mesh
-				castShadow
-				position={[-halfW + BUMPER_THICKNESS / 2, bumperY, 0]}
+			{/* Outer bumpers */}
+			<BumperRail length={length} position={[-halfW + BT / 2, ST, -halfL]} material={bumper} />
+			<BumperRail length={length} position={[halfW - BT / 2, ST, -halfL]} material={bumper} />
+			{/* End bumpers */}
+			<BumperRail
+				length={width}
+				position={[-halfW, ST, -halfL + BT / 2]}
+				rotation={[0, -Math.PI / 2, 0]}
 				material={bumper}
-			>
-				<boxGeometry args={[BUMPER_THICKNESS, BUMPER_HEIGHT, length]} />
-			</mesh>
-
-			{/* Right outer bumper (full length, at +X bounding edge) */}
-			<mesh
-				castShadow
-				position={[halfW - BUMPER_THICKNESS / 2, bumperY, 0]}
+			/>
+			<BumperRail
+				length={width}
+				position={[-halfW, ST, halfL - BT / 2]}
+				rotation={[0, -Math.PI / 2, 0]}
 				material={bumper}
-			>
-				<boxGeometry args={[BUMPER_THICKNESS, BUMPER_HEIGHT, length]} />
-			</mesh>
+			/>
 
-			{/* ── End bumpers ───────────────────────────────────────────────── */}
-
-			{/* Back end bumper (-Z, tee end) */}
-			<mesh
-				castShadow
-				position={[0, bumperY, -halfL + BUMPER_THICKNESS / 2]}
+			{/* Guide bumpers at bends */}
+			<BumperRail
+				length={guideBumperLen}
+				position={[OFFSET + LANE_WIDTH / 2 + BT / 2, ST, zBend1 - guideBumperLen / 2]}
+				height={guideBumperH}
 				material={bumper}
-			>
-				<boxGeometry args={[width, BUMPER_HEIGHT, BUMPER_THICKNESS]} />
-			</mesh>
-
-			{/* Front end bumper (+Z, cup end) */}
-			<mesh
-				castShadow
-				position={[0, bumperY, halfL - BUMPER_THICKNESS / 2]}
+			/>
+			<BumperRail
+				length={guideBumperLen}
+				position={[-OFFSET - LANE_WIDTH / 2 - BT / 2, ST, zBend2 - guideBumperLen / 2]}
+				height={guideBumperH}
 				material={bumper}
-			>
-				<boxGeometry args={[width, BUMPER_HEIGHT, BUMPER_THICKNESS]} />
-			</mesh>
+			/>
 
-			{/* ── Inner guide bumpers at bends ──────────────────────────────── */}
+			{/* Corner fillets at bends */}
+			<CornerFillet
+				position={[OFFSET / 2, ST / 2, zBend1]}
+				rotation={[Math.PI / 2, Math.PI, 0]}
+				radius={OFFSET}
+				height={ST}
+				material={felt}
+			/>
+			<CornerFillet
+				position={[-OFFSET / 2, ST / 2, zBend2]}
+				rotation={[Math.PI / 2, 0, 0]}
+				radius={OFFSET}
+				height={ST}
+				material={felt}
+			/>
 
-			{/*
-			 * Right guide at bend 1: sits at the right edge of the entry lane
-			 * (entry lane right edge = OFFSET + LANE_WIDTH/2 = 0.15 + 0.3 = 0.45)
-			 * Positioned between the entry and middle segments.
-			 */}
-			<mesh
-				castShadow
-				position={[
-					OFFSET + LANE_WIDTH / 2 + BUMPER_THICKNESS / 2,
-					guideBumperY,
-					zBend1,
-				]}
-				material={bumper}
-			>
-				<boxGeometry args={[BUMPER_THICKNESS, guideBumperH, guideBumperLen]} />
-			</mesh>
-
-			{/*
-			 * Left guide at bend 2: sits at the left edge of the exit lane
-			 * (exit lane left edge = -OFFSET - LANE_WIDTH/2 = -0.15 - 0.3 = -0.45)
-			 * Positioned between the middle and exit segments.
-			 */}
-			<mesh
-				castShadow
-				position={[
-					-OFFSET - LANE_WIDTH / 2 - BUMPER_THICKNESS / 2,
-					guideBumperY,
-					zBend2,
-				]}
-				material={bumper}
-			>
-				<boxGeometry args={[BUMPER_THICKNESS, guideBumperH, guideBumperLen]} />
-			</mesh>
-
-			{/* ── Tee marker (yellow disc, at entry segment, slightly right) ── */}
-			<mesh
-				position={[OFFSET, SURFACE_THICKNESS + 0.001, -halfL + 0.15]}
-				rotation={[-Math.PI / 2, 0, 0]}
-				material={tee}
-			>
-				<circleGeometry args={[TEE_RADIUS, 16]} />
-			</mesh>
-
-			{/* ── Cup marker (black disc, at exit segment, slightly left) ───── */}
-			<mesh
-				position={[-OFFSET, SURFACE_THICKNESS + 0.001, halfL - 0.15]}
-				rotation={[-Math.PI / 2, 0, 0]}
-				material={cup}
-			>
-				<circleGeometry args={[CUP_RADIUS, 16]} />
-			</mesh>
+			<TeePad position={[OFFSET, 0, -halfL + 0.15]} material={tee} />
+			<Cup position={[-OFFSET, 0, halfL - 0.15]} material={cup} />
 		</group>
 	);
 }

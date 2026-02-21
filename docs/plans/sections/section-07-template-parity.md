@@ -1,6 +1,20 @@
-Good, no existing template hole tests. Now I have all the context needed to write this section.
-
 # Section 7: Template Hole Visual Parity
+
+## Implementation Status: COMPLETE
+
+**Files modified:**
+- `src/utils/segmentGeometry.ts` — Replaced BoxGeometry bumpers with ExtrudeGeometry (rounded profiles) for straight and chicane segments. Curve segments keep RingGeometry (pragmatic approach). Added import of `createBumperProfile`/`createBumperGeometry` from `bumperProfile.ts`, added `BEVEL_RADIUS = 0.008`.
+- `src/components/three/holes/TemplateHoleModel.tsx` — Migrated from singleton material imports (`shared.ts`) to `useMaterials()` hook. Replaced inline cup/tee with shared `<Cup>` and `<TeePad>` components. Added geometry disposal `useEffect`. Removed `uvMode` store selector (handled internally by `useMaterials`).
+- `tests/utils/segmentGeometry.test.ts` — Added 4 new tests: ExtrudeGeometry vertex count for straight/chicane, all 11 types > 24 vertices, triangle budget.
+- `tests/components/holes/templateHole.test.ts` — Created with 6 source-level migration verification tests.
+
+**Deviations from plan:**
+- Curve segment bumpers kept as RingGeometry per plan's pragmatic recommendation (not upgraded to arc-following ExtrudeGeometry)
+- No separate `useMaterials` behavioral tests added (already covered by existing `texturedMaterials.test.ts`)
+
+**Test count:** 461 tests across 42 files (up from 451)
+
+---
 
 ## Overview
 

@@ -1,18 +1,18 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { useStore } from "../../../store";
+import { createTunnelArchGeometry } from "../../../utils/tunnelGeometry";
 import { UV_EMISSIVE_INTENSITY } from "./materialPresets";
-import {
-	BUMPER_HEIGHT,
-	BUMPER_THICKNESS,
-	CUP_RADIUS,
-	SURFACE_THICKNESS,
-	TEE_RADIUS,
-} from "./shared";
+import { BumperRail } from "./BumperRail";
+import { Cup } from "./Cup";
+import { TeePad } from "./TeePad";
+import { BUMPER_THICKNESS, SURFACE_THICKNESS } from "./shared";
 import { useMaterials } from "./useMaterials";
 
 const TUNNEL_LENGTH = 1.6;
-const TUNNEL_SEGMENTS = 16;
+const WALL_THICKNESS = 0.05;
+const FRAME_THICKNESS = 0.03;
+const FRAME_SCALE = 1.05;
 
 export function HoleTunnel({
 	width,
@@ -31,17 +31,10 @@ export function HoleTunnel({
 	const halfW = width / 2;
 	const halfL = length / 2;
 	const laneW = width - bt * 2;
-
-	// Arch radius spans the lane width (half-cylinder sits on the felt surface)
 	const archRadius = laneW / 2;
-
-	// Each open section (entry + exit) outside the tunnel
 	const openLength = (length - TUNNEL_LENGTH) / 2;
 
-	// Z centres of the two open bumper segments per side
-	const entryCenterZ = -halfL + openLength / 2;
-	const exitCenterZ = halfL - openLength / 2;
-
+	// ── Materials ───────────────────────────────────────────
 	const tunnelMaterial = useMemo(
 		() =>
 			new THREE.MeshStandardMaterial(
@@ -53,111 +46,112 @@ export function HoleTunnel({
 							roughness: 0.6,
 							metalness: 0.1,
 						}
-					: { color: "#455A64", roughness: 0.6, metalness: 0.1 },
+					: {
+							color: "#8B7355",
+							roughness: 0.85,
+							metalness: 0.05,
+						},
 			),
 		[uvMode],
 	);
 
+	// ── Geometries ──────────────────────────────────────────
+	const archGeometry = useMemo(
+		() => createTunnelArchGeometry(archRadius, TUNNEL_LENGTH, WALL_THICKNESS),
+		[archRadius],
+	);
+
+	const frameGeometry = useMemo(
+		() =>
+			createTunnelArchGeometry(
+				archRadius * FRAME_SCALE,
+				FRAME_THICKNESS,
+				WALL_THICKNESS,
+			),
+		[archRadius],
+	);
+
+	// ── Geometry Disposal ───────────────────────────────────
+	useEffect(() => {
+		return () => {
+			archGeometry.dispose();
+			frameGeometry.dispose();
+		};
+	}, [archGeometry, frameGeometry]);
+
+	// Position the arch so it's centered on the hole
+	const archZ = -TUNNEL_LENGTH / 2;
+
 	return (
 		<group>
-			{/* Green felt surface — full lane, inset by bumper thickness at each end */}
+			{/* Felt surface */}
 			<mesh position={[0, st / 2, 0]} material={felt}>
 				<boxGeometry args={[laneW, st, length - bt * 2]} />
 			</mesh>
 
-			{/* Tunnel arch — half-cylinder spanning the centre 1.6 m
-			    CylinderGeometry axis is Y by default.
-			    Rotating [-PI/2, 0, 0] maps: Y→-Z and Z→+Y, so the
-			    arch's radial peak (+Z in cylinder space) becomes +Y in
-			    world space — curving upward over the felt.
-			    thetaStart=0, thetaLength=PI gives the top semicircle. */}
+			{/* Tunnel arch (ExtrudeGeometry archway) */}
 			<mesh
 				castShadow
-				position={[0, st, 0]}
-				rotation={[-Math.PI / 2, 0, 0]}
+				geometry={archGeometry}
 				material={tunnelMaterial}
-			>
-				<cylinderGeometry
-					args={[
-						archRadius,
-						archRadius,
-						TUNNEL_LENGTH,
-						TUNNEL_SEGMENTS,
-						1,
-						true,
-						0,
-						Math.PI,
-					]}
-				/>
-			</mesh>
+				position={[0, st, archZ]}
+			/>
 
-			{/* ── Side bumpers — entry zone (left and right) ── */}
+			{/* Entrance frame */}
 			<mesh
 				castShadow
-				position={[-halfW + bt / 2, st + BUMPER_HEIGHT / 2, entryCenterZ]}
-				material={bumper}
-			>
-				<boxGeometry args={[bt, BUMPER_HEIGHT, openLength]} />
-			</mesh>
+				geometry={frameGeometry}
+				material={tunnelMaterial}
+				position={[0, st, archZ - FRAME_THICKNESS]}
+			/>
+
+			{/* Exit frame */}
 			<mesh
 				castShadow
-				position={[halfW - bt / 2, st + BUMPER_HEIGHT / 2, entryCenterZ]}
-				material={bumper}
-			>
-				<boxGeometry args={[bt, BUMPER_HEIGHT, openLength]} />
-			</mesh>
+				geometry={frameGeometry}
+				material={tunnelMaterial}
+				position={[0, st, archZ + TUNNEL_LENGTH]}
+			/>
 
-			{/* ── Side bumpers — exit zone (left and right) ── */}
-			<mesh
-				castShadow
-				position={[-halfW + bt / 2, st + BUMPER_HEIGHT / 2, exitCenterZ]}
+			{/* Entry zone side bumpers */}
+			<BumperRail
+				length={openLength}
+				position={[-halfW + bt / 2, st, -halfL]}
 				material={bumper}
-			>
-				<boxGeometry args={[bt, BUMPER_HEIGHT, openLength]} />
-			</mesh>
-			<mesh
-				castShadow
-				position={[halfW - bt / 2, st + BUMPER_HEIGHT / 2, exitCenterZ]}
+			/>
+			<BumperRail
+				length={openLength}
+				position={[halfW - bt / 2, st, -halfL]}
 				material={bumper}
-			>
-				<boxGeometry args={[bt, BUMPER_HEIGHT, openLength]} />
-			</mesh>
-
-			{/* Back end bumper (-Z, full lane width) */}
-			<mesh
-				castShadow
-				position={[0, st + BUMPER_HEIGHT / 2, -halfL + bt / 2]}
+			/>
+			{/* Exit zone side bumpers */}
+			<BumperRail
+				length={openLength}
+				position={[-halfW + bt / 2, st, halfL - openLength]}
 				material={bumper}
-			>
-				<boxGeometry args={[laneW, BUMPER_HEIGHT, bt]} />
-			</mesh>
-
-			{/* Front end bumper (+Z, full lane width) */}
-			<mesh
-				castShadow
-				position={[0, st + BUMPER_HEIGHT / 2, halfL - bt / 2]}
+			/>
+			<BumperRail
+				length={openLength}
+				position={[halfW - bt / 2, st, halfL - openLength]}
 				material={bumper}
-			>
-				<boxGeometry args={[laneW, BUMPER_HEIGHT, bt]} />
-			</mesh>
+			/>
 
-			{/* Tee marker — yellow circle at the -Z (entry) end */}
-			<mesh
-				position={[0, st + 0.001, -halfL + 0.15]}
-				rotation={[-Math.PI / 2, 0, 0]}
-				material={tee}
-			>
-				<circleGeometry args={[TEE_RADIUS, 16]} />
-			</mesh>
+			{/* End bumpers */}
+			<BumperRail
+				length={laneW}
+				position={[-laneW / 2, st, -halfL + bt / 2]}
+				rotation={[0, -Math.PI / 2, 0]}
+				material={bumper}
+			/>
+			<BumperRail
+				length={laneW}
+				position={[-laneW / 2, st, halfL - bt / 2]}
+				rotation={[0, -Math.PI / 2, 0]}
+				material={bumper}
+			/>
 
-			{/* Cup marker — black circle at the +Z (exit) end */}
-			<mesh
-				position={[0, st + 0.001, halfL - 0.15]}
-				rotation={[-Math.PI / 2, 0, 0]}
-				material={cup}
-			>
-				<circleGeometry args={[CUP_RADIUS, 16]} />
-			</mesh>
+			<TeePad position={[0, 0, -halfL + 0.15]} material={tee} />
+			<Cup position={[0, 0, halfL - 0.15]} material={cup} />
 		</group>
 	);
 }

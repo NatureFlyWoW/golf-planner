@@ -2,6 +2,10 @@ import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { useStore } from "../../../store";
 import type { MaterialProfile } from "../../../types/budget";
+import {
+	getTextureMapSet,
+	type TextureMapSet,
+} from "../../../utils/textureGating";
 import { BUMPER_PBR, FELT_PBR } from "./materialPresets";
 import {
 	cupMaterial,
@@ -17,6 +21,8 @@ export type MaterialSet = {
 	bumper: THREE.MeshStandardMaterial;
 	tee: THREE.MeshStandardMaterial;
 	cup: THREE.MeshStandardMaterial;
+	textureMapSet: TextureMapSet;
+	isTopDown: boolean;
 };
 
 const uvMaterials: MaterialSet = {
@@ -28,8 +34,16 @@ const uvMaterials: MaterialSet = {
 
 export function useMaterials(): MaterialSet {
 	const uvMode = useStore((s) => s.ui.uvMode);
+	const view = useStore((s) => s.ui.view);
+	const gpuTier = useStore((s) => s.ui.gpuTier);
 	const materialProfile: MaterialProfile = useStore(
 		(s) => s.budgetConfig.materialProfile,
+	);
+
+	const isTopDown = view === "top";
+	const textureMapSet = useMemo(
+		() => getTextureMapSet(gpuTier, isTopDown),
+		[gpuTier, isTopDown],
 	);
 
 	const planningMaterials = useMemo(() => {
@@ -60,5 +74,6 @@ export function useMaterials(): MaterialSet {
 		};
 	}, [planningMaterials]);
 
-	return uvMode ? uvMaterials : planningMaterials;
+	const baseMaterials = uvMode ? uvMaterials : planningMaterials;
+	return { ...baseMaterials, textureMapSet, isTopDown };
 }

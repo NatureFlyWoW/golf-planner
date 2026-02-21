@@ -1,5 +1,27 @@
 # Section 09: Performance + GPU Tier Gating
 
+## Implementation Status: COMPLETE
+
+**Files created:**
+- `src/utils/textureGating.ts` — `getTextureMapSet()` pure function for GPU tier texture decisions
+- `src/utils/topDownGating.ts` — `shouldShowFlagPin()`, `shouldUseSimpleBumpers()`, `shouldSkipNormalMaps()` pure functions
+- `src/components/three/holes/FlagPin.tsx` — Flag pin component with top-down visibility gating
+- `tests/hooks/gpuTierTextures.test.ts` — 6 GPU tier texture gating tests
+- `tests/components/holes/topDownView.test.ts` — 6 top-down view optimization tests
+- `tests/utils/geometryOptimization.test.ts` — 7 geometry optimization + triangle budget tests
+
+**Files modified:**
+- `src/components/three/holes/useMaterials.ts` — Extended MaterialSet with `textureMapSet: TextureMapSet` and `isTopDown: boolean`
+- `src/components/three/holes/HoleRamp.tsx` — Added `mergeVertices` to ExtrudeGeometry output
+- `src/utils/segmentGeometry.ts` — Added `mergeVertices` to all geometry returned from `createSegmentGeometries()`
+
+**Deviations from plan:**
+- None — implementation matches plan exactly
+
+**Test count:** 495 tests across 46 files (up from 476)
+
+---
+
 ## Overview
 
 This section adds performance optimizations across the 3D hole rendering pipeline. It covers three areas:

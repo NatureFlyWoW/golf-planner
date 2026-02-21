@@ -1,5 +1,24 @@
 # Section 08: Hall Environment Polish
 
+## Implementation Status: COMPLETE
+
+**Files modified:**
+- `src/components/three/HallFloor.tsx` — Added `getFloorMaterialConfig()`, `getFloorUVRepeat()` pure functions. Split into `TexturedHallFloor` / `FlatHallFloor` with Suspense fallback. Concrete textures applied to both standard and reflector material paths.
+- `src/components/three/HallWalls.tsx` — Added `shouldLoadHallTextures()`, `getWallMaterialConfig()`, `getWallUVRepeat()` pure functions. Split into `TexturedHallWalls` / `FlatHallWalls` with per-wall UV repeat (long vs short walls). Steel textures with metalness map. Material disposal via useEffect.
+- `src/components/three/Hall.tsx` — Added outer `<Suspense fallback={null}>` wrapper.
+- `public/textures/concrete/{color,normal,roughness}.jpg` — Procedural concrete textures (512px)
+- `public/textures/steel/{color,normal,roughness,metalness}.jpg` — Procedural corrugated steel textures (512px)
+- `tests/components/three/hallEnvironment.test.ts` — 15 pure function tests
+
+**Deviations from plan:**
+- Textures are procedural (512px) not CC0 downloads (WSL2 limitation)
+- Kept singleton wall material exports for backward compat with perfFixes.test.ts
+- `getWallUVRepeat` takes only `wallLength` (not `wallHeight`) since height repeat is always 1
+
+**Test count:** 476 tests across 43 files (up from 461)
+
+---
+
 ## Overview
 
 This section transforms the BORGA steel hall from flat-colored planes into a textured, realistic-looking building environment. The concrete floor gets a proper PBR texture with normal and roughness maps, and the steel panel walls get a corrugated iron texture. The existing MeshReflectorMaterial on the floor (Phase 11A) is preserved -- concrete textures are applied as the base layer with the reflection effect layered on top.

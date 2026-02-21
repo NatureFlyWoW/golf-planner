@@ -20,7 +20,7 @@ export const MODEL_HEIGHTS: Record<string, number> = {
 	dogleg: BUMPER_HEIGHT + SURFACE_THICKNESS,
 	ramp: 0.15 + BUMPER_HEIGHT + SURFACE_THICKNESS,
 	loop: 0.7,
-	windmill: 0.35,
+	windmill: 0.7,
 	tunnel: 0.35,
 };
 
