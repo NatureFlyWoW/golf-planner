@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { useStore } from "../../../store";
+import { createTunnelArchGeometry } from "../../../utils/tunnelGeometry";
 import { UV_EMISSIVE_INTENSITY } from "./materialPresets";
 import { BumperRail } from "./BumperRail";
 import { Cup } from "./Cup";
@@ -9,7 +10,9 @@ import { BUMPER_THICKNESS, SURFACE_THICKNESS } from "./shared";
 import { useMaterials } from "./useMaterials";
 
 const TUNNEL_LENGTH = 1.6;
-const TUNNEL_SEGMENTS = 16;
+const WALL_THICKNESS = 0.05;
+const FRAME_THICKNESS = 0.03;
+const FRAME_SCALE = 1.05;
 
 export function HoleTunnel({
 	width,
@@ -30,9 +33,8 @@ export function HoleTunnel({
 	const laneW = width - bt * 2;
 	const archRadius = laneW / 2;
 	const openLength = (length - TUNNEL_LENGTH) / 2;
-	const entryCenterZ = -halfL + openLength / 2;
-	const exitCenterZ = halfL - openLength / 2;
 
+	// ── Materials ───────────────────────────────────────────
 	const tunnelMaterial = useMemo(
 		() =>
 			new THREE.MeshStandardMaterial(
@@ -44,10 +46,41 @@ export function HoleTunnel({
 							roughness: 0.6,
 							metalness: 0.1,
 						}
-					: { color: "#455A64", roughness: 0.6, metalness: 0.1 },
+					: {
+							color: "#8B7355",
+							roughness: 0.85,
+							metalness: 0.05,
+						},
 			),
 		[uvMode],
 	);
+
+	// ── Geometries ──────────────────────────────────────────
+	const archGeometry = useMemo(
+		() => createTunnelArchGeometry(archRadius, TUNNEL_LENGTH, WALL_THICKNESS),
+		[archRadius],
+	);
+
+	const frameGeometry = useMemo(
+		() =>
+			createTunnelArchGeometry(
+				archRadius * FRAME_SCALE,
+				FRAME_THICKNESS,
+				WALL_THICKNESS,
+			),
+		[archRadius],
+	);
+
+	// ── Geometry Disposal ───────────────────────────────────
+	useEffect(() => {
+		return () => {
+			archGeometry.dispose();
+			frameGeometry.dispose();
+		};
+	}, [archGeometry, frameGeometry]);
+
+	// Position the arch so it's centered on the hole
+	const archZ = -TUNNEL_LENGTH / 2;
 
 	return (
 		<group>
@@ -56,22 +89,39 @@ export function HoleTunnel({
 				<boxGeometry args={[laneW, st, length - bt * 2]} />
 			</mesh>
 
-			{/* Tunnel arch (obstacle geometry unchanged) */}
-			<mesh castShadow position={[0, st, 0]} rotation={[-Math.PI / 2, 0, 0]} material={tunnelMaterial}>
-				<cylinderGeometry
-					args={[archRadius, archRadius, TUNNEL_LENGTH, TUNNEL_SEGMENTS, 1, true, 0, Math.PI]}
-				/>
-			</mesh>
+			{/* Tunnel arch (ExtrudeGeometry archway) */}
+			<mesh
+				castShadow
+				geometry={archGeometry}
+				material={tunnelMaterial}
+				position={[0, st, archZ]}
+			/>
+
+			{/* Entrance frame */}
+			<mesh
+				castShadow
+				geometry={frameGeometry}
+				material={tunnelMaterial}
+				position={[0, st, archZ - FRAME_THICKNESS]}
+			/>
+
+			{/* Exit frame */}
+			<mesh
+				castShadow
+				geometry={frameGeometry}
+				material={tunnelMaterial}
+				position={[0, st, archZ + TUNNEL_LENGTH]}
+			/>
 
 			{/* Entry zone side bumpers */}
 			<BumperRail
 				length={openLength}
-				position={[-halfW + bt / 2, st, -halfL + (openLength - openLength)]}
+				position={[-halfW + bt / 2, st, -halfL]}
 				material={bumper}
 			/>
 			<BumperRail
 				length={openLength}
-				position={[halfW - bt / 2, st, -halfL + (openLength - openLength)]}
+				position={[halfW - bt / 2, st, -halfL]}
 				material={bumper}
 			/>
 			{/* Exit zone side bumpers */}
