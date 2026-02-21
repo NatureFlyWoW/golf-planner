@@ -1,105 +1,86 @@
-# Session Handoff — 2026-02-21 (Phase 11A Design)
+# Session Handoff — 2026-02-21 (Phase 11A Planning)
 
 ## Completed This Session
-- No code commits — this was a **brainstorming & design session**
-- Launched 6 specialist subagents in parallel (market-researcher, mobile-developer, backend-developer, ui-designer, mobile-app-developer, research-analyst)
-- Each agent wrote analysis to `docs/temp-*.md` (5 files, untracked)
-- Synthesized all findings into `docs/temp-unified-concept.md`
-- Ran 4-round adversarial review cycle (Devils Advocate → Blue Team → Devils Advocate → Blue Team)
-- User approved Phase 11A design decisions: dark theme by default, GOLF FORGE branding, 11A (Visual Identity & Rendering) as first priority
-- Phase 11A design doc written to `docs/plans/2026-02-21-phase11a-visual-rendering-design.md`
+- `6a09a48` docs: add Phase 11A GOLF FORGE implementation plan (4-round adversarial review)
 
 ## Current State
 - **Branch**: master
-- **Working tree**: 7 deleted old screenshots (unstaged), 5 untracked temp analysis files, 1 new design doc
-- **Tests**: 229 passing (20 test files), 0 failing
-- **Build**: passing (main ~83 KB, vendor-three ~1,250 KB, PWA v1.2.0)
+- **Working tree**: 7 deleted screenshots (from prior session cleanup), 1 untracked dir (.claude/homunculus/) — neither affects functionality
+- **Stash**: empty
+- **Tests**: 229 passing, 0 failing (20 test files)
+- **Build**: passing (1,456 KB total, PWA v1.2.0)
 - **Type check**: passing (zero errors)
-- **Lint**: 0 errors, 6 pre-existing warnings (noExplicitAny in migrateBudgetConfig test)
 - **Remote sync**: up to date with origin/master
 
-## Phase 11A — Visual Identity & Rendering (APPROVED DESIGN)
+## What This Session Produced
 
-Design doc: `golf-planner/docs/plans/2026-02-21-phase11a-visual-rendering-design.md`
+**Phase 11A "GOLF FORGE" implementation plan** — a comprehensive visual identity and rendering overhaul. The plan underwent 4 rounds of adversarial review (Devil's Advocate Deep → Blue Team → Devil's Advocate Round 2 → Blue Team Final) with 10 amendments integrated and 8 consistency fixes applied.
 
-### 12 Tasks (estimated 12-16 days)
+### Plan Artifacts (all in `golf-planner/docs/plans/`)
+- `claude-plan.md` — 412-line implementation plan (12 tasks, 7 waves)
+- `claude-integration-notes.md` — 135-line decision log (13 Round 1 integrations, 9 Round 1 rejections, 10 Round 2 amendments, 7 Round 2 rejections, 8 Round 3 consistency fixes)
+- `claude-spec.md` — specification from deep-plan stakeholder interview
+- `claude-research.md` — codebase research findings
+- `claude-interview.md` — stakeholder interview transcript
+- `reviews/iteration-1-opus.md` — first Opus review iteration
+- `deep_plan_config.json` — deep-plan configuration
 
-| # | Task | Effort | Depends On |
-|---|------|--------|------------|
-| T1 | GPU Tier Classifier (`low/mid/high`) | 0.5 day | — |
-| T2 | Tailwind Semantic Tokens (CSS custom properties) | 0.5 day | — |
-| T3 | Dark Theme Conversion (all components) | 2 days | T2 |
-| T4 | Fonts + Icons + GOLF FORGE Brand Mark | 1 day | T2 |
-| T5 | High-Contrast Data Panels (budget, costs) | 1 day | T3 |
-| T6 | Environment + SoftShadows + fogExp2 | 1 day | T1 |
-| T7 | Sparkles + ChromaticAberration + ToneMapping | 1 day | T1, T6 |
-| T8 | MeshReflectorMaterial (3D view only) | 0.5 day | T1, T6 |
-| T9 | Enhanced UV Lighting (RectAreaLight + Lightformers) | 2 days | T6 |
-| T10 | GodRays (high tier only) | 1 day | T9 |
-| T11 | UV "Lights Out" Transition | 1.5 days | T9 |
-| T12 | Performance Fixes (powerPreference, shadow type, HallWalls) | 0.5 day | T1 |
-
-### Key Architecture Decisions (Battle-Tested)
-- **Single dark theme** — no light mode toggle, no dual maintenance
-- **High-contrast data panels** — amber `#FFB700` on `#0F0F2E` at 14px JetBrains Mono (9.2:1 WCAG AAA)
-- **GPU tier classifier as T1** — gates ALL visual effects, prevents mobile perf regressions
-- **View-gated effects** — MeshReflectorMaterial only in 3D perspective, not orthographic top-down
-- **HDR emissive strategy** — base `#000000` + `emissiveIntensity: 2.0` + bloom `luminanceThreshold: 0.8`
-- **RectAreaLight** for UV tubes (4× ceiling positions) — does NOT cast shadows, use existing directional for shadows
-- **UV transition** — switch `frameloop` from `"demand"` to `"always"` during 2.4s animation, then back
-- **Effect stack order** — SSAO → GodRays → Bloom → ChromaticAberration → Vignette → Noise → ToneMapping
-
-### Blacklight Palette
-| Token | Hex | Role |
-|-------|-----|------|
-| Void | `#07071A` | Primary bg, canvas |
-| Deep Space | `#0F0F2E` | Panels, sidebar, toolbar |
-| Plasma | `#1A1A4A` | Cards, elevated surfaces |
-| Grid Ghost | `#2A2A5E` | Borders, dividers |
-| Neon Violet | `#9D00FF` | Primary accent, CTAs |
-| Neon Cyan | `#00F5FF` | Data, flow path, secondary |
-| Neon Green | `#00FF88` | Success, valid placement |
-| Neon Amber | `#FFB700` | Warning, costs, par |
-| Neon Pink | `#FF0090` | Destructive, errors |
-| Felt White | `#E8E8FF` | Body text |
-
-### Typography
-- **Orbitron** — display/headings + GOLF FORGE brand mark
-- **Inter** — body text
-- **JetBrains Mono** — data, prices, budget figures
+### Phase 11A Summary (12 tasks)
+- T1: GPU Tier Classifier (detect-gpu, 3-tier system, store v7)
+- T2: Tailwind Semantic Tokens + Fonts + PWA Manifest (11-token palette)
+- T3: Dark Theme Conversion + Branding (big-bang, uvMode ternary removal)
+- T4: High-Contrast Data Panels (amber-on-dark, JetBrains Mono)
+- T5: Environment + SoftShadows + Fog + Canvas GL
+- T6: PostProcessing + Sparkles + Effects (single EffectComposer)
+- T7: MeshReflectorMaterial (reflective floor)
+- T8: Enhanced UV Lighting (4x RectAreaLight)
+- T9: GodRays (decoupled from T8, cut contingency)
+- T10: UV "Lights Out" Transition (useRef + rAF timing)
+- T11: Performance Fixes (singleton materials)
+- T12: Visual Regression Test Suite (Playwright)
 
 ## Remaining Work
-- **Phase 11A**: 12 tasks, needs implementation plan (invoke writing-plans skill)
-- **Phase 11B** (future): Geo Integration — BASEMAP.AT aerial ground plane, geofence, compass camera, sun path arc
-- **Phase 11C** (future): Fun & Sharing — URL sharing, confetti, tour mode, before/after slider
-- **Tier 3** (future): Gaussian Splatting, Google 3D Tiles, sound design, AI textures, Liveblocks
-
-## Untracked/Uncommitted Files
-These should be committed as research artifacts:
-- `docs/temp-backend-analysis.md` — Backend developer agent analysis (894 lines)
-- `docs/temp-mobile-analysis.md` — Mobile developer agent analysis (1164 lines)
-- `docs/temp-mobile-app-analysis.md` — Mobile app developer agent analysis (877 lines)
-- `docs/temp-ui-design.md` — UI designer agent analysis (940 lines)
-- `docs/temp-unified-concept.md` — Synthesized concept from all 6 agents (287 lines)
+- **Plan file**: `golf-planner/docs/plans/claude-plan.md`
+- **Current phase**: Phase 11A — PLANNING COMPLETE, ready for implementation
+- [ ] T1: GPU Tier Classifier (NEXT UP — Wave 1, parallel with T2)
+- [ ] T2: Tailwind Semantic Tokens + Fonts + PWA Manifest (Wave 1)
+- [ ] T3: Dark Theme Conversion + Branding (Wave 2, after T2)
+- [ ] T4: High-Contrast Data Panels (Wave 2, after T3)
+- [ ] T5: Environment + SoftShadows + Fog + Canvas GL (Wave 3, after T1)
+- [ ] T6-T8: Effects + Reflections + UV Lighting (Wave 4, parallel after T5)
+- [ ] T9-T10: GodRays + UV Transition (Wave 5, after T8)
+- [ ] T11: Performance Fixes (Wave 6, can run parallel with Wave 3+)
+- [ ] T12: Visual Regression Tests (Wave 7, after ALL tasks)
+- Estimated effort: 12-14 days sequential, ~7-8 days with parallelism
 
 ## Known Issues / Blockers
-- THREE.Clock warning — upstream, harmless
-- Chunk size warning (vendor-three ~1,250 KB) — consider code-splitting further
-- 6 Biome warnings (noExplicitAny) in `tests/utils/migrateBudgetConfig.test.ts` — pre-existing
-- 7 old screenshot PNGs deleted (unstaged deletions from WSL file cleanup)
+- Pre-commit hook `--bail` was missing its required argument — fixed to `--bail 1` (in `.claude/hooks/pre-commit-test.sh`, not committed)
+- 7 deleted screenshot files in working tree (prior session cleanup) — not committed, harmless
+- THREE.Clock warning — upstream, harmless, no action needed
+- Chunk size warning (1,456 KB) — existing, consider code-splitting
+- 6 Biome warnings (noExplicitAny) in `tests/utils/migrateBudgetConfig.test.ts` — pre-existing, harmless
 
-## Key Technical Details for Next Session
-- **Property**: Gewerbegrund zu pachten in Gramastetten (willhaben listing), coordinates 48.3715°N, 14.2140°E
-- **BASEMAP.AT**: Austrian aerial orthophotos, 30cm/pixel, CC BY 4.0, no API key — key geo data source
-- **RectAreaLightUniformsLib.init()** must be called before using RectAreaLight
-- **lamina is ARCHIVED** — use three-custom-shader-material (CSM) v6.4.0 instead
-- **Marker-based AR** is correct (GPS ±5m kills naive placement for 10m-wide hall)
-- **canvas-confetti** (3KB) for milestone celebrations
-- **lz-string** for URL sharing compression
+## Key Decisions Made This Session
+- **accent-text (#B94FFF)** added as 11th palette token — neon-violet (#9D00FF) fails WCAG AA for text (3.1:1 on void), restricted to decorative use only
+- **useRef + requestAnimationFrame** for UV transition timing (not setTimeout chains)
+- **"Start low, upgrade"** GPU detection fallback (not "start mid")
+- **GodRays decoupled from UV Lamps** — separate GodRaysSource component (T9) with clean cut boundary from lamp fixtures (T8)
+- **fogExp2 gated to 3D perspective only** — useless in orthographic view
+- **T4 runs after T3**, not parallel — both edit BudgetPanel/CostPanel
+- **Version pinning** for Three.js ecosystem during Phase 11A
+- **Max effects per tier policy**: postprocessing effects capped (low=2, mid=4, high=6); scene features budgeted separately
 
 ## Environment Notes
 - fnm must be sourced: `export PATH="/home/ben/.local/share/fnm:$PATH" && eval "$(fnm env)"`
 - Git configured in golf-planner/ (user: Golf Planner Dev)
 - Biome uses **tabs** for indentation
 - PostToolUse hook runs `npx tsc --noEmit` automatically after edits
-- SSH remote: `git@github.com:NatureFlyWoW/golf-planner.git`
+- Pre-commit hook runs `npm test -- --bail 1` before every commit
+- Playwright MCP runs on Windows side — WSL paths fail for screenshots
+
+## Conversation Context
+- Session was entirely design/planning focused — no code changes, only documentation
+- Used /deep-plan artifacts (spec, research, interview) from a prior session as input
+- The 4-round adversarial review cycle was: DA Deep → BT → DA Round 2 (attacking the fixes, caught 3 overcorrections) → BT Final Synthesis
+- User preference confirmed: loves the multi-round adversarial review process, wants thorough design before coding
+- Next session should begin implementation using subagent-driven development (/implement skill)
