@@ -16,4 +16,16 @@ export type {
 } from "./budget";
 export type { DoorSpec, Hall, Wall, WindowSpec } from "./hall";
 export type { Hole, HoleRotation, HoleType, HoleTypeDefinition } from "./hole";
+export type {
+	ConnectionPointDef,
+	HoleTemplate,
+	Obstacle,
+	PrefabId,
+	PrefabObstacle,
+	Segment,
+	SegmentCategory,
+	SegmentConnection,
+	SegmentSpec,
+	SegmentSpecId,
+} from "./template";
 export type { ActivePanel, SidebarTab, Tool, UIState, ViewMode } from "./ui";
