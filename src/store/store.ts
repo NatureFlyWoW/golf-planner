@@ -24,11 +24,14 @@ import type {
 	UIState,
 	VatProfile,
 } from "../types";
+import type { HoleTemplate } from "../types/template";
 import { uncertaintyFromTier } from "../utils/financial";
 import {
 	migrateBudgetCategories,
 	migrateBudgetConfig,
 } from "../utils/migrateBudgetConfig";
+import type { BuilderActions } from "./builderSlice";
+import { BUILDER_INITIAL_STATE, createBuilderActions } from "./builderSlice";
 
 type StoreState = {
 	hall: Hall;
@@ -41,6 +44,13 @@ type StoreState = {
 	expenses: ExpenseEntry[];
 	ui: UIState;
 	captureScreenshot: (() => void) | null;
+	// Builder state
+	holeTemplates: Record<string, HoleTemplate>;
+	builderDraft: HoleTemplate | null;
+	builderMode: boolean;
+	editingTemplateId: string | null;
+	builderUndoStack: HoleTemplate[];
+	builderRedoStack: HoleTemplate[];
 };
 
 type StoreActions = {
@@ -67,7 +77,7 @@ type StoreActions = {
 	deleteExpense: (expenseId: string) => void;
 	updateCategoryTier: (id: string, tier: ConfidenceTier) => void;
 	registerScreenshotCapture: (fn: () => void) => void;
-};
+} & BuilderActions;
 
 export type Store = StoreState & StoreActions;
 
@@ -79,6 +89,8 @@ type PersistedSlice = {
 	budgetConfig: BudgetConfigV2;
 	financialSettings: FinancialSettings;
 	expenses: ExpenseEntry[];
+	holeTemplates?: Record<string, HoleTemplate>;
+	builderDraft?: HoleTemplate | null;
 	// Legacy fields for migration
 	costPerHole?: number;
 };
@@ -228,6 +240,8 @@ export const useStore = create<Store>()(
 				expenses: [],
 				ui: DEFAULT_UI,
 				captureScreenshot: null,
+				...BUILDER_INITIAL_STATE,
+				...createBuilderActions(set, get),
 
 				addHole: (type, position) => {
 					const id = crypto.randomUUID();
@@ -431,7 +445,7 @@ export const useStore = create<Store>()(
 			}),
 			{
 				name: "golf-planner-state",
-				version: 5,
+				version: 6,
 				partialize: (state) => ({
 					holes: state.holes,
 					holeOrder: state.holeOrder,
@@ -439,6 +453,8 @@ export const useStore = create<Store>()(
 					budgetConfig: state.budgetConfig,
 					financialSettings: state.financialSettings,
 					expenses: state.expenses,
+					holeTemplates: state.holeTemplates,
+					builderDraft: state.builderDraft,
 				}),
 				migrate: (persisted: unknown, version: number) => {
 					const p = persisted as PersistedSlice;
@@ -462,13 +478,18 @@ export const useStore = create<Store>()(
 					}
 
 					if (version < 5 && p) {
-						if (
-							p.budgetConfig &&
-							!("materialProfile" in p.budgetConfig)
-						) {
-							(
-								p.budgetConfig as Record<string, unknown>
-							).materialProfile = "standard_diy";
+						if (p.budgetConfig && !("materialProfile" in p.budgetConfig)) {
+							(p.budgetConfig as Record<string, unknown>).materialProfile =
+								"standard_diy";
+						}
+					}
+
+					if (version < 6 && p) {
+						if (!("holeTemplates" in (p as Record<string, unknown>))) {
+							(p as Record<string, unknown>).holeTemplates = {};
+						}
+						if (!("builderDraft" in (p as Record<string, unknown>))) {
+							(p as Record<string, unknown>).builderDraft = null;
 						}
 					}
 

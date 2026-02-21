@@ -16,6 +16,7 @@ export type Hole = {
 	rotation: HoleRotation;
 	name: string;
 	par: number;
+	templateId?: string;
 };
 
 export type HoleTypeDefinition = {
