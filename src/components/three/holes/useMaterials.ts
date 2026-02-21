@@ -15,12 +15,12 @@ import {
 } from "./shared";
 import { TexturedMaterialsContext } from "./useTexturedMaterials";
 
-const uvMaterials: MaterialSet = {
+const uvMaterials = {
 	felt: uvFeltMaterial,
 	bumper: uvBumperMaterial,
 	tee: uvTeeMaterial,
 	cup: uvCupMaterial,
-};
+} as const;
 
 export function useMaterials(): MaterialSet {
 	const uvMode = useStore((s) => s.ui.uvMode);

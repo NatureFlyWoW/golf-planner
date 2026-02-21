@@ -1,7 +1,6 @@
 import * as THREE from "three";
 
 const DEFAULT_WALL_THICKNESS = 0.05;
-const ARC_SEGMENTS = 16;
 
 /**
  * Creates a 2D arch cross-section shape (semicircular annulus).
@@ -18,13 +17,13 @@ export function createArchProfile(
 	shape.moveTo(-archRadius, 0);
 
 	// Outer semicircle: left base to right base, curving over the top
-	shape.absarc(0, 0, archRadius, Math.PI, 0, true, ARC_SEGMENTS);
+	shape.absarc(0, 0, archRadius, Math.PI, 0, true);
 
 	// Right wall: down to inner arc start
 	shape.lineTo(innerRadius, 0);
 
 	// Inner semicircle: right base back to left base (reversed)
-	shape.absarc(0, 0, innerRadius, 0, Math.PI, false, ARC_SEGMENTS);
+	shape.absarc(0, 0, innerRadius, 0, Math.PI, false);
 
 	// Close: left wall back to start
 	shape.lineTo(-archRadius, 0);
