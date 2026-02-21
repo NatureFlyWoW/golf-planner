@@ -1,14 +1,15 @@
 import type { ThreeEvent } from "@react-three/fiber";
 import { useThree } from "@react-three/fiber";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { HOLE_TYPE_MAP } from "../../constants";
 import { useStore } from "../../store";
 import type { Hole } from "../../types";
 import { checkAnyCollision, checkHallBounds } from "../../utils/collision";
+import { computeTemplateBounds } from "../../utils/chainCompute";
 import { snapToGrid } from "../../utils/snap";
 import { HoleModel } from "./holes/HoleModel";
-import { MODEL_HEIGHTS } from "./holes/shared";
+import { MODEL_HEIGHTS, SURFACE_THICKNESS } from "./holes/shared";
 
 type Props = {
 	hole: Hole;
@@ -27,15 +28,30 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 	const tool = useStore((s) => s.ui.tool);
 	const snapEnabled = useStore((s) => s.ui.snapEnabled);
 	const holes = useStore((s) => s.holes);
+	const holeTemplates = useStore((s) => s.holeTemplates);
 	const { raycaster } = useThree();
 	const [isDragging, setIsDragging] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const dragStart = useRef<{ x: number; z: number } | null>(null);
 	const pointerStartScreen = useRef<{ x: number; y: number } | null>(null);
 
-	if (!definition) return null;
+	const template = hole.templateId ? holeTemplates[hole.templateId] : null;
 
-	const { width, length } = definition.dimensions;
+	// Derive dimensions from template bounds or legacy definition
+	const dimensions = useMemo(() => {
+		if (template) {
+			return computeTemplateBounds(template);
+		}
+		if (definition) {
+			return definition.dimensions;
+		}
+		return { width: 1, length: 1 };
+	}, [template, definition]);
+
+	if (!definition && !template) return null;
+
+	const { width, length } = dimensions;
+	const color = template?.color ?? definition?.color ?? "#4CAF50";
 	const rotationRad = (hole.rotation * Math.PI) / 180;
 
 	function handlePointerDown(e: ThreeEvent<PointerEvent>) {
@@ -100,14 +116,24 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 				}
 			> = {};
 			for (const [id, h] of Object.entries(holes)) {
-				const def = HOLE_TYPE_MAP[h.type];
-				if (!def) continue;
-				obbMap[id] = {
-					pos: h.position,
-					rot: h.rotation,
-					w: def.dimensions.width,
-					l: def.dimensions.length,
-				};
+				if (h.templateId && holeTemplates[h.templateId]) {
+					const bounds = computeTemplateBounds(holeTemplates[h.templateId]);
+					obbMap[id] = {
+						pos: h.position,
+						rot: h.rotation,
+						w: bounds.width,
+						l: bounds.length,
+					};
+				} else {
+					const def = HOLE_TYPE_MAP[h.type];
+					if (!def) continue;
+					obbMap[id] = {
+						pos: h.position,
+						rot: h.rotation,
+						w: def.dimensions.width,
+						l: def.dimensions.length,
+					};
+				}
 			}
 			const collides = checkAnyCollision(
 				{ pos: { x, z }, rot: hole.rotation, w: width, l: length },
@@ -139,7 +165,7 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 		: tool === "delete" && isHovered
 			? "#EF5350"
 			: "#FFC107";
-	const modelHeight = MODEL_HEIGHTS[hole.type] ?? INTERACTION_HEIGHT;
+	const modelHeight = MODEL_HEIGHTS[hole.type] ?? SURFACE_THICKNESS + 0.08;
 
 	return (
 		<group
@@ -178,7 +204,8 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 				type={hole.type}
 				width={width}
 				length={length}
-				color={definition.color}
+				color={color}
+				templateId={hole.templateId}
 			/>
 
 			{/* Selection outline — sized to model height */}

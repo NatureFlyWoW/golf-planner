@@ -5,6 +5,7 @@ import { HoleRamp } from "./HoleRamp";
 import { HoleStraight } from "./HoleStraight";
 import { HoleTunnel } from "./HoleTunnel";
 import { HoleWindmill } from "./HoleWindmill";
+import { TemplateHoleModel } from "./TemplateHoleModel";
 import { SURFACE_THICKNESS } from "./shared";
 
 export type HoleModelProps = {
@@ -12,10 +13,14 @@ export type HoleModelProps = {
 	width: number;
 	length: number;
 	color: string;
+	templateId?: string;
 };
 
 /** Dispatches to per-type 3D model. Falls back to a simple box. */
-export function HoleModel({ type, width, length, color }: HoleModelProps) {
+export function HoleModel({ type, width, length, color, templateId }: HoleModelProps) {
+	if (templateId) {
+		return <TemplateHoleModel templateId={templateId} />;
+	}
 	switch (type) {
 		case "straight":
 			return <HoleStraight width={width} length={length} />;

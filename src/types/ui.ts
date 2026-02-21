@@ -8,6 +8,7 @@ export type ActivePanel = "holes" | "detail" | "budget" | "sun" | null;
 export type UIState = {
 	tool: Tool;
 	placingType: HoleType | null;
+	placingTemplateId: string | null;
 	view: ViewMode;
 	sidebarTab: SidebarTab;
 	snapEnabled: boolean;

@@ -54,13 +54,14 @@ type StoreState = {
 };
 
 type StoreActions = {
-	addHole: (type: HoleType, position: { x: number; z: number }) => void;
+	addHole: (type: HoleType, position: { x: number; z: number }, templateId?: string) => void;
 	removeHole: (id: string) => void;
 	updateHole: (id: string, updates: Partial<Hole>) => void;
 	reorderHoles: (fromIndex: number, toIndex: number) => void;
 	selectHole: (id: string | null) => void;
 	setTool: (tool: UIState["tool"]) => void;
 	setPlacingType: (type: HoleType | null) => void;
+	setPlacingTemplateId: (templateId: string | null) => void;
 	setView: (view: UIState["view"]) => void;
 	setSidebarTab: (tab: UIState["sidebarTab"]) => void;
 	toggleSnap: () => void;
@@ -98,6 +99,7 @@ type PersistedSlice = {
 const DEFAULT_UI: UIState = {
 	tool: "select",
 	placingType: null,
+	placingTemplateId: null,
 	view: "top",
 	sidebarTab: "holes",
 	snapEnabled: false,
@@ -243,9 +245,10 @@ export const useStore = create<Store>()(
 				...BUILDER_INITIAL_STATE,
 				...createBuilderActions(set, get),
 
-				addHole: (type, position) => {
+				addHole: (type, position, templateId?) => {
 					const id = crypto.randomUUID();
 					const definition = HOLE_TYPE_MAP[type];
+					const template = templateId ? get().holeTemplates[templateId] : null;
 					const holeNumber = get().holeOrder.length + 1;
 
 					const hole: Hole = {
@@ -253,8 +256,9 @@ export const useStore = create<Store>()(
 						type,
 						position,
 						rotation: 0,
-						name: `Hole ${holeNumber}`,
-						par: definition?.defaultPar ?? 3,
+						name: template ? template.name : `Hole ${holeNumber}`,
+						par: template ? template.defaultPar : (definition?.defaultPar ?? 3),
+						...(templateId ? { templateId } : {}),
 					};
 
 					set((state) => ({
@@ -265,6 +269,7 @@ export const useStore = create<Store>()(
 							...state.ui,
 							tool: "select",
 							placingType: null,
+							placingTemplateId: null,
 							sidebarTab: "detail",
 						},
 					}));
@@ -315,7 +320,19 @@ export const useStore = create<Store>()(
 						ui: {
 							...state.ui,
 							placingType: type,
+							placingTemplateId: null,
 							tool: type ? "place" : "select",
+						},
+					}));
+				},
+
+				setPlacingTemplateId: (templateId) => {
+					set((state) => ({
+						ui: {
+							...state.ui,
+							placingTemplateId: templateId,
+							placingType: null,
+							tool: templateId ? "place" : "select",
 						},
 					}));
 				},
