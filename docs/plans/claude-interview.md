@@ -1,33 +1,55 @@
-# Phase 11A Interview Transcript
+# Phase 12 Interview Transcript
 
-## Q1: Bloom Strategy — Selective vs. Soft
-**Q:** The design specifies emissiveIntensity: 2.0 with bloom threshold 0.8 for selective bloom. Current code uses emissiveIntensity: 0.8 with threshold 0.2 (everything blooms). Which approach?
-**A:** Design's selective bloom — only neon surfaces glow intensely (emissiveIntensity 2.0 + threshold 0.8). More cinematic.
+Interview conducted during design doc review session (pre-deep-plan). User answered open questions from the Phase 12 design doc, plus additional decisions made during Devil's Advocate and Blue Team reviews.
 
-## Q2: App Branding
-**Q:** Is 'GOLF FORGE' the final name or placeholder?
-**A:** GOLF FORGE is the official name. Use it throughout.
+## Q1: Technical Approach — Procedural (A), GLTF (B), or Hybrid (C)?
 
-## Q3: UV "Lights Out" Transition Priority
-**Q:** How important is the 2.4s theatrical transition vs. core rendering?
-**A:** High priority — it's the wow factor. The theatrical transition IS the experience.
+**Answer:** Option C — Hybrid. Procedural for parametric surfaces (felt lanes, bumper rails, cups, tees) that must scale to varying hole dimensions. GLTF for complex accent obstacles (windmill) that can be fixed-size decorative pieces.
 
-## Q4: GPU Tier Detection Caching
-**Q:** detect-gpu downloads ~200KB benchmarks from CDN. Cache result in localStorage or re-detect every session?
-**A:** Cache in localStorage. Detect once, remember the tier. User can override in settings.
+## Q2: Art Style?
 
-## Q5: Reflective Floor Usage
-**Q:** How much time in 3D perspective vs. top-down?
-**A:** Mixed use — switches between views regularly, both are important. Keep MeshReflectorMaterial view-gated but ensure it works well.
+**Answer:** Stylized Realism — polished, high-end look with real materials (felt, wood, metal, stone) but slightly idealized proportions and colors. Think "beautiful indie game," not photorealistic CAD.
 
-## Q6: UV Lamp Visibility
-**Q:** Should UV lamp fixtures be visible geometry in the scene, or invisible light sources?
-**A:** Visible only in 3D view — show lamp fixtures in 3D perspective but hide in top-down (they'd be ceiling clutter).
+## Q3: Texture Sourcing?
 
-## Q7: Testing Approach
-**Q:** How to test this visual-heavy phase? Unit tests only, visual regression, or manual QA?
-**A:** Add visual regression tests — use Playwright screenshots to catch visual regressions.
+**Answer:** CC0 assets from Poly Haven and ambientCG. No Blender modeling by the user.
 
-## Q8: Dark Theme Conversion Strategy
-**Q:** Big-bang conversion (one task, change everything) or incremental by component group?
-**A:** Big-bang — define tokens first, then find-and-replace all Tailwind color classes in one pass.
+## Q4: Priority Holes — which types first?
+
+**Answer:** All 7 legacy types at once. The user wants comprehensive visual upgrade across the board, not a phased rollout of individual types.
+
+## Q5: Material Profile Visual Tiers (from Devil's Advocate review)
+
+**Decision:** Ship one visual quality tier (standard_diy) in Phase 12. Per-tier textures (plywood for budget, aluminum for semi_pro) deferred to future phase. This prevents tripling texture workload.
+
+## Q6: GLTF Obstacle Scaling Strategy (from Devil's Advocate review)
+
+**Decision:** GLTF obstacles are fixed-size accent pieces (e.g., windmill ~0.8m × 0.8m × 1.2m). The parametric lane wraps around the obstacle position. Obstacles do NOT scale with hole dimensions.
+
+## Q7: Felt Displacement (from Devil's Advocate review)
+
+**Decision:** No displacement on felt surfaces. Causes z-fighting with bumper bases and costs performance for negligible visual gain at typical zoom levels. Use normal maps only for surface detail.
+
+## Q8: Section Ordering (from Blue Team review)
+
+**Decision:** Content-first. Section 1 must produce a visible change (one complete hole transformation). Infrastructure built as needed within content sections, not as separate upfront sections.
+
+## Q9: Loading Strategy (from Blue Team review)
+
+**Decision:** Progressive enhancement. App starts instantly with current flat-color materials. Textures load asynchronously. Materials swap from flat to textured when loaded. No loading screen.
+
+## Q10: Hall Environment (from Blue Team review)
+
+**Decision:** Keep hall environment polish (concrete floor, steel walls) as a section. The BORGA hall identity matters — it should look like a real steel building, not a generic gray box.
+
+## Q11: Kenney Minigolf Kit (from research)
+
+**Research finding:** Kenney's CC0 Minigolf Kit (125+ models, GLTF, 3MB total) is purpose-built for mini golf. Low-poly style aligns with Stylized Realism art direction.
+
+**Decision (Claude recommendation, user did not explicitly choose):** Download and evaluate the Kenney kit first for windmill and other obstacles. Fall back to improved procedural geometry if the kit's style doesn't match or lacks needed models.
+
+## Q12: Green Felt Texture (from research)
+
+**Research finding:** No green mini golf felt texture exists in CC0 libraries. Closest are neutral carpet/fabric textures.
+
+**Decision (Claude recommendation):** Use a neutral carpet texture (ambientCG Carpet012 or Fabric026) and tint it green in the shader via the material's color property. The normal map provides fiber direction regardless of base color.

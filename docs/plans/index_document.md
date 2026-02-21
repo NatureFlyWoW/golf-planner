@@ -20,7 +20,14 @@
 
 | File | Phase | Status |
 |---|---|---|
-| [2026-02-20-phase9a-material-rendering-design.md](./2026-02-20-phase9a-material-rendering-design.md) | Phase 9A: Material-Aware Rendering & Cost Precision | Approved |
+| [2026-02-20-phase9a-material-rendering-design.md](./2026-02-20-phase9a-material-rendering-design.md) | Phase 9A: Material-Aware Rendering & Cost Precision | Complete |
+| [2026-02-21-phase12-beautiful-3d-models.md](./2026-02-21-phase12-beautiful-3d-models.md) | Phase 12: Beautiful 3D Golf Course Models | Draft |
+
+## Postmortems
+
+| File | Topic |
+|---|---|
+| [postmortem-phase11a-wrong-plan.md](./postmortem-phase11a-wrong-plan.md) | Phase 11A plan mismatch — delivered UI theme instead of 3D model quality |
 
 ## Key Decisions (quick reference)
 

@@ -1,0 +1,82 @@
+{
+  "plugin_root": "/home/ben/.claude/plugins/cache/piercelamb-plugins/deep-implement/0.2.0",
+  "sections_dir": "/mnt/c/Users/Caus/Golf_Plan/golf-planner/docs/plans/sections",
+  "target_dir": "/mnt/c/Users/Caus/Golf_Plan/golf-planner",
+  "state_dir": "/mnt/c/Users/Caus/Golf_Plan/golf-planner/docs/plans/implementation",
+  "git_root": "/mnt/c/Users/Caus/Golf_Plan/golf-planner",
+  "commit_style": "conventional",
+  "test_command": "uv run pytest",
+  "sections": [
+    "section-01-gpu-tier",
+    "section-02-theme-tokens",
+    "section-03-dark-theme",
+    "section-04-data-panels",
+    "section-05-environment",
+    "section-06-postprocessing",
+    "section-07-reflections",
+    "section-08-uv-lighting",
+    "section-09-godrays",
+    "section-10-uv-transition",
+    "section-11-perf-fixes",
+    "section-12-visual-tests"
+  ],
+  "sections_state": {
+    "section-01-gpu-tier": {
+      "status": "complete",
+      "commit_hash": "c4c996dec39211910b73c6a743f452c1c420db95"
+    },
+    "section-02-theme-tokens": {
+      "status": "complete",
+      "commit_hash": "7536ce71577a911e435da6e89eca411c82921566"
+    },
+    "section-03-dark-theme": {
+      "status": "complete",
+      "commit_hash": "7a75ba2"
+    },
+    "section-04-data-panels": {
+      "status": "complete",
+      "commit_hash": "7e5b821"
+    },
+    "section-05-environment": {
+      "status": "complete",
+      "commit_hash": "b5928d0"
+    },
+    "section-06-postprocessing": {
+      "status": "complete",
+      "commit_hash": "d32a912"
+    },
+    "section-07-reflections": {
+      "status": "complete",
+      "commit_hash": "b1f2a58"
+    },
+    "section-08-uv-lighting": {
+      "status": "complete",
+      "commit_hash": "ace461e"
+    },
+    "section-09-godrays": {
+      "status": "complete",
+      "commit_hash": "6db89b5"
+    },
+    "section-10-uv-transition": {
+      "status": "complete",
+      "commit_hash": "1b5ce8f"
+    },
+    "section-11-perf-fixes": {
+      "status": "complete",
+      "commit_hash": "38be588"
+    },
+    "section-12-visual-tests": {
+      "status": "complete",
+      "commit_hash": "16ccb01"
+    }
+  },
+  "pre_commit": {
+    "present": false,
+    "type": "none",
+    "config_file": null,
+    "native_hook": null,
+    "may_modify_files": false,
+    "detected_formatters": []
+  },
+  "created_at": "2026-02-21T13:56:04.941280+00:00"
+}

@@ -84,6 +84,17 @@ This project uses heavy subagent orchestration. Keep the parent conversation lea
 - Confirm the exact number of agents/tasks with the user before spawning them
 - Keep subagent scopes small enough to complete within usage 
 
+## Build Order Principle
+For visual/rendering phases: deliver user-visible content improvements FIRST (3D model quality, materials, geometry detail), then add pipeline infrastructure (postprocessing, lighting, environment) to enhance them. Never ship a phase that improves the rendering pipeline without also improving the rendered content. The user wants to see their golf course look better, not see a better-lit version of the same basic geometry.
+
+## Plan Validation (CRITICAL)
+Before running /deep-plan or /deep-implement:
+1. Read the user's MEMORY.md rendering vision and documented goals
+2. Verify the plan delivers what the user actually wants to SEE when it's done
+3. Present a plain-English "User-Visible Outcomes" summary: what changes, what stays the same
+4. Get explicit user confirmation before proceeding
+See `docs/plans/postmortem-phase11a-wrong-plan.md` for why this matters.
+
 ## Screenshots & Artifacts
 When capturing screenshots or generating any file artifacts, always save them to a persistent project directory (e.g., `./docs/screenshots/` or `./artifacts/`). Never rely on transient/ephemeral storage. Confirm the file exists on disk after saving.
 

@@ -40,12 +40,19 @@ Every 3D element has a concrete visual definition so implementation doesn't stal
 
 ## Mini Golf Holes
 
+### Target Quality (Phase 12)
+Holes should look like real miniature golf obstacles — textured surfaces, rounded edges, detailed geometry. See [Phase 12 design doc](./2026-02-21-phase12-beautiful-3d-models.md) for full spec.
+
 ### Placed Holes
-- **Geometry:** Box (width × length from HoleTypeDefinition × 0.3m tall)
-- **Color:** Per hole type (see [04-data-models.md](./04-data-models.md))
+- **Playing surface:** Textured felt/carpet with visible fiber direction (normal map), subtle color variation, slight surface irregularity
+- **Bumper rails:** Rounded cross-section profile (ExtrudeGeometry, not BoxGeometry), wood grain or metal finish per material profile
+- **Cup:** Recessed cylindrical hole with lip edge, visible depth, small flag/pin marker
+- **Tee pad:** Raised rubber mat with texture, visible thickness
+- **Obstacles:** Detailed 3D models — windmill with tower/blades, brick tunnel archway, smooth loop track, curved ramp surfaces
 - **Selected state:** Bright yellow outline/border, slight y-offset (+0.01m)
 - **Label:** Hole number (from holeOrder position) displayed on top face or as Html overlay
 - **Rotation:** Visible via a small arrow/tick mark on one end indicating "direction of play"
+- **Material profiles:** Visual quality matches cost tier (budget=rustic wood bumpers, standard=painted MDF, semi_pro=aluminum rails)
 
 ### Ghost Hole (placement preview)
 - **Same geometry as placed hole** for the selected type

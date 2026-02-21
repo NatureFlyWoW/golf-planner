@@ -1,176 +1,198 @@
-# Phase 11A Research: Visual Identity & Rendering
+# Phase 12 Research Findings
 
 ## Codebase Analysis
 
-### R3F Canvas Configuration
-- **Canvas props**: `dpr={isMobile ? [1, 1.5] : [1, 2]}`, `frameloop="demand"`, `shadows={!uvMode ? "soft" : undefined}`, `gl={{ antialias: !isMobile, preserveDrawingBuffer: true }}`
-- Lazy-loaded: `ThreeCanvas = lazy(() => import("./components/three/ThreeCanvas"))`
-- Single Canvas instance with conditional scene graph
+### Current 3D Hole Rendering System
 
-### Current Post-Processing (UVPostProcessing.tsx)
-- **Bloom**: intensity 0.7 (mobile) / 1.2 (desktop), luminanceThreshold 0.2, mipmapBlur, SMALL/LARGE kernel
-- **Vignette**: offset 0.3, darkness 0.8
-- Only active when `uvMode === true`, lazy-loaded via UVEffects.tsx
-- Uses `@react-three/postprocessing` EffectComposer
+**7 Legacy Hole Types** (all in `src/components/three/holes/`):
+
+| Type | Key Geometry | Notable Traits |
+|------|-------------|----------------|
+| **Straight** | BoxGeometry for felt + 4 box bumpers + CircleGeometry tee/cup | Simplest, all boxes |
+| **L-Shape** | 3 BoxGeometry felts (non-overlapping corner) + 6 box bumpers | LANE_WIDTH=0.5 hardcoded |
+| **Dogleg** | 3 offset BoxGeometry segments + transition patches + guide bumpers | LANE_WIDTH=0.6, OFFSET=0.15 |
+| **Ramp** | ExtrudeGeometry triangle cross-section + BoxGeometry plateau + base felt | RAMP_HEIGHT=0.15, custom material with UV mode |
+| **Loop** | TorusGeometry half-torus (R=0.3, tube=0.04) + 2 CylinderGeometry pillars | Metallic material (roughness 0.4, metalness 0.2) |
+| **Tunnel** | CylinderGeometry half-cylinder (thetaLength=PI) | archRadius = laneW/2 |
+| **Windmill** | CylinderGeometry pillar (R=0.05, H=0.3) + 4 BoxGeometry blades | Blades at 22.5° offsets, no animation |
 
 ### Material System
-- **Planning mode**: MeshStandardMaterial with PBR props per materialProfile (budget_diy/standard_diy/semi_pro)
-- **UV mode**: Module-level singletons with emissive colors (green felt #00FF66, cyan bumpers #00CCFF, yellow tees #FFFF00, orange cups #FF6600), all at emissiveIntensity 0.8
-- `useMaterials()` hook returns MaterialSet based on mode + profile
-- Planning materials created in useMemo, disposed on unmount; UV materials are persistent singletons
 
-### Lighting
-- **Ambient**: white 0.8 (planning) / purple #220044 0.3 (UV)
-- **Directional**: Sun-tracked via suncalc (planning) / static purple #6600CC 0.4 (UV)
-- Shadow maps: 1024×1024 desktop, 512×512 mobile, ortho camera covers 24×40 units
-- Shadows disabled entirely in UV mode
-- No point lights, area lights, or environment lighting
+**useMaterials hook** returns `{felt, bumper, tee, cup}` MaterialSet:
+- Normal mode: creates materials from PBR presets (materialPresets.ts)
+- UV mode: returns singleton UV materials from shared.ts
+- UV materials: emissiveIntensity=2.0 across all types
+- Materials disposed on unmount (except UV singletons)
 
-### Hall Rendering
-- **Floor**: PlaneGeometry 10×20m, MeshStandardMaterial, #E0E0E0 (planning) / #0A0A1A (UV), receiveShadow
-- **Walls**: 4 BoxGeometry meshes, MeshStandardMaterial, #B0B0B0 (planning) / #1A1A2E (UV), no shadows
-- New materials created every render in HallWalls (performance issue noted in design)
+**3 Material Profiles** (materialPresets.ts):
+- `budget_diy`: tan bumpers (roughness 0.65), dull green felt
+- `standard_diy` (default): light gray bumpers (roughness 0.3, metalness 0.1), bright green felt
+- `semi_pro`: steel bumpers (roughness 0.25, metalness 0.75), dark green felt
 
-### Tailwind CSS v4 Configuration
-- **Version**: 4.2.0 with @tailwindcss/vite 4.2.0
-- **No tailwind.config** — uses Vite plugin with defaults
-- **No custom theme extensions** — all standard utility classes
-- CSS: `@import "tailwindcss"` + `overscroll-behavior: none`
+**Shared Constants** (shared.ts):
+- BUMPER_HEIGHT=0.08, BUMPER_THICKNESS=0.05, SURFACE_THICKNESS=0.02
+- TEE_RADIUS=0.03, CUP_RADIUS=0.054
+- polygonOffset on felt (factor=-1) to prevent z-fighting
 
-### Zustand State
-- `uvMode: boolean` in UIState (ephemeral, not persisted)
-- `toggleUvMode()` action flips the boolean
-- `view: ViewMode` controls camera (top-down / 3D)
-- `isMobile` computed at import time via utility (not in store)
+### Template/Segment System
 
-### Dependencies
-- @react-three/fiber 9.5.0, three 0.183.0, @react-three/drei 10.7.7
-- @react-three/postprocessing 3.0.4, postprocessing (transitive)
-- React 19.2.0, Zustand 5.0.11, Tailwind 4.2.0
+**TemplateHoleModel.tsx**: Renders custom holes from segment chains
+- Uses `computeChainPositions()` for segment layout
+- Each segment: SegmentMesh component with felt + left/right bumpers
+- First segment gets tee cylinder, last gets cup cylinder
+
+**11 Segment Types** (segmentSpecs.ts):
+- Straight: 1m, 2m, 3m
+- Curves: 90° left/right (R=0.8), 45° left/right (R=1.2), 30° wide (R=2.0)
+- Complex: u_turn (180°), s_curve (90° + 90°), chicane (diagonal)
+
+**Geometry Generation** (segmentGeometry.ts):
+- Straight: BoxGeometry per segment
+- Curves: RingGeometry for arc cross-sections (inner=felt, outer=bumper)
+- Complex: merged geometries for compound shapes
+- Returns `{felt, bumperLeft, bumperRight}` BufferGeometry set
+
+### GPU Tier System
+- 3 tiers: low/mid/high (from @pmndrs/detect-gpu)
+- Low: no shadows, no postprocessing, demand frameloop
+- Mid: soft shadows, chromatic aberration, always frameloop in UV
+- High: full SSAO (N8AO), god rays, bloom, all effects
+
+### Canvas Configuration
+- dpr: [1,1] low / [1,1.5] mobile / [1,2] high
+- frameloop: "demand" default, "always" in UV mode (non-low tier)
+- shadows: true or "soft" (PCSS on mid+)
+- antialias: disabled on mobile
+
+### Post-Processing Pipeline
+- Bloom (always), Vignette (always), ToneMapping ACES_FILMIC
+- ChromaticAberration (mid+), N8AO (high only), GodRays (high only)
+- UV mode: 12 Lightformer tube lights for UV lamp simulation
+
+### drei Utilities Already Imported
+Environment, Lightformer, SoftShadows, Sparkles, Grid, Line, Text, Billboard, MeshReflectorMaterial, Html, MapControls, CameraControls, PerformanceMonitor, Stats
+
+**NOT yet imported:** useTexture, useGLTF (these are new for Phase 12)
 
 ### Testing
-- Vitest 4.0.18 with jsdom, 229 tests passing across 20 files
-- Tests cover: placement math, collision, snap, store migrations, segment specs, keyboard, sun position
-- **No 3D component tests** — only utility/logic tests
-- No @testing-library/react in dependencies
-
-### 3D Component Structure (18 files)
-ThreeCanvas.tsx → CameraControls, FloorGrid, Hall (Floor+Walls+Openings), PlacedHoles (MiniGolfHole→HoleModel), FlowPath, SunIndicator, UVEffects, ScreenshotCapture
+- Vitest, run with `npm run test`
+- Unit tests only (no R3F rendering tests)
+- Test patterns: mock localStorage, vi.stubGlobal, real THREE.js imports
+- 304 tests across 25 files
+- Key test files: gpuTier.test.ts, materialPresets.test.ts, segmentSpecs.test.ts
 
 ---
 
-## Web Research: Best Practices
+## CC0 PBR Texture Availability
 
-### 1. GPU Tier Detection
+### Poly Haven (polyhaven.com) — All CC0
+All textures include: Diffuse, Normal (GL+DX), Roughness, Displacement, AO, ARM. Available 1K-8K.
 
-**Recommended: `@pmndrs/detect-gpu`**
-- Classifies GPUs into tiers 0-3 based on benchmark FPS scores (not just feature detection)
-- Async: `const gpuTier = await getGPUTier()` → `{ tier: 2, isMobile: false, fps: 45, gpu: "..." }`
-- Tier 0: <15fps (no WebGL), Tier 1: ≥15fps, Tier 2: ≥30fps, Tier 3: ≥60fps
-- ~200KB benchmark data from CDN
-- Same ecosystem as R3F/drei
+| Need | Texture | Notes |
+|------|---------|-------|
+| Carpet/Felt | `dirty_carpet` | Olive-brown, not green — needs shader tint |
+| Wood | `wood_planks`, `oak_wood_planks` | Excellent quality, multiple variants |
+| Brick/Stone | `castle_brick_02_red`, `brick_wall_001` | Multiple variants |
+| Concrete | `concrete_floor` | Weathered gray, realistic |
+| Corrugated Steel | `corrugated_iron`, `box_profile_metal_sheet` | Up to 16K, perfect for BORGA walls |
+| Rubber | None available | — |
 
-**Supplementary: WebGL capabilities**
-- `renderer.capabilities`: maxTextures, maxTextureSize, precision
-- WEBGL_debug_renderer_info for GPU name (blocked by Firefox privacy settings)
-- Three.js exposes via `useThree(s => s.gl.capabilities)`
+### ambientCG (ambientcg.com) — All CC0
+All textures include: Color, Normal, Roughness, Displacement, AO. Available 1K-8K.
 
-**Runtime adaptation: `PerformanceMonitor` from drei**
-- `onIncline`/`onDecline` callbacks for dynamic DPR adjustment
-- `performance.regress()` for movement regression (reduce quality during interaction)
-- `performance.current` (0-1 factor) for conditional effect rendering
+| Need | Texture ID | Notes |
+|------|-----------|-------|
+| Carpet/Felt | `Carpet012`, `Fabric026` | Tint green in shader |
+| Wood | `WoodFloor040`, `Planks010` | Many variants |
+| Brick | `Bricks085` (factory red) | 90+ variants |
+| Concrete | `Concrete012`, `Concrete040` | Various finishes |
+| Metal | Multiple in Metal category | — |
+| Rubber | `Rubber004` | Black gym floor rubber, 68k downloads |
 
-**Recommended mapping:**
-| Tier | DPR | Postprocessing | Shadows | Reflections |
-|------|-----|---------------|---------|-------------|
-| 0 | 1.0 | None | Off | Off |
-| 1 | 1.0 | Bloom only | Basic PCF | Off |
-| 2 | 1.5 | Bloom + Vignette + CA | PCF Soft 512 | Low-res 256 |
-| 3 | 2.0 | Full stack | PCF Soft 2048 | Full 512 |
+### Recommendation
+- **Use 1K-JPG resolution** for web (2K max for hero surfaces)
+- **Felt:** Tint a neutral carpet/fabric texture green in shader — no green felt exists CC0
+- **Wood rails:** Poly Haven `wood_planks`
+- **Walls:** Poly Haven `corrugated_iron` or `box_profile_metal_sheet`
+- **Floor:** Poly Haven `concrete_floor`
+- **Brick:** ambientCG `Bricks085`
+- **Rubber:** ambientCG `Rubber004`
 
-### 2. Postprocessing Effect Stack
+---
 
-**Canonical ordering (by attribute priority):**
-1. SMAA (anti-aliasing)
-2. SSR (screen-space reflections)
-3. SSAO / N8AO (ambient occlusion — requires depth)
-4. Depth of Field
-5. Chromatic Aberration (UV transform)
-6. Bloom (luminance-based convolution)
-7. God Rays (light scattering)
-8. Vignette (simple color)
-9. Tone Mapping (MUST be last — HDR→display)
-10. Noise / Film Grain (final overlay)
+## Three.js ExtrudeGeometry for Rounded Bumper Profiles
 
-**Effect merging**: Library merges compatible effects into single shader pass (Color+Color ✓, UV+Color ✓, Convolution+Convolution ✗)
-
-**Bloom best practices:**
-- Use `mipmapBlur={true}` — faster than Kawase, smoother halos
-- `luminanceThreshold={0.8-1.0}` — only emissive surfaces bloom
-- Selective bloom: `emissiveIntensity: 2.0` + `toneMapped={false}` makes objects glow
-- Set `renderer.toneMapping = NoToneMapping` when using ToneMapping effect (avoid double)
-
-**GodRays:**
-- Requires mesh ref as light source: `<GodRays sun={meshRef} samples={30} blur />`
-- Source mesh must not write depth, be flagged transparent
-- Disappears when source off-screen — consider `three-good-godrays` for screen-space alternative
-
-**N8AO preferred over SSAO**: Quality presets (performance/low/medium/high/ultra), `halfRes` option, better visual results at lower cost
-
-**Performance costs**: Vignette/Noise (very low) < ChromaticAberration (low) < ToneMapping (low) < Bloom (medium) < GodRays (medium-high) < SSAO (high)
-
-### 3. MeshReflectorMaterial + Environment
-
-**MeshReflectorMaterial:**
-- Extends MeshStandardMaterial, renders scene to off-screen buffer
-- `resolution` is primary perf knob: 256 (fast), 512 (balanced), 1024 (quality)
-- Each frame renders scene twice (double render cost)
-- `blur={[300, 100]}` adds reflection blur; `[0, 0]` skips blur pass
-- Disable on tier 0-1; use movement regression on tier 2
-
-**Environment presets:**
-- `warehouse` — industrial, even lighting (good for indoor venue)
-- `night` — dark, subtle (good base for UV mode)
-- Presets download from CDN; for production, serve HDR locally via `files` prop
-- All PBR materials automatically receive env map when Environment present
-- `environmentIntensity` < 1.0 prevents IBL from washing out directional lights
-
-**For blacklight venue:**
-- Use `night` preset with very low `environmentIntensity` (~0.1-0.2)
-- Or create custom dark Environment with Lightformer children
-- Add RectAreaLight for UV tubes (doesn't cast shadows)
-
-### 4. Tailwind v4 Dark Theme + Semantic Tokens
-
-**@theme directive replaces tailwind.config.js:**
-```css
-@theme {
-  --color-*: initial;  /* Remove ALL default colors */
-  --color-surface: oklch(0.12 0.01 270);
-  --color-accent: oklch(0.65 0.28 295);
+### Rounded Cross-Section Shape
+```typescript
+function createRoundedRectShape(width: number, height: number, radius: number): THREE.Shape {
+  const shape = new THREE.Shape();
+  const x = -width / 2, y = -height / 2;
+  shape.moveTo(x, y + radius);
+  shape.lineTo(x, y + height - radius);
+  shape.quadraticCurveTo(x, y + height, x + radius, y + height);
+  shape.lineTo(x + width - radius, y + height);
+  shape.quadraticCurveTo(x + width, y + height, x + width, y + height - radius);
+  shape.lineTo(x + width, y + radius);
+  shape.quadraticCurveTo(x + width, y, x + width - radius, y);
+  shape.lineTo(x + radius, y);
+  shape.quadraticCurveTo(x, y, x, y + radius);
+  return shape;
 }
 ```
-- Generates CSS custom properties AND utility classes simultaneously
-- `bg-surface`, `text-accent` etc. auto-generated from `--color-*` namespace
 
-**Dark-only app strategy:**
-- Define dark palette directly in @theme — no `dark:` variants needed
-- Use `--color-*: initial` to drop entire default Tailwind palette
-- Use OKLCH for perceptually uniform color steps
+### Extrusion Settings
+- **Straight rails:** `depth` + bevel (`bevelSegments: 3`, `bevelSize: 0.005`)
+- **Curved rails:** `extrudePath` with CatmullRomCurve3 (no bevel supported with extrudePath — put rounding in the shape)
+- **Segments:** `curveSegments: 8-12` for shape, `steps: 1` straight / `steps: 32-64` curved
+- **Optimization:** Always call `mergeVertices()` after extrusion
 
-**Three-layer token architecture:**
-1. Base tokens (raw OKLCH values)
-2. Semantic tokens (purpose: surface, text, accent, border)
-3. Component tokens (variant-specific)
+### Performance
+- Rounded rect with curveSegments=12, 4 corners = ~48 perimeter points
+- With steps=64 along curved path = ~6,144 triangles per rail
+- 4-8 rail segments per hole = 25k-50k triangles — acceptable but warrants merging for full course
 
-**Use `@theme inline`** when semantic tokens reference other variables (ensures resolution)
+---
 
-**Font namespaces:**
-```css
-@theme {
-  --font-display: "Orbitron", sans-serif;
-  --font-body: "Inter", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
-}
+## R3F Texture Loading Patterns
+
+### useTexture + Suspense
+```tsx
+const textures = useTexture({
+  map: '/textures/felt/color.jpg',
+  normalMap: '/textures/felt/normal.jpg',
+  roughnessMap: '/textures/felt/roughness.jpg',
+});
 ```
-→ `font-display`, `font-body`, `font-mono` utilities
+
+### Key Patterns
+- **Preload:** `useTexture.preload('/path')` at module level for critical textures
+- **Parallel loading:** Single `useTexture([...])` call avoids waterfall
+- **Clone pitfall:** Always `.clone()` textures when using different repeat/wrap settings
+- **Fallback:** ErrorBoundary + Suspense with flat-color material fallback
+- **Progressive:** `useDeferredValue` keeps old texture visible while new loads
+- **Caching:** Automatic by URL — same path = same texture object
+
+---
+
+## GLTF Loading
+
+### useGLTF Pattern
+- Draco enabled by default (CDN), zero config
+- Always `scene.clone()` for multiple instances
+- Scale-to-fit via bounding box calculation
+- `gltfjsx` CLI generates typed React components
+- Prefetch Draco WASM in index.html for faster first load
+
+### CC0 Windmill Models
+
+**Best option: Kenney Minigolf Kit**
+- URL: https://www.kenney.nl/assets/minigolf-kit
+- License: CC0 1.0 Universal
+- 125+ models including obstacles, GLTF format
+- 3MB total zip, individual models ~50KB
+- Purpose-built for mini golf, low-poly optimized
+
+**Fallback: Improved Procedural**
+- Tapered cylinder tower + cone roof + shaped ExtrudeGeometry blades
+- Full control over dimensions and style
+- Zero licensing concern, zero bundle size

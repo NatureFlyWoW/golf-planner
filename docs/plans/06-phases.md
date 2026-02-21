@@ -81,12 +81,37 @@ Strict phasing prevents scope creep. Each phase delivers a usable tool — not a
 
 **Definition of done:** Budget tracking works alongside layout planning in the same app.
 
+## Phase 11A: GOLF FORGE Visual Rendering (Complete)
+
+**Goal:** Dark theme + environment atmosphere
+
+**Scope:** GPU tier detection, dark CSS theme, post-processing effects (bloom, fog, god rays), UV lighting fixtures, reflective floor, UV transition animation, visual regression tests.
+
+**Note:** This phase addressed environment dressing and UI theming. It did NOT address 3D model quality — that was a planning oversight. See postmortem.
+
+## Phase 12: Beautiful 3D Golf Course Models (Next)
+
+**Goal:** "Wow, that looks amazing"
+
+**Scope:**
+- Replace flat BoxGeometry holes with detailed, textured 3D models
+- PBR textures: felt carpet, wood/metal bumper rails, stone tunnels
+- Rounded/beveled geometry: no more sharp-edged boxes
+- Detailed obstacles: windmill with tower + rotating blades, brick tunnel archway, smooth loop track
+- Recessed cup holes with flags, textured tee pads
+- Hall environment polish (concrete floor, steel wall panels)
+- Material profile visual tiers (budget=rustic wood, standard=painted MDF, semi_pro=aluminum)
+- GPU tier gating for texture quality
+- Performance: texture atlas, geometry instancing, LOD in top-down vs 3D
+
+**Design doc:** [2026-02-21-phase12-beautiful-3d-models.md](./2026-02-21-phase12-beautiful-3d-models.md)
+
+**Definition of done:** Someone opens the app in 3D view and the mini golf course looks beautiful — felt looks like carpet, bumpers look like rails, obstacles look like actual obstacles.
+
 ## Future (no phase assigned)
 
 These are ideas, not commitments:
 - PDF floor plan export (jsPDF)
 - Share layout via URL (encode state in URL hash or use a simple backend)
-- Realistic 3D obstacle models (replace colored blocks with actual shapes)
-- UV/blacklight theme toggle (dark mode with glowing elements)
 - Walking simulation (first-person perspective through the course)
-- Cost auto-estimation (adding holes updates course budget automatically)
+- Google Earth geo integration

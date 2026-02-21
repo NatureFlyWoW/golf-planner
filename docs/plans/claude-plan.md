@@ -1,420 +1,378 @@
-# Phase 11A Implementation Plan: GOLF FORGE Visual Identity & Rendering
+# Phase 12: Beautiful 3D Golf Course Models — Implementation Plan
 
-## Context
+## Overview
 
-Golf Planner is a React 19 + TypeScript indoor blacklight mini golf hall layout tool. It uses React Three Fiber (R3F) 9.5.0, Three.js 0.183.0, @react-three/drei 10.7.7, and @react-three/postprocessing 3.0.4 for 3D rendering, with Zustand 5.0.11 for state management and Tailwind CSS 4.2.0 for UI styling. The app runs as a static PWA with localStorage persistence.
+This plan upgrades all 3D mini golf hole models in the golf-planner app from flat geometric primitives (BoxGeometry, CircleGeometry) to textured, rounded, detailed 3D models that look like real mini golf course elements. The art direction is **Stylized Realism** — polished PBR materials, rounded geometry, textured surfaces.
 
-Currently the app has a light gray UI theme with basic UV mode (emissive materials + bloom + vignette). Phase 11A transforms it into **GOLF FORGE** — a permanently dark-themed, blacklight-aesthetic venue creation experience with GPU-adaptive 3D effects and a theatrical UV transition.
+**What changes:** Every hole's visual representation transforms. Bumpers become rounded wood rails. Felt becomes textured carpet. Cups become recessed holes with flags. Obstacles (windmill, tunnel, loop, ramp) become detailed 3D models. The hall itself gets concrete floors and steel walls.
 
-**Version pinning**: For the duration of Phase 11A, pin exact versions (no `^` ranges) for `three`, `@react-three/fiber`, `@react-three/drei`, and `@react-three/postprocessing` in package.json. Three.js has a history of breaking changes between minor versions — lock the ecosystem to avoid mid-implementation breakage.
+**What stays the same:** All placement logic, collision detection, drag/rotate interactions, store structure, data models, and UI panels remain untouched. This is purely a visual layer upgrade.
+
+## Prerequisites
+
+- **Phase 11A must be fully merged to main** before Phase 12 begins. Phase 11A sections 06-12 modify HallFloor.tsx (MeshReflectorMaterial), lighting, and the material system. Phase 12 builds on top of the completed Phase 11A state.
+- Section 8 (Hall Environment) must account for the reflector material path on HallFloor.
 
 ## Architecture
 
-### GPU Tier System (Foundation)
+### Project Structure
 
-All visual effects are gated by a three-tier GPU classification system. This is the foundational piece — nothing else can ship without it.
+The golf-planner is a React 19 + TypeScript + Vite app using:
+- `@react-three/fiber` (R3F) for 3D rendering
+- `@react-three/drei` for utilities (useTexture, useGLTF, etc.)
+- `three` (Three.js) for geometry and materials
+- Zustand for state management
+- Existing GPU tier system (low/mid/high) for performance gating
 
-**Tier Detection**: Use `@pmndrs/detect-gpu` (async, benchmark-based). The library classifies GPUs into tiers 0-3 based on normalized FPS benchmarks. Map to three app tiers:
-
-| App Tier | detect-gpu Tiers | Effects Budget |
-|----------|-----------------|----------------|
-| low | 0, 1 | Bloom + Vignette + ToneMapping, no shadows, DPR 1.0 |
-| mid | 2 | + ChromaticAberration + SoftShadows + Sparkles, PCF shadows 512, DPR 1.5 |
-| high | 3 | + N8AO + GodRays + Reflections, PCSS 2048, DPR 2.0 |
-
-*Note: Vignette and ToneMapping are always-on baseline effects at all tiers. The max effects per tier policy (see Post-Processing section) counts optional effects only: low=0 optional, mid=3 optional (ChromaticAberration, Sparkles, SoftShadows†), high=6 optional (add N8AO, GodRays, Reflections). †SoftShadows is a drei scene feature, not a postprocessing effect — counted separately from the EffectComposer stack.*
-
-**Caching**: Store detected tier in localStorage on first run. On subsequent loads, read from cache. Expose a user override in the settings panel (dropdown: Auto / Low / Mid / High).
-
-**First-load fallback**: `@pmndrs/detect-gpu` is async (benchmark-based). While detection is in progress, default to `"low"` tier — this is safe on any GPU (Bloom only, no shadows, DPR 1.0). When detection completes (typically <500ms), upgrade if warranted. "Start low, upgrade" prevents a jarring first-load performance cliff on weak GPUs.
-
-**State**: Three-field design:
-- `gpuTier: "low" | "mid" | "high"` in Zustand UIState (ephemeral, runtime-computed)
-- `transitioning: boolean` in Zustand UIState (ephemeral, NOT persisted — guards UV toggle and drives frameloop)
-- `gpuTierOverride: "auto" | "low" | "mid" | "high"` in a new persisted settings field
-- On app init: `gpuTier = gpuTierOverride === "auto" ? detectedTier : gpuTierOverride`
-- Requires store version bump to v7 with migration (add `gpuTierOverride: "auto"` default)
-- **Migration safety**: Wrap v7 migration in try/catch. On failure, fall back to field-level defaults (`gpuTierOverride: "auto"`) rather than corrupting the store. No full-store backup (localStorage bloat risk with 5MB limit). The migration only adds one field — corruption risk is near-zero.
-- Update `partialize` to include `gpuTierOverride`
-
-**Runtime adaptation**: Layer drei's `PerformanceMonitor` on top of static tier. Use `performance.regress()` during camera interaction. Use `performance.current` (0-1 factor) to conditionally disable expensive effects when FPS drops.
-
-**Builder singleton**: The Hole Builder has its own R3F Canvas. The `useGpuTier` hook reads from Zustand (shared state), not re-detecting per Canvas. GPU detection runs once at app init.
-
-### Frameloop Strategy
-
-The app currently uses `frameloop="demand"` for battery/performance efficiency. Several Phase 11A features require continuous rendering:
-- Sparkles animation (`speed={0.3}`)
-- SoftShadows (PCSS requires continuous updates)
-- MeshReflectorMaterial (reflection FBO updates)
-- UV transition animation
-- GodRays (temporal accumulation)
-
-**Strategy**: Derive frameloop mode from state:
-```
-needsAlwaysFrameloop = transitioning || (uvMode && gpuTier !== "low")
-frameloop = needsAlwaysFrameloop ? "always" : "demand"
-```
-
-When UV mode is active with mid/high tier effects, the frameloop stays `"always"`. When UV mode is off (planning mode), it returns to `"demand"`. Low-tier GPUs always use `"demand"` (they only get static Bloom + Vignette).
-
-**Note**: This means UV mode on battery-powered devices will draw more power. This is acceptable for a venue planning tool (typically used plugged in).
-
-### Tailwind v4 Theme System
-
-**Token architecture** (three layers):
-
-1. **Base tokens** — Hex color values in `@theme` block
-2. **Semantic tokens** — Purpose-driven mappings (surface, text, accent, border) via `@theme inline`
-3. **Utilities** — Auto-generated `bg-surface`, `text-accent`, `border-subtle` etc.
-
-**Setup**: In `src/index.css`, add `@theme` block with the 11-token blacklight palette. **Do NOT use `--color-*: initial`** — this would break all existing Tailwind color utilities (bg-red-500, bg-amber-500, bg-blue-500, etc.) which are used in 71 places across 20 files (BudgetPanel progress bars, status indicators, etc.). Instead, define custom tokens additively alongside Tailwind defaults.
-
-Add `--font-display`, `--font-body`, `--font-mono` for typography.
-
-**Palette** (11 base tokens):
-- void (#07071A) — primary bg
-- deep-space (#0F0F2E) — panels
-- plasma (#1A1A4A) — cards
-- grid-ghost (#2A2A5E) — borders
-- neon-violet (#9D00FF) — primary accent (decorative: borders, glows, icons ONLY)
-- accent-text (#B94FFF) — contrast-safe accent for readable text (~5.2:1 on void)
-- neon-cyan (#00F5FF) — data
-- neon-green (#00FF88) — success
-- neon-amber (#FFB700) — warning/costs
-- neon-pink (#FF0090) — errors
-- felt-white (#E8E8FF) — body text
-
-**Contrast safety rule**: neon-violet (#9D00FF) is 3.1:1 on void — **fails WCAG AA for text**. NEVER use `text-accent` for readable body text. Use `text-accent-text` (#B94FFF, ~5.2:1) instead. neon-violet is restricted to decorative use: borders, box-shadows, glows, icon fills, and background accents where text is not overlaid.
-
-**Verified contrast pairs** (on void #07071A):
-- felt-white (#E8E8FF): 13.8:1 (AAA) — body text
-- neon-amber (#FFB700): 9.2:1 (AAA) — financial data
-- neon-green (#00FF88): 10.1:1 (AAA) — success
-- neon-cyan (#00F5FF): 11.4:1 (AAA) — data
-- accent-text (#B94FFF): ~5.2:1 (AA) — accented text
-- neon-pink (#FF0090): 4.4:1 (AA large text only) — errors, use with felt-white text + pink bg/border instead
-- grid-ghost (#2A2A5E): ~1.8:1 — borders only, never text
-
-**Contrast on deep-space (#0F0F2E)** — used for panels (sidebar, data panels):
-- felt-white (#E8E8FF): ~11.5:1 (AAA) — panel body text
-- neon-amber (#FFB700): ~7.7:1 (AAA) — financial figures in data panels
-- accent-text (#B94FFF): ~4.3:1 (AA large text / AA with bold) — accented labels in panels
-- neon-cyan (#00F5FF): ~9.5:1 (AAA) — data values in panels
-
-**Semantic mappings**: surface → void, surface-raised → deep-space, surface-elevated → plasma, border-subtle → grid-ghost, text-primary → felt-white, accent → neon-violet (decorative), accent-text → accent-text (#B94FFF), etc.
-
-**PWA Manifest Update**: Update `vite.config.ts` PWA manifest: `theme_color` → `#07071A` (void), `background_color` → `#07071A`, `name` → "GOLF FORGE", `short_name` → "FORGE".
-
-### Fonts and Branding
-
-**Self-host fonts** (not Google Fonts CDN — this is a PWA that must work offline):
-1. Download WOFF2 files for Orbitron (700 only — 400 is unused), Inter (400, 500, 600, 700), JetBrains Mono (400, 500)
-2. Place in `public/fonts/`
-3. Define `@font-face` declarations in `src/index.css` with `font-display: swap`
-
-This ensures offline functionality and eliminates FOUT/FOIT issues from network font loading.
-
-Replace Lucide React icons for any remaining Unicode characters (current codebase likely already uses Lucide — verify).
-
-Brand mark: "GOLF FORGE" in Orbitron Bold in the toolbar header area. Use `accent-text` (#B94FFF) for text color, with an optional neon-violet (#9D00FF) `text-shadow` or `filter: drop-shadow()` glow for decorative effect. Do NOT use raw neon-violet as the text `color` — it fails AA contrast on void.
-
-### Dark Theme Conversion
-
-**Strategy**: Big-bang find-and-replace after tokens are defined.
-
-1. Audit all components for Tailwind color classes (bg-white, bg-gray-*, text-gray-*, border-gray-*)
-2. **Audit and remove `uvMode ?` ternaries**: 11 files currently have `uvMode ? darkClass : lightClass` conditional styling (Toolbar.tsx, BottomToolbar.tsx, HallFloor.tsx, HallWalls.tsx, ThreeCanvas.tsx, FlowPath.tsx, FloorGrid.tsx, GhostHole.tsx, HallOpenings.tsx, TemplateHoleModel.tsx, useMaterials.ts). Since the theme is now permanently dark, these ternaries are replaced with the dark semantic tokens unconditionally. (Note: 3D material ternaries in Three components may still be needed for UV vs planning lighting differences — only UI ternaries are removed.)
-3. Map each light class to its semantic equivalent (bg-white → bg-surface, bg-gray-100 → bg-surface, bg-gray-800 → bg-surface-raised, text-gray-600 → text-secondary, etc.)
-4. Replace all instances across all UI components in a single pass
-5. Special treatment for data-heavy panels: amber text on deep-space bg, JetBrains Mono font
-
-**Components to convert**: Sidebar (SidebarPanel.tsx), Toolbar (Toolbar.tsx, BottomToolbar.tsx), all tab panels (HolesTab, DetailPanel, BudgetPanel, CostPanel), modals (SettingsModal, HoleBuilder), detail panels (HoleDetail), mobile drawer, and any remaining UI.
-
-### High-Contrast Data Panels
-
-Budget/cost panels get special treatment for readability:
-- Background: deep-space (#0F0F2E)
-- Text: neon-amber (#FFB700) for financial figures
-- Font: JetBrains Mono 14px
-- Contrast ratio: 9.2:1 (WCAG AAA compliant)
-- Apply to: BudgetPanel, CostPanel, expense tables, any numeric data display
-
-### 3D Environment + Atmosphere
-
-**Environment**: Use drei's `<Environment>` with either the `night` preset or a custom dark HDR. Set `environmentIntensity={0.15}` to keep it subtle — the RectAreaLights and directional light are the primary illumination. Set `background={false}` (the hall walls define the space, not a skybox).
-
-**Custom Lightformers**: Inside the `<Environment>` component, add `<Lightformer>` elements positioned to simulate UV tube strips on the ceiling. These bake into the cubemap for subtle PBR reflections on metallic surfaces.
-
-**SoftShadows**: Add `<SoftShadows size={25} samples={10} />` from drei (mid+high tier only). Active when `frameloop="always"` (UV mode on mid/high tier). Falls back to regular shadows in demand mode.
-
-**Fog**: Replace current linear fog with exponential: `<fogExp2 args={["#07071A", 0.04]} />`. Applies in UV mode **AND 3D perspective view only** — exponential fog in orthographic (top-down) view creates uniform darkening across the scene (all fragments at similar camera distance), producing a muddy result with no atmospheric value. Gate with: `uvMode && view === "3d"`. (Note: R3F uses `args` prop pattern for Three.js constructors, not named props.)
-
-**Canvas gl props**: Add `powerPreference: "high-performance"` to hint GPU to use discrete graphics.
-
-### Enhanced Post-Processing Stack
-
-The full effect stack runs through a **single** `EffectComposer` with `multisampling={0}` (MSAA is redundant with postprocessing):
+### Key Directories
 
 ```
-Effect Stack Order (single EffectComposer):
-  [high only] N8AO (quality="medium", halfRes)
-  [high only] GodRays (sun={lampRef}, samples=30, density=0.96, decay=0.9, weight=0.4, blur)
-  [mid+]      Bloom (mipmapBlur, luminanceThreshold=0.8, intensity=0.6-1.0)
-  [mid+]      ChromaticAberration (offset=[0.0015, 0.0015])
-  [all]       Vignette (offset=0.3, darkness=0.8)
-  [all]       ToneMapping (mode=ACES_FILMIC)
+src/components/three/holes/
+  HoleModel.tsx          # Dispatcher — routes to type-specific component
+  HoleStraight.tsx       # 7 legacy hole components
+  HoleLShape.tsx
+  HoleDogleg.tsx
+  HoleRamp.tsx
+  HoleLoop.tsx
+  HoleTunnel.tsx
+  HoleWindmill.tsx
+  TemplateHoleModel.tsx  # Segment-based custom holes
+  useMaterials.ts        # Material factory hook
+  shared.ts              # Constants + singleton UV materials
+  materialPresets.ts     # PBR property configs per profile
+
+src/utils/
+  segmentGeometry.ts     # Geometry generators for template segments
+  bumperProfile.ts       # NEW — rounded bumper cross-section utilities
+  holeGeometry.ts        # NEW — shared geometry helpers (cup, tee, etc.)
+
+public/textures/         # NEW — CC0 PBR texture assets
+  felt/                  # color.jpg, normal.jpg, roughness.jpg
+  wood/                  # color.jpg, normal.jpg, roughness.jpg
+  brick/                 # color.jpg, normal.jpg
+  concrete/              # color.jpg, normal.jpg, roughness.jpg
+  steel/                 # color.jpg, normal.jpg, roughness.jpg, metalness.jpg
+  rubber/                # normal.jpg, roughness.jpg
+
+public/models/           # NEW — GLTF obstacle models (if used)
+  windmill.glb           # Kenney kit or custom
 ```
 
-**GodRays in single composer**: GodRays is integrated into the single EffectComposer, positioned after N8AO but before Bloom. If this causes ordering/rendering issues during implementation, GodRays will be cut — it is the lowest-value, highest-risk effect in the stack.
+### Texture Asset Acquisition
 
-**Selective bloom**: Update all UV emissive materials to `emissiveIntensity: 2.0` (from current 0.8). Set bloom `luminanceThreshold: 0.8` (from 0.2). Only surfaces with high emissive values will bloom — no more "everything glows".
+**Sources:** All CC0 licensed, no attribution required.
+| Surface | Source | Texture ID | Resolution | Format |
+|---------|--------|-----------|------------|--------|
+| Felt/carpet | ambientCG | Carpet012 or Fabric026 | 1K | JPG |
+| Wood rail | Poly Haven | wood_planks | 1K | JPG |
+| Brick (tunnel) | ambientCG | Bricks085 | 1K | JPG |
+| Concrete (floor) | Poly Haven | concrete_floor | 1K | JPG |
+| Steel (walls) | Poly Haven | corrugated_iron | 1K | JPG |
+| Rubber (tee) | ambientCG | Rubber004 | 1K | JPG |
 
-**Renderer tone mapping**: Set `renderer.toneMapping = THREE.NoToneMapping` on the Canvas `gl` prop to avoid double tone mapping (the ToneMapping effect handles it).
+**Download mechanism:** During Section 1 implementation, download texture JPGs via curl/wget from source CDNs. Each texture set is 3-4 files (color, normal, roughness, optionally metalness) at 1K resolution.
 
-**Sparkles**: Add `<Sparkles count={400} color="#9D00FF" size={2} speed={0.3} scale={[10, 4.3, 20]} position={[5, 2.15, 10]} />` from drei, constrained to the hall volume. Mid+high tier only. Represents floating UV-reactive dust particles.
+**Total budget:** <10MB for all texture assets combined. Each 1K JPG is ~100-300KB. 6 surfaces × 3-4 maps × ~200KB avg = ~5MB.
 
-**Max effects per tier policy**: To prevent feature creep, cap the total active *postprocessing* effects per tier: low=2 (Bloom + Vignette), mid=4 (add ChromaticAberration + ToneMapping), high=6 (add N8AO + GodRays). Scene-level features (SoftShadows, Sparkles, MeshReflectorMaterial, Fog) are budgeted separately by tier — they are drei components or Three.js features, not EffectComposer effects. Any new postprocessing effect added post-Phase 11A must replace an existing one at its tier level, not stack on top.
+**Fallback plan:** If CC0 texture cannot be sourced for a surface, generate a procedural texture using Canvas2D (create an offscreen canvas, draw pattern, use as texture). This is viable for felt (green noise pattern), rubber (dark stipple), and concrete (gray noise).
 
-### MeshReflectorMaterial (Reflective Floor)
+**Green felt:** No green mini golf felt exists in CC0 libraries. Use a neutral carpet texture and tint it green via the material's `color` property. The normal map provides fiber direction regardless of base color.
 
-Replace `HallFloor`'s simple MeshStandardMaterial with `MeshReflectorMaterial` from drei when conditions are met:
+### Material System Architecture
 
-**Conditions**: `uvMode === true && view === "3d" && gpuTier !== "low"`
+**Current:** `useMaterials()` returns `{felt, bumper, tee, cup}` as flat-color `MeshStandardMaterial` instances. UV mode returns hardcoded singleton emissive materials.
 
-**Configuration**:
-- resolution: 256 (mid) / 512 (high)
-- blur: [200, 100]
-- mixStrength: 0.8 (tune at implementation time — may reduce to 0.4)
-- mirror: 0
-- color: "#07071A" (void)
-- roughness: 0.3, metalness: 0.8
+**Upgraded:** The material system uses a **two-component pattern** to handle conditional texture loading without breaking React hooks:
 
-When conditions are NOT met, render the standard MeshStandardMaterial (current behavior). This means zero render cost in top-down view and on low-tier GPUs. Should respect `PerformanceMonitor` — disable when `performance.current` drops below 0.5.
+1. **`<TexturedHole>`** — wraps textured hole components in Suspense. Only rendered when GPU tier is mid or high.
+2. **`<FlatHole>`** — renders with current flat-color materials. Used on low GPU tier or as Suspense/ErrorBoundary fallback.
 
-### Enhanced UV Lighting
+The parent component (in HoleModel.tsx dispatcher) reads GPU tier and conditionally renders one or the other. This avoids calling `useTexture` conditionally inside a single component, which would violate the Rules of Hooks.
 
-Add 4x `RectAreaLight` positioned along the ceiling to simulate UV tube strip lighting:
+`useMaterials()` hook interface (`MaterialSet`) stays the same. A new `useTexturedMaterials()` hook extends it with texture maps. Only called inside `<TexturedHole>` where Suspense is guaranteed.
 
-**Positions**: Distribute evenly along the hall length at ceiling height (y=4.3m), oriented downward. Exact positions: [(2.5, 4.3, 5), (7.5, 4.3, 5), (2.5, 4.3, 15), (7.5, 4.3, 15)].
+**Texture loading strategy:**
+1. Textures loaded via drei's `useTexture` inside `<TexturedHole>` (wrapped in Suspense)
+2. ErrorBoundary wraps textured components — on failure, falls back to `<FlatHole>`
+3. Critical textures (felt, wood) preloaded at module level via `useTexture.preload()`
+4. Each texture cloned when different repeat/wrap settings needed across hole types
 
-**Properties**: color #8800FF, intensity 0.8, width 0.3m, height 2m (tube shape).
+**GPU tier gating for textures:**
+- **High:** Full 1K textures with normal + roughness maps
+- **Mid:** 1K textures, normal maps only (no roughness maps)
+- **Low:** No textures — `<FlatHole>` rendered (current behavior preserved)
 
-**RectAreaLightUniformsLib**: In Three.js 0.183.0, RectAreaLight may not require `RectAreaLightUniformsLib.init()` (it was integrated into the renderer pipeline in r155+). Verify at implementation time — if `RectAreaLight` works without the init call, skip it. If it still requires initialization, import from `three/examples/jsm/lights/RectAreaLightUniformsLib`.
+### Geometry Upgrade Strategy
 
-**UV lamp fixture geometry**: Simple tube/strip meshes visible only in 3D perspective view. In top-down orthographic view, hide them (they'd be ceiling clutter). Use a group with `visible={view === "3d"}`.
+**Bumper rails:** Replace all BoxGeometry bumpers with ExtrudeGeometry using a rounded rectangular cross-section shape. The cross-section is created via `THREE.Shape` with `quadraticCurveTo` corners. For straight rails: extrude with `depth` + bevel (`bevelSegments: 3`). For curved segment rails: use `extrudePath` with path following the arc.
 
-Keep existing directional light for shadow casting (RectAreaLight does NOT cast shadows).
+**Triangle budget:** Max 500 triangles per bumper rail segment. Validate in Section 1 before proceeding. If over budget, reduce `curveSegments` (8 minimum for visual quality). With `curveSegments: 8`, a rounded rect has ~32 perimeter points × bevelSegments 3 = ~200 triangles per straight rail. Well within budget.
 
-### GodRays Light Sources
+**Geometry disposal:** All ExtrudeGeometry created in components must be disposed on unmount via `useEffect` cleanup. Same pattern as `useMaterials.ts` material disposal.
 
-**Decoupled from UV Lamp fixtures**: GodRays source meshes are created as a separate `GodRaysSource` component (in T9), NOT built into the UV Lamp fixture geometry (T8). This ensures a clean cut boundary — if GodRays are cut, T8's lamp fixtures are unaffected with no dead code.
+**Cups:** Replace flat CircleGeometry with recessed CylinderGeometry (small cylinder subtracted below surface level). Add a thin flag pin mesh using a CylinderGeometry shaft + small cone/plane flag. Flag rendered in 3D view only — conditionally hidden when camera is in top-down/orthographic mode.
 
-GodRays source layer (high-tier GPUs only):
-- Separate small emissive sphere meshes (radius ~0.1m) co-located at lamp center positions
-- `transparent={true}`, `depthWrite={false}` (required by GodRays)
-- **Ref wiring**: `GodRaysSource` component exposes its mesh ref via a Zustand store field (`godRaysLampRef` in UIState, ephemeral). The `PostProcessing` component reads this ref for the GodRays `sun` prop. When GodRays are cut, the ref is simply null and the GodRays effect is not rendered — no prop drilling or context needed.
-- Rendered conditionally: `gpuTier === "high" && uvMode`
-- **Cut contingency**: If GodRays integration in a single EffectComposer causes rendering issues, delete the `GodRaysSource` component and the GodRays effect — zero impact on T8's lamp fixtures
+**Tees:** Replace flat CircleGeometry with slightly raised CylinderGeometry (2-3mm height) with rubber texture normal map.
 
-### UV "Lights Out" Transition
+**Top-down view:** In orthographic/top-down camera mode, use simplified rendering: no normal maps (irrelevant from directly above), no flag pins (invisible), simple box bumper outlines instead of rounded profiles. This is both a performance optimization and a visual clarity improvement.
 
-**High priority** — this is the signature interaction.
+**Obstacles:** Each obstacle type gets unique geometry treatment (detailed per section below).
 
-**Approach**: Pure CSS transitions overlaying the Canvas, masking an instant material/lighting swap underneath.
+## Section 1: Straight Hole Glow-Up
 
-**Implementation**:
-1. Create a `UVTransition` component that renders an overlay `<div>` covering the entire viewport
-2. When UV mode toggles ON:
-   - Phase 1 (0-800ms): CSS opacity animation pulses the overlay (simulating tube flicker)
-   - Phase 2 (800-1400ms): Overlay fades to near-black (darkness). UI elements dim to 20% opacity via CSS class
-   - At 800ms: Actually swap materials, lighting, and effects (hidden behind dark overlay)
-   - Phase 3 (1400-2400ms): Overlay fades out, revealing the UV scene. Bloom intensity animates from 0 to target value
-   - Phase 4: Transition complete. Remove overlay.
-3. When UV mode toggles OFF: Reverse sequence (instant swap behind overlay, fade back to planning view)
+**Goal:** Transform the simplest hole type completely — the user sees a visible change immediately.
 
-**Timing coordination**: Use `useRef` for transition phase tracking combined with `requestAnimationFrame` for timing — NOT `setTimeout` chains. setTimeout is unreliable under load (guarantees *at least* N ms, not exactly N ms) and throttled to 1000ms intervals when the tab is backgrounded. The rAF loop checks elapsed time via `performance.now()` and advances phases when thresholds are crossed. Only `uvMode` (the actual mode flip) and `transitioning` (the boolean guard) go through Zustand — phase tracking stays entirely in refs, causing zero React re-renders during the 2.4s animation. The `uvMode` state flip fires ONLY when the rAF loop confirms the overlay is fully dark — guaranteed by elapsed time check, not setTimeout hope.
+**What changes:**
+- Download and add CC0 texture assets to `public/textures/` (felt, wood, rubber) via curl from CDN
+- Create `bumperProfile.ts` utility:
+  - `createBumperProfile(height, thickness, bevelRadius)` → returns `THREE.Shape` with rounded rect
+  - `createBumperGeometry(profile, length)` → returns `ExtrudeGeometry` for straight bumper rails
+  - Triangle budget validation: assert <500 triangles per rail
+- Create `useTexturedMaterials()` hook that wraps `useTexture` for PBR texture maps
+- Create `<TexturedHole>` / `<FlatHole>` pattern in HoleModel.tsx dispatcher
+- Replace HoleStraight's 4 BoxGeometry bumpers with ExtrudeGeometry rounded profiles
+- Apply felt texture (color + normal + roughness maps) to playing surface
+- Replace CircleGeometry cup with recessed CylinderGeometry + flag pin mesh (3D view only)
+- Replace CircleGeometry tee with raised CylinderGeometry + rubber texture
+- Add geometry disposal via useEffect cleanup
+- GPU tier gating: low tier renders `<FlatHole>` (existing behavior)
 
-**Canvas isolation during transition**: Set `pointer-events: none` on the Canvas element while `transitioning` is true. This prevents user clicks during the animation from triggering hole selection, state changes, or re-renders that could interfere with the overlay.
+**Tests:**
+- Bumper profile generator returns valid Shape with expected point count
+- Bumper geometry generator returns BufferGeometry with ≤500 triangles
+- Triangle budget assertion prevents regression
+- useTexturedMaterials returns MaterialSet with texture maps
+- Fallback to flat-color materials when textures unavailable
+- GPU tier gating: low tier gets no textures
+- Geometry disposal on unmount (no memory leaks)
 
-**Double-click guard**: Ignore UV toggle clicks while `transitioning` state is true. Prevent race conditions from rapid toggling.
+## Section 2: Shared Geometry Library + All Legacy Types
 
-**Frameloop**: The frameloop strategy (see above) handles this — `transitioning` state triggers `"always"` mode.
+**Goal:** All 7 legacy hole types get rounded bumpers, textured felt, recessed cups, rubber tees.
 
-**User preference**: Add a toggle in settings: "UV transition animation" (default on). When off, instant toggle (current behavior).
+**What changes:**
+- Extract shared components: `<BumperRail>`, `<Cup>`, `<TeePad>` as reusable R3F components
+- Each component accepts position, rotation, dimensions and renders the upgraded geometry
+- Each component handles its own geometry disposal via useEffect cleanup
+- Refactor all 7 legacy hole components to use shared sub-components instead of inline geometry
+- HoleLShape: shared bumpers for 6 wall segments (LANE_WIDTH=0.5)
+- HoleDogleg: shared bumpers for main + guide rails (LANE_WIDTH=0.6)
+- HoleRamp: shared bumpers for side rails (taller SIDE_BUMPER_HEIGHT variant)
+- HoleLoop: shared bumpers (LANE_WIDTH=0.5), obstacle geometry separate
+- HoleTunnel: shared bumpers (entry/exit zones), tunnel arch separate
+- HoleWindmill: shared bumpers, windmill obstacle separate
 
-**UV button**: After transition completes, the UV toggle button gets a CSS `animation: pulse` with neon-violet glow (#9D00FF box-shadow).
+**Design decision:** Obstacle-specific geometry (the ramp slope, loop arch, tunnel arch, windmill tower) is NOT replaced in this section. Only the shared elements (bumpers, felt, cup, tee) are upgraded. Obstacle overhauls happen in sections 3-6.
 
-### Performance Fixes
+**Note:** Different hole types have different LANE_WIDTH values (0.5 vs 0.6). Shared components accept width as a parameter.
 
-1. **HallWalls singleton materials**: Currently creates new MeshStandardMaterial on every render. Move to module-level singletons (same pattern as hole materials in shared.ts). Create two singletons (planning + UV) and select based on uvMode. Do not mutate singletons — if transition animation needs material property changes, clone temporarily.
-2. **Mobile shadow optimization**: Use `shadows={true}` instead of `shadows="soft"` on mobile (40% cheaper, minimal visual difference on small screens)
+**Tests:**
+- Each shared component renders without errors
+- All 7 hole types render with new shared components
+- Bumper dimensions match existing BUMPER_HEIGHT/BUMPER_THICKNESS
+- Cup/tee positions match existing offsets
+- Geometry disposed on component unmount
 
-(Note: `powerPreference` and `multisampling=0` are handled in T5/T6 respectively, not here.)
+## Section 3: Windmill Obstacle Overhaul
 
-### Visual Regression Testing
+**Goal:** The windmill becomes a charming miniature building instead of a gray cylinder + box blades.
 
-**Framework**: Playwright screenshot comparison tests alongside existing Vitest suite.
+**What changes:**
+- Download Kenney Minigolf Kit GLTF assets (CC0) and evaluate windmill model
+  - If GLTF format available: import windmill.glb via `useGLTF`, place as fixed-size accent (~0.8m × 0.8m × 1.2m) within lane
+  - If FBX/OBJ only: convert to GLB or fall back to procedural
+  - If no suitable model: build improved procedural windmill (tapered cylinder tower, cone roof, door detail, shaped blade ExtrudeGeometry)
+- Add slow rotation animation to blades (3D view only, not top-down):
+  - Use `useFrame` with delta for smooth rotation
+  - Respect frameloop="demand" by calling `invalidate()` when animating
+  - Animation speed: ~0.5 rad/sec (gentle)
+  - Top-down: static blade pose (no animation, no invalidate calls)
+- UV mode: dark tower + neon emissive blade edges
+- GLTF loading via `useGLTF` with Suspense, fallback to current cylinder+box geometry
 
-**Test states to capture**:
-- Planning mode (top-down, orthographic)
-- Planning mode (3D perspective)
-- UV mode (top-down)
-- UV mode (3D perspective with reflections)
-- Dark theme UI (sidebar, toolbar, panels)
-- Data panels (budget/cost with amber text)
-- GOLF FORGE branding
+**Tests:**
+- Windmill component renders (both GLTF and procedural paths)
+- Blade rotation occurs in animation frame (3D view)
+- No animation in top-down view
+- Fixed size maintained regardless of hole dimensions
+- UV mode materials applied correctly
+- Suspense fallback renders current geometry
 
-**Setup**: Add `@playwright/test` to devDependencies. Create `tests/visual/` directory. Screenshot comparison with configurable threshold (0.1% pixel diff tolerance). Run separately from Vitest (different test runner).
+## Section 4: Tunnel Obstacle Overhaul
 
-**CI note**: Playwright visual tests require consistent rendering environment. Use Docker or specific browser versions for reproducibility.
+**Goal:** Tunnel becomes a stone archway you want to putt through.
 
-## File Changes Summary
+**What changes:**
+- Download brick texture (ambientCG Bricks085 or similar brick texture) for tunnel exterior
+- Create arch profile shape using THREE.Shape:
+  - Outer arch: semicircle with wall thickness (~0.05m)
+  - Base: extends down to ground level
+  - Profile creates a cross-section that looks like a stone archway when extruded
+- Extrude arch profile along tunnel length (TUNNEL_LENGTH=1.6m) using ExtrudeGeometry
+- Apply brick texture to exterior surfaces with proper UV mapping
+- Dark interior using dark-colored material (no texture needed inside)
+- Slightly wider arch at entrance/exit openings (entrance framing)
+- Arch width = laneW / 2 (maintains current archRadius relationship)
+- UV mode: dark stone + neon purple arch edge glow
 
-### New Files
-```
-src/hooks/useGpuTier.ts            # GPU detection, caching, store integration
-src/components/three/UVLamps.tsx    # RectAreaLights + fixture geometry (clean, no GodRays props)
-src/components/three/GodRaysSource.tsx  # Emissive sphere meshes for GodRays (decoupled from UVLamps)
-src/components/three/UVTransition.tsx  # Theatrical transition overlay (useRef + rAF timing)
-src/components/three/PostProcessing.tsx  # Tier-aware full effect stack (replaces UVPostProcessing)
-public/fonts/                       # Self-hosted WOFF2 font files
-tests/visual/                       # Playwright visual regression tests
-```
+**Tests:**
+- Arch geometry has correct profile (semicircle + walls)
+- Tunnel length matches TUNNEL_LENGTH constant
+- Brick texture loads and applies
+- UV mode emissive materials work
+- Geometry disposal on unmount
 
-### Modified Files
-```
-src/index.css                       # @theme block with blacklight palette + @font-face declarations
-src/types/ui.ts                     # Add gpuTier, transitioning to UIState; gpuTierOverride to persisted
-src/store/store.ts                  # GPU tier state + actions, transition state, version bump to v7
-src/App.tsx                         # Canvas gl props, frameloop control, PerformanceMonitor
-src/components/three/ThreeCanvas.tsx # Environment, SoftShadows, Sparkles, fog, lighting
-src/components/three/HallFloor.tsx  # Conditional MeshReflectorMaterial
-src/components/three/HallWalls.tsx  # Singleton materials
-src/components/three/UVEffects.tsx  # Updated to use new PostProcessing component
-src/components/three/holes/shared.ts        # emissiveIntensity 2.0
-src/components/three/holes/useMaterials.ts  # Updated emissive values
-src/components/three/holes/materialPresets.ts  # UV_EMISSIVE_INTENSITY constant update
-vite.config.ts                      # PWA manifest: theme_color, background_color, name, short_name
-(all UI components)                 # Tailwind class replacements for dark theme + uvMode ternary removal
-```
+## Section 5: Loop + Ramp Overhaul
 
-### Removed Files
-```
-src/components/three/UVPostProcessing.tsx  # Replaced by PostProcessing.tsx
-```
+**Goal:** Loop becomes smooth engineering, ramp gets a proper curved slope.
 
-## Task Breakdown
+**Loop changes:**
+- Replace half-torus with TubeGeometry along semicircular path
+  - Path: CatmullRomCurve3 or custom curve tracing 180° arc
+  - Cross-section: circular tube with proper diameter for ball passage
+  - Segment count: 48+ for smooth curve
+- Replace cylinder pillars with tapered CylinderGeometry (wider at base)
+- Add cross-brace between pillars (small box or cylinder connecting them)
+- Metallic material with normal map for brushed metal look
+- UV mode: dark metal + neon cyan tube glow
 
-### T1: GPU Tier Classifier (0.5 day)
-- Install @pmndrs/detect-gpu
-- Create useGpuTier hook with localStorage caching
-- **First-load fallback**: default to "low" while async detection runs, upgrade when result arrives
-- Add gpuTier to UIState (ephemeral)
-- Add gpuTierOverride to persisted settings (store version v7, migration with try/catch + field-level fallback)
-- Add GPU tier override dropdown to settings panel
-- Add PerformanceMonitor to Canvas
-- Ensure singleton pattern (shared via Zustand, not re-detected per Canvas)
-- Pin exact versions for three, @react-three/fiber, @react-three/drei, @react-three/postprocessing
-- Tests: tier detection, caching, override logic, migration, first-load fallback behavior
+**Ramp changes:**
+- Replace triangular ExtrudeGeometry with curved bezier profile:
+  - Create THREE.Shape with QuadraticBezierCurve for smooth slope transition
+  - Bottom tangent: horizontal (smooth entry)
+  - Top tangent: horizontal (smooth plateau transition)
+- Felt texture continues up ramp surface (same material as playing surface)
+- Side bumpers follow ramp slope (taller variant from existing SIDE_BUMPER_HEIGHT)
+- UV mode: same as felt UV with emissive ramp edges
 
-### T2: Tailwind Semantic Tokens + Fonts + PWA Manifest (1 day)
-- Define @theme block in index.css with 11-token blacklight palette (additive, DO NOT clear defaults)
-- Include `accent-text` (#B94FFF) as contrast-safe text variant of neon-violet
-- Define semantic token mappings (accent → neon-violet decorative, accent-text → #B94FFF for text)
-- Verify all text-on-background contrast pairs (see Contrast safety rule in Architecture)
-- Add font tokens (display, body, mono)
-- Download and self-host WOFF2 font files in public/fonts/ — Orbitron (700 only), Inter (400, 500, 600, 700), JetBrains Mono (400, 500)
-- Add @font-face declarations in index.css with font-display: swap
-- Update PWA manifest in vite.config.ts (theme_color, background_color, name, short_name)
-- Tests: token resolution, font loading, manifest values, contrast verification
+**Tests:**
+- Loop TubeGeometry has correct radius and sweep
+- Loop support structure renders
+- Ramp profile is smooth curve (not triangular)
+- Ramp felt material matches base felt
+- Higher segment counts verified
+- Geometry disposal on unmount
 
-### T3: Dark Theme Conversion + Branding (2 days)
-- Audit all components for light-theme color classes (bg-white, bg-gray-*, text-gray-*, border-gray-*)
-- Audit and remove `uvMode ?` ternaries in UI components (Toolbar, BottomToolbar, etc.)
-- Note: 3D material uvMode ternaries in Three components stay (different materials for UV vs planning lighting)
-- Create mapping from light → dark tokens
-- Big-bang replace across all UI components
-- Add GOLF FORGE brand mark to toolbar (Orbitron Bold, accent-text #B94FFF with neon-violet glow — NOT raw neon-violet as text color)
-- Lucide icon audit
-- Tests: visual regression screenshots (planning + UV mode UI)
+## Section 6: Dogleg + L-Shape Corner Fillets
 
-### T4: High-Contrast Data Panels (0.5 day)
-- Apply amber-on-dark styling to BudgetPanel, CostPanel
-- JetBrains Mono for numeric data
-- Verify WCAG AAA contrast
-- Tests: visual regression for data panels
+**Goal:** Angular box joins get smooth visual treatment at corners.
 
-### T5: Environment + SoftShadows + Fog + Canvas GL (1 day)
-- Add Environment with night preset / custom dark HDR
-- Add Lightformers for UV tube reflections
-- Add SoftShadows (tier-gated, active in UV mode with always frameloop)
-- Replace linear fog with fogExp2 (using args pattern), **gated to 3D perspective view only** (`uvMode && view === "3d"`)
-- Add powerPreference: "high-performance" to Canvas gl props
-- Implement frameloop strategy (needsAlwaysFrameloop derived state)
-- Add drei `<Stats />` behind a dev-only environment flag (`import.meta.env.DEV`) for FPS verification during development — remove or keep gated before shipping
-- Tests: fog rendering, fog view-gating (no fog in orthographic), environment loading, frameloop switching
+**Simplified approach** (from review feedback — full curve rework was overengineered and would conflict with collision AABB):
 
-### T6: PostProcessing + Sparkles + Effects (1 day)
-- Create new PostProcessing component (replaces UVPostProcessing)
-- Implement full tier-aware effect stack in single EffectComposer
-- Set multisampling={0} on EffectComposer
-- Selective bloom (update emissive intensity to 2.0 + threshold to 0.8)
-- Add Sparkles component (constrained to hall bounds with scale/position)
-- Set renderer.toneMapping = NoToneMapping
-- Tests: effect stack ordering, tier gating
+**Dogleg changes:**
+- Add fillet meshes at transition points between offset segments
+  - Small curved patch geometry (quarter-cylinder or bezier surface) that visually smooths the corner
+  - Felt material applied to fillet surface for visual continuity
+  - Existing straight segment geometry stays the same (preserves collision alignment)
+- Guide bumpers at bends: rounded profile (same as shared bumpers)
 
-### T7: MeshReflectorMaterial (0.5 day)
-- Conditional rendering in HallFloor based on view + tier + uvMode
-- Configure reflection properties (resolution varies by tier)
-- Fallback to standard material
-- Respect PerformanceMonitor degradation
-- Tests: view-gating logic, visual regression
+**L-Shape changes:**
+- Add corner fillet mesh at the right-angle junction:
+  - Quarter-cylinder fillet in the inner corner with felt texture
+  - Smooths the visual transition between entry and exit lanes
+  - Straight bumper walls maintained (collision system unaffected)
+- Overall footprint unchanged
 
-### T8: Enhanced UV Lighting (1.5 days)
-- Add 4x RectAreaLight at ceiling positions
-- Verify if RectAreaLightUniformsLib.init() is needed in Three.js 0.183 (skip if not)
-- UV lamp fixture geometry (visible in 3D only) — **clean lamp geometry only, no GodRays-specific props** (transparent/depthWrite are T9's concern)
-- Update HDR emissive strategy (intensity 2.0)
-- Tests: light positioning, fixture visibility gating
+**Key constraint:** Collision detection uses AABB based on hole footprint. The visual fillets are decorative overlays that do NOT change the collision bounds. The straight-line bumper walls remain as the collision-representative geometry underneath.
 
-### T9: GodRays (1 day)
-- Create separate `GodRaysSource` component with emissive sphere meshes co-located at lamp positions (transparent, no depth write) — **decoupled from T8's lamp fixtures**
-- Integrate GodRays effect into single EffectComposer (high tier only)
-- Configure samples, density, blur
-- **Cut contingency**: If integration causes rendering issues, delete `GodRaysSource` component + GodRays effect — zero impact on T8
-- Tests: tier gating, visual regression
+**Tests:**
+- Corner fillet geometry renders at correct position
+- Fillet material matches felt surface
+- Hole footprint (width × length) unchanged
+- Collision AABB not affected by visual fillets
 
-### T10: UV "Lights Out" Transition (1.5 days)
-- UVTransition overlay component with CSS animation phases
-- **useRef + requestAnimationFrame timing** (not setTimeout chains) — phase tracking in refs, only uvMode + transitioning go through Zustand
-- rAF loop checks `performance.now()` elapsed time to advance phases, guaranteeing overlay is dark before material swap
-- Canvas `pointer-events: none` during transition to prevent interaction interference
-- Material swap timing at 800ms behind dark overlay (confirmed by rAF elapsed check, not setTimeout)
-- Double-click guard (ignore toggle while transitioning)
-- UV button pulse animation
-- Settings toggle for animation disable
-- Tests: transition timing, frameloop state, settings toggle, double-click prevention, canvas isolation
+## Section 7: Template Hole Visual Parity
 
-### T11: Performance Fixes (0.5 day)
-- HallWalls singleton materials (planning + UV, do not mutate)
-- Mobile shadow optimization
-- Tests: material singleton verification, perf baseline
+**Goal:** Custom-built holes from the Hole Builder look just as good as legacy types.
 
-### T12: Visual Regression Test Suite (1 day)
-- Install and configure Playwright
-- Create screenshot comparison tests for ALL key visual states (planning, UV, 3D, data panels, branding)
-- Document test running instructions
-- Tests: self-validating (the tests ARE the deliverable)
+**What changes:**
+- Update `segmentGeometry.ts` to generate rounded bumper profiles:
+  - Straight segments: ExtrudeGeometry bumpers (same profile as Section 1)
+  - Curve segments: ExtrudeGeometry with extrudePath following arc (RingGeometry bumpers replaced)
+  - Complex segments: merged ExtrudeGeometry paths
+- Apply shared felt texture to all segment felt surfaces
+- Add cup and tee sub-components to TemplateHoleModel:
+  - Tee on first segment (already exists as cylinder — upgrade to textured)
+  - Cup on last segment (already exists — upgrade to recessed)
+- **Migrate TemplateHoleModel from singleton materials to `useMaterials()` hook.** Currently TemplateHoleModel bypasses the hook and uses raw imports from shared.ts. This migration is an intentional behavioral change: template holes will now respect the materialProfile setting. Document this as a feature improvement, not a bug.
 
-## Parallelism Strategy
+**Key constraint:** `createSegmentGeometries(specId, feltWidth)` return type stays `{felt, bumperLeft, bumperRight}` BufferGeometry set. Internal geometry changes.
 
-**Wave 1** (parallel): T1 (GPU Tier) + T2 (Tokens + Fonts + Manifest)
-**Wave 2** (after T2): T3 (Dark Theme + Branding), then T4 (Data Panels) — T4 runs after T3, NOT parallel, because both edit BudgetPanel/CostPanel
-**Wave 3** (after T1): T5 (Environment + Fog + Canvas GL + Frameloop)
-**Wave 4** (parallel after T5): T6 (Effects + Sparkles) + T7 (Reflections) + T8 (UV Lighting)
-**Wave 5** (after T8): T9 (GodRays) + T10 (Transition)
-**Wave 6** (after T1): T11 (Perf Fixes) — can run parallel with Wave 3+
-**Wave 7** (after ALL other tasks): T12 (Visual Tests) — captures final state
+**Tests:**
+- All 11 segment types render with rounded bumper profiles
+- Template holes visually match legacy hole quality
+- TemplateHoleModel respects materialProfile setting
+- Segment joining remains smooth (no gaps at connections)
+- Complex segments (u_turn, s_curve, chicane) render correctly with new profiles
 
-Total estimated effort: 12-14 days sequential, ~7-8 days with parallelism.
+## Section 8: Hall Environment Polish
+
+**Goal:** The hall looks like a real BORGA steel building.
+
+**What changes:**
+- Download concrete floor texture (Poly Haven `concrete_floor`) and steel panel texture (`corrugated_iron`)
+- Apply concrete texture to hall floor plane (HallFloor component)
+  - Account for existing MeshReflectorMaterial path (from Phase 11A): concrete texture applied as base, reflector effect layered on top
+  - Proper UV repeat for 10m × 20m floor (repeat: 5×10 for 2m tile size)
+  - Normal map for surface detail
+  - Roughness map for realistic light response
+- Apply steel panel texture to wall geometry (HallWalls component)
+  - Proper UV repeat for wall panel scale
+  - Normal + roughness + metalness maps
+  - Slightly lighter in normal mode, darker in UV mode
+- Adjust environment lighting for better PBR response (minor intensity tweaks)
+- Suspense + ErrorBoundary wrapping with flat-color fallback
+- GPU tier gating: low tier skips hall textures
+
+**Tests:**
+- Floor renders with concrete texture
+- Reflector material still works with concrete base
+- Walls render with steel texture
+- UV mode still applies dark + emissive treatment
+- Lighting changes don't break existing visual tests
+
+## Section 9: Performance + GPU Tier Gating
+
+**Goal:** Everything runs smoothly on all devices.
+
+**What changes:**
+- GPU tier texture gating (if not already fully implemented in Section 1):
+  - Verify high/mid/low paths all work correctly
+  - High: full 1K textures (color + normal + roughness)
+  - Mid: 1K textures (color + normal only)
+  - Low: no textures (flat-color materials)
+- Top-down view optimization:
+  - Detect orthographic camera / top-down mode via store state
+  - Skip normal maps in top-down (flat shading sufficient from above)
+  - Hide flag pins in top-down
+  - Use simple box bumper outlines in top-down (skip rounded profiles)
+- Geometry optimization:
+  - Call `mergeVertices()` on all ExtrudeGeometry output in bumperProfile.ts
+  - Verify triangle counts per hole type are within budget
+  - Ensure geometry disposal on all components
+- Test mocking strategy: mock drei's `useTexture` to return dummy `MeshStandardMaterial` in Vitest tests (no WebGL context in jsdom). Mock `useGLTF` similarly.
+
+**Tests:**
+- GPU tier low: no textures loaded, flat materials only
+- GPU tier mid: textures without roughness maps
+- GPU tier high: all texture maps loaded
+- Top-down view: simplified material path active, no flag pins
+- Triangle count per hole type within budget (<50K total)
+- mergeVertices reduces vertex count on ExtrudeGeometry
+
+## Parallelization Opportunities
+
+Sections that can be worked on concurrently (no shared file dependencies):
+
+- **Batch 1:** Section 1 (must be first — establishes shared patterns + texture infrastructure)
+- **Batch 2:** Section 2 (depends on Section 1 shared components)
+- **Batch 3:** Sections 3, 4, 5 in parallel (independent obstacle overhauls — each modifies a different hole file: HoleWindmill.tsx, HoleTunnel.tsx, HoleLoop.tsx + HoleRamp.tsx)
+- **Batch 4:** Section 6 + Section 8 in parallel (dogleg/L-shape modifies HoleDogleg.tsx + HoleLShape.tsx; hall environment modifies HallFloor.tsx + HallWalls.tsx — no overlap)
+- **Batch 5:** Section 7 (template holes — depends on bumper profile from Sections 1-2, should see obstacle patterns from Sections 3-5)
+- **Batch 6:** Section 9 (performance — touches all files, must be last)
+
+Sections 3+4+5 are the strongest parallelization candidates. Sections 6+8 can also run in parallel.
+
+## Definition of Done
+
+Someone opens the app in 3D view and the mini golf course looks beautiful — felt looks like carpet, bumpers look like wood rails, windmill looks like a windmill, tunnel looks like a stone archway. The whole thing is cohesive and polished. Template holes from the builder look just as good as the legacy types. Mobile devices maintain >30fps. UV mode still works with neon emissive effects over the new textures. Top-down view remains clean and functional for layout planning.
