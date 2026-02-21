@@ -18,6 +18,8 @@ import type {
 	ConstructionPhase,
 	ExpenseEntry,
 	FinancialSettings,
+	GpuTier,
+	GpuTierOverride,
 	Hall,
 	Hole,
 	HoleType,
@@ -44,6 +46,7 @@ type StoreState = {
 	expenses: ExpenseEntry[];
 	ui: UIState;
 	captureScreenshot: (() => void) | null;
+	gpuTierOverride: GpuTierOverride;
 	// Builder state
 	holeTemplates: Record<string, HoleTemplate>;
 	builderDraft: HoleTemplate | null;
@@ -73,6 +76,9 @@ type StoreActions = {
 	setBudgetConfig: (updates: Partial<BudgetConfigV2>) => void;
 	toggleCourseOverride: () => void;
 	toggleUvMode: () => void;
+	setGpuTier: (tier: GpuTier) => void;
+	setGpuTierOverride: (override: GpuTierOverride) => void;
+	setTransitioning: (transitioning: boolean) => void;
 	setFinancialSettings: (updates: Partial<FinancialSettings>) => void;
 	addExpense: (expense: ExpenseEntry) => void;
 	deleteExpense: (expenseId: string) => void;
@@ -92,6 +98,7 @@ type PersistedSlice = {
 	expenses: ExpenseEntry[];
 	holeTemplates?: Record<string, HoleTemplate>;
 	builderDraft?: HoleTemplate | null;
+	gpuTierOverride?: GpuTierOverride;
 	// Legacy fields for migration
 	costPerHole?: number;
 };
@@ -107,6 +114,8 @@ const DEFAULT_UI: UIState = {
 	activePanel: null,
 	sunDate: undefined,
 	uvMode: false,
+	gpuTier: "low",
+	transitioning: false,
 };
 
 function migrateToV4(state: PersistedSlice): void {
@@ -231,7 +240,7 @@ function migrateToV4(state: PersistedSlice): void {
 /**
  * Zustand persist migration function — extracted for unit testability.
  * Called by the persist middleware whenever the stored version is older
- * than the current store version (6).
+ * than the current store version (7).
  */
 export function migratePersistedState(
 	persisted: unknown,
@@ -269,6 +278,16 @@ export function migratePersistedState(
 		}
 	}
 
+	if (version < 7 && p) {
+		try {
+			if (!("gpuTierOverride" in (p as Record<string, unknown>))) {
+				(p as Record<string, unknown>).gpuTierOverride = "auto";
+			}
+		} catch {
+			(p as Record<string, unknown>).gpuTierOverride = "auto";
+		}
+	}
+
 	return p;
 }
 
@@ -286,6 +305,7 @@ export const useStore = create<Store>()(
 				expenses: [],
 				ui: DEFAULT_UI,
 				captureScreenshot: null,
+				gpuTierOverride: "auto" as GpuTierOverride,
 				...BUILDER_INITIAL_STATE,
 				...createBuilderActions(set, get),
 
@@ -468,6 +488,22 @@ export const useStore = create<Store>()(
 					}));
 				},
 
+				setGpuTier: (tier) => {
+					set((state) => ({
+						ui: { ...state.ui, gpuTier: tier },
+					}));
+				},
+
+				setGpuTierOverride: (override) => {
+					set({ gpuTierOverride: override });
+				},
+
+				setTransitioning: (transitioning) => {
+					set((state) => ({
+						ui: { ...state.ui, transitioning },
+					}));
+				},
+
 				setFinancialSettings: (updates) =>
 					set((state) => ({
 						financialSettings: {
@@ -506,7 +542,7 @@ export const useStore = create<Store>()(
 			}),
 			{
 				name: "golf-planner-state",
-				version: 6,
+				version: 7,
 				partialize: (state) => ({
 					holes: state.holes,
 					holeOrder: state.holeOrder,
@@ -516,6 +552,7 @@ export const useStore = create<Store>()(
 					expenses: state.expenses,
 					holeTemplates: state.holeTemplates,
 					builderDraft: state.builderDraft,
+					gpuTierOverride: state.gpuTierOverride,
 				}),
 				migrate: migratePersistedState,
 			},

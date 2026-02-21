@@ -1,5 +1,6 @@
 import { useStore } from "../../store";
 import type { BuildMode, RiskTolerance } from "../../types/budget";
+import type { GpuTierOverride } from "../../types/ui";
 
 type Props = {
 	onClose: () => void;
@@ -21,6 +22,13 @@ const BUILD_OPTIONS: { value: BuildMode; label: string; desc: string }[] = [
 	{ value: "mixed", label: "Mixed", desc: "Custom per-type costs" },
 ];
 
+const GPU_TIER_OPTIONS: { value: GpuTierOverride; label: string }[] = [
+	{ value: "auto", label: "Auto" },
+	{ value: "low", label: "Low" },
+	{ value: "mid", label: "Mid" },
+	{ value: "high", label: "High" },
+];
+
 const DISPLAY_OPTIONS = [
 	{ value: "net" as const, label: "Net (excl. MwSt)" },
 	{ value: "gross" as const, label: "Gross (incl. MwSt)" },
@@ -30,6 +38,10 @@ const DISPLAY_OPTIONS = [
 export function FinancialSettingsModal({ onClose }: Props) {
 	const settings = useStore((s) => s.financialSettings);
 	const setSettings = useStore((s) => s.setFinancialSettings);
+	const gpuTierOverride = useStore((s) => s.gpuTierOverride);
+	const gpuTier = useStore((s) => s.ui.gpuTier);
+	const setGpuTierOverride = useStore((s) => s.setGpuTierOverride);
+	const setGpuTier = useStore((s) => s.setGpuTier);
 
 	return (
 		// biome-ignore lint/a11y/noStaticElementInteractions: backdrop dismiss
@@ -179,6 +191,39 @@ export function FinancialSettingsModal({ onClose }: Props) {
 								</p>
 							)}
 						</label>
+					</div>
+
+					{/* GPU Quality */}
+					<div>
+						<span className="text-[10px] font-medium text-gray-500 uppercase">
+							GPU Quality
+						</span>
+						<div className="mt-1 flex gap-1">
+							{GPU_TIER_OPTIONS.map((opt) => (
+								<button
+									key={opt.value}
+									type="button"
+									onClick={() => {
+										setGpuTierOverride(opt.value);
+										if (opt.value !== "auto") {
+											setGpuTier(opt.value);
+										}
+									}}
+									className={`flex-1 rounded-lg px-2 py-1.5 text-[11px] ${
+										gpuTierOverride === opt.value
+											? "bg-blue-500 text-white"
+											: "bg-gray-100 text-gray-600 hover:bg-gray-200"
+									}`}
+								>
+									{opt.value === "auto"
+										? `Auto (${gpuTier})`
+										: opt.label}
+								</button>
+							))}
+						</div>
+						<p className="mt-1 text-[10px] text-gray-400">
+							Controls 3D rendering quality. Lower = better performance.
+						</p>
 					</div>
 				</div>
 

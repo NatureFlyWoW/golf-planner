@@ -208,36 +208,102 @@ describe("full migration chain v3 → v6", () => {
 });
 
 // ---------------------------------------------------------------------------
-// v6 passthrough — no mutation of already-current state
+// v6 → v7 migration: gpuTierOverride field
 // ---------------------------------------------------------------------------
 
-describe("v6 state passthrough", () => {
-	it("preserves holeTemplates on current-version state (no migration branches run)", () => {
+/** Minimal v6 persisted state — has holeTemplates/builderDraft, no gpuTierOverride. */
+function makeV6State(
+	overrides?: Record<string, unknown>,
+): Record<string, unknown> {
+	return {
+		...makeV5State(),
+		holeTemplates: {},
+		builderDraft: null,
+		...overrides,
+	};
+}
+
+describe("v6 → v7 migration: gpuTierOverride field", () => {
+	it("adds gpuTierOverride: 'auto' when field is absent", () => {
+		const v6 = makeV6State();
+		const result = migratePersistedState(v6, 6) as Record<string, unknown>;
+		expect(result.gpuTierOverride).toBe("auto");
+	});
+
+	it("does not overwrite existing gpuTierOverride when already present", () => {
+		const v6 = makeV6State({ gpuTierOverride: "high" });
+		const result = migratePersistedState(v6, 6) as Record<string, unknown>;
+		expect(result.gpuTierOverride).toBe("high");
+	});
+
+	it("preserves holeTemplates after v6 → v7 migration", () => {
+		const templates = {
+			"t1": { id: "t1", name: "Loop", segments: [] },
+		};
+		const v6 = makeV6State({ holeTemplates: templates });
+		const result = migratePersistedState(v6, 6) as Record<string, unknown>;
+		expect(result.holeTemplates).toEqual(templates);
+	});
+
+	it("preserves builderDraft after v6 → v7 migration", () => {
+		const v6 = makeV6State({ builderDraft: { id: "draft-1" } });
+		const result = migratePersistedState(v6, 6) as Record<string, unknown>;
+		expect(result.builderDraft).toEqual({ id: "draft-1" });
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Full migration chain: v3 → v7
+// ---------------------------------------------------------------------------
+
+describe("full migration chain v3 → v7 (gpuTierOverride)", () => {
+	it("adds gpuTierOverride when migrating from v3", () => {
+		const v3 = makeV3State();
+		const result = migratePersistedState(v3, 3) as Record<string, unknown>;
+		expect(result.gpuTierOverride).toBe("auto");
+	});
+
+	it("adds gpuTierOverride when migrating from v5", () => {
+		const v5 = makeV5State();
+		const result = migratePersistedState(v5, 5) as Record<string, unknown>;
+		expect(result.gpuTierOverride).toBe("auto");
+	});
+});
+
+// ---------------------------------------------------------------------------
+// v7 passthrough — no mutation of already-current state
+// ---------------------------------------------------------------------------
+
+describe("v7 state passthrough", () => {
+	it("preserves all fields on current-version state (no migration branches run)", () => {
 		const existingTemplates = {
 			"t1": { id: "t1", name: "T", segments: [] },
 		};
-		const v6 = {
-			...makeV5State(),
+		const v7 = {
+			...makeV6State(),
 			holeTemplates: existingTemplates,
 			builderDraft: null,
+			gpuTierOverride: "mid",
 		};
-		// version === 6, so no migration branch should execute
-		const result = migratePersistedState(v6, 6) as Record<string, unknown>;
+		// version === 7, so no migration branch should execute
+		const result = migratePersistedState(v7, 7) as Record<string, unknown>;
 		expect(result.holeTemplates).toEqual(existingTemplates);
 		expect(result.builderDraft).toBeNull();
+		expect(result.gpuTierOverride).toBe("mid");
 	});
 
-	it("preserves non-empty holeTemplates on v6 state", () => {
+	it("preserves non-empty holeTemplates on v7 state", () => {
 		const templates = {
 			"tpl-abc": { id: "tpl-abc", name: "My Hole", segments: [{ id: "s1" }] },
 			"tpl-def": { id: "tpl-def", name: "Another", segments: [] },
 		};
-		const v6 = {
-			...makeV5State(),
+		const v7 = {
+			...makeV6State(),
 			holeTemplates: templates,
 			builderDraft: null,
+			gpuTierOverride: "auto",
 		};
-		const result = migratePersistedState(v6, 6) as Record<string, unknown>;
+		const result = migratePersistedState(v7, 7) as Record<string, unknown>;
 		expect(Object.keys(result.holeTemplates as object)).toHaveLength(2);
 	});
 });

@@ -28,4 +28,12 @@ export type {
 	SegmentSpec,
 	SegmentSpecId,
 } from "./template";
-export type { ActivePanel, SidebarTab, Tool, UIState, ViewMode } from "./ui";
+export type {
+	ActivePanel,
+	GpuTier,
+	GpuTierOverride,
+	SidebarTab,
+	Tool,
+	UIState,
+	ViewMode,
+} from "./ui";
