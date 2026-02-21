@@ -26,6 +26,7 @@ import { PlacementHandler } from "./PlacementHandler";
 import { ScreenshotCapture } from "./ScreenshotCapture";
 import { SunIndicator } from "./SunIndicator";
 import { UVEffects } from "./UVEffects";
+import { UVLamps } from "./UVLamps";
 
 type ThreeCanvasProps = {
 	sunData: SunData;
@@ -119,6 +120,7 @@ export default function ThreeCanvas({ sunData }: ThreeCanvasProps) {
 					shadow-bias={-0.001}
 				/>
 			)}
+			{uvMode && <UVLamps />}
 			<CameraControls />
 			<FloorGrid />
 			<Hall sunData={sunData} />
