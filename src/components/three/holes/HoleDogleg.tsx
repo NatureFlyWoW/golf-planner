@@ -1,4 +1,5 @@
 import { BumperRail } from "./BumperRail";
+import { CornerFillet } from "./CornerFillet";
 import { Cup } from "./Cup";
 import { TeePad } from "./TeePad";
 import { BUMPER_HEIGHT, BUMPER_THICKNESS, SURFACE_THICKNESS } from "./shared";
@@ -77,6 +78,22 @@ export function HoleDogleg({ width, length }: { width: number; length: number })
 				position={[-OFFSET - LANE_WIDTH / 2 - BT / 2, ST, zBend2 - guideBumperLen / 2]}
 				height={guideBumperH}
 				material={bumper}
+			/>
+
+			{/* Corner fillets at bends */}
+			<CornerFillet
+				position={[OFFSET / 2, ST / 2, zBend1]}
+				rotation={[Math.PI / 2, Math.PI, 0]}
+				radius={OFFSET}
+				height={ST}
+				material={felt}
+			/>
+			<CornerFillet
+				position={[-OFFSET / 2, ST / 2, zBend2]}
+				rotation={[Math.PI / 2, 0, 0]}
+				radius={OFFSET}
+				height={ST}
+				material={felt}
 			/>
 
 			<TeePad position={[OFFSET, 0, -halfL + 0.15]} material={tee} />

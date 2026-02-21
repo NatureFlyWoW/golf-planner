@@ -1,4 +1,5 @@
 import { BumperRail } from "./BumperRail";
+import { CornerFillet } from "./CornerFillet";
 import { Cup } from "./Cup";
 import { TeePad } from "./TeePad";
 import { BUMPER_THICKNESS, SURFACE_THICKNESS } from "./shared";
@@ -66,6 +67,15 @@ export function HoleLShape({ width, length }: Props) {
 				length={innerEdgeZ - -halfL}
 				position={[innerEdgeX - BT / 2, ST, -halfL]}
 				material={bumper}
+			/>
+
+			{/* Corner fillet at inner junction */}
+			<CornerFillet
+				position={[innerEdgeX, ST / 2, innerEdgeZ]}
+				rotation={[Math.PI / 2, -Math.PI / 2, 0]}
+				radius={LANE_WIDTH * 0.3}
+				height={ST}
+				material={felt}
 			/>
 
 			<TeePad position={[entryLaneCX, 0, -halfL + 0.15]} material={tee} />
