@@ -1,88 +1,108 @@
-# Session Handoff — 2026-02-20 (Phase 9A)
+# Session Handoff — 2026-02-21 (Phase 10A)
 
 ## Completed This Session
-- `f877a5e` docs: Phase 9A design doc + implementation plan + expert analyses
-- `a229e66` feat: add material profile selector with cost multipliers (0.65x/1.0x/1.8x)
-- `e2e92cc` feat: wire inflation factor to display + add quote expiry tracking
-- `7881383` feat: SVG floor plan export with hole positions, flow path, and scale bar
-- `5d48b5a` feat: 3D visual overhaul — shadows, UV bloom/fog/vignette, material PBR presets
-- `2942f9e` feat: code-split Three.js, React, Zustand into separate vendor chunks
-- `565f3b6` feat: add screenshot export capturing 3D view including UV bloom effects
-- `5648666` docs: add Phase 9A feature screenshots (9 screenshots)
+- `715099e` docs: add hole type component builder design document
+- `93cdbb0` docs: add Phase 10A implementation plan (10 tasks)
+- `1e16da4` feat: add HoleTemplate types and 11 segment specs
+- `87540ed` feat: add chain position computation and template bounds
+- `c29bb38` feat: add builder store slice with undo stack and template CRUD
+- `001cd09` feat: add segment geometry generation for all 11 types
+- `504d226` feat: add builder fullscreen layout with segment palette and chain list
+- `b6a01ea` feat: add builder 3D canvas with segment rendering and grid
+- `14bdac3` feat: wire builder interactions — select, replace, delete, keyboard shortcuts
+- `86709f9` feat: integrate template holes into planner — place, render, collide
+- `bfb769e` feat: add SVG export and detail panel for template holes
+- `ba63623` test: add v5→v6 migration tests for holeTemplates persistence
 
 ## Current State
 - **Branch**: master
-- **Working tree**: clean
-- **Tests**: 114 passing, 0 failing
-- **Build**: passing (main chunk ~74 KB after code-splitting; vendor-three ~1.1 MB)
+- **Working tree**: clean (except deleted screenshot PNGs from Phase 9A — not tracked)
+- **Tests**: 229 passing (20 test files), 0 failing
+- **Build**: passing (main ~83 KB, vendor-three ~1,250 KB, PWA v1.2.0)
 - **Type check**: passing (zero errors)
 - **Lint**: 0 errors, 6 pre-existing warnings (noExplicitAny in migrateBudgetConfig test)
-- **Remote sync**: 8 commits ahead of origin/master (need to push)
+- **Remote sync**: pushed to origin/master
 
-## What Phase 9A Added
+## What Phase 10A Added — Hole Type Component Builder
 
-### Task 1: Material Profile Selector
-- 3 global presets: Budget DIY (0.65x), Standard DIY (1.0x), Semi-Pro (1.8x)
-- `materialProfile` in Zustand store (persisted, undo-tracked)
-- Dropdown in CostSettingsModal applies multiplier to all per-type hole costs
+### Task 1: Template Types & Segment Specs
+- 11 segment types: straight (1m/2m/3m), curves (90/45/30 left+right), s-curve, u-turn, chicane
+- `HoleTemplate` type with segments, feltWidth, obstacles, defaultPar, color
+- `SEGMENT_SPECS` with pre-computed entry/exit points and arc radii
 
-### Task 2: 3D Visual Overhaul
-- Sun-driven directional shadow maps (1024px desktop, 512px mobile)
-- UV mode: bloom (UnrealBloomPass), fog, vignette via @react-three/postprocessing (lazy-loaded)
-- PBR material presets per material profile (roughness/metalness vary by tier)
-- Centralized UV_EMISSIVE_INTENSITY constant across all 7 hole components
-- Proper material disposal via useEffect cleanup
+### Task 2: Chain Computation & Bounds
+- `computeChainPositions()` — forward pass computing world positions/rotations from chain
+- `computeTemplateBounds()` — AABB bounds with feltWidth padding
+- **Critical bug fix**: plan's rotation formula was wrong; corrected to `normalizeAngle(prev.rotation - prevSpec.exitPoint.angle)`
 
-### Task 3: Financial Quick Wins
-- Inflation adjustment wired to display (inflatedEstimate utility)
-- Quote expiry tracking: QuoteInfo type with color-coded badges (green/amber/red)
-- BORGA Hall shows "Quoted" badge with expiry date awareness
+### Task 3: Builder Store Slice
+- `builderSlice.ts` — 14 actions (enter/exit/save/delete/duplicate/append/remove/replace/undo/redo/setters)
+- Snapshot-based undo stack (separate from planner's zundo temporal)
+- Store version bumped 5→6 with migration adding `holeTemplates: {}`
 
-### Task 4: SVG Floor Plan Export
-- generateFloorPlanSVG() renders hall outline, holes with numbers, flow path, scale bar
-- downloadSVG() triggers browser download
-- "SVG" button in toolbar
+### Task 4: Segment Geometry Generation
+- `createSegmentGeometries()` — felt + bumperLeft + bumperRight BufferGeometry per spec
+- Straight: BoxGeometry; Curves: RingGeometry (annular sectors); S-curve/U-turn: merged arcs
 
-### Task 5: Code-Splitting
-- Vite manualChunks: vendor-three, vendor-react, vendor-state
-- React.lazy() for ThreeCanvas component
-- Main bundle reduced from 1,346 KB to ~74 KB
+### Task 5: Builder Fullscreen Layout
+- `SegmentPalette` — category tabs + 2-column grid
+- `ChainList` — numbered segment list with selection
+- `BuilderUI` — top bar (name, width slider, par, undo/redo, save) + mobile bottom panel / desktop sidebar
+- `Builder` — lazy-loaded fullscreen overlay (z-50)
 
-### Task 6: Screenshot Export
-- Store-registered callback via useThree() + canvas.toBlob()
-- iOS fallback via toDataURL
-- High-DPI capture (2x device pixel ratio, max 4x)
-- "Snap" button in toolbar (disabled until 3D scene registers)
+### Task 6: Builder R3F Canvas
+- `BuilderCanvas` with `SegmentMesh` rendering felt/bumpers/tee/cup
+- Orthographic camera (zoom 80), MapControls (pan/zoom only), gridHelper
+- R3F Y-rotation negation for CCW→CW conversion
 
-## Screenshots
-9 feature screenshots in `docs/screenshots/phase9a-*.png`:
-1. Overview with shadows and toolbar
-2. 3D view with sun shadows
-3. UV bloom/fog/vignette in 3D
-4. UV mode top-down with neon flow path
-5. Budget panel with quote badges and confidence tiers
-6. Cost Settings Modal with Material Tier dropdown
-7. Financial Settings Modal (VAT, risk, build mode, inflation)
-8. Normal view with holes panel
-9. 3D normal view with walls and shadows
+### Task 7: Builder Interactions
+- Click-to-select with toggle (lifted `selectedSegmentId` to Builder)
+- Replace mode: orange palette UI when segment selected
+- Delete button (enabled only for last segment)
+- Keyboard shortcuts: Escape (deselect), Delete/Backspace (delete)
+- Background deselect plane + `invalidate()` for demand frameloop
+
+### Task 8: Planner Integration
+- `TemplateHoleModel` — renders segment chain with UV mode support
+- `HoleModel` dispatches to TemplateHoleModel when `templateId` set
+- `HoleLibrary` — "My Holes" section + "Build Custom Hole" button
+- `PlacementHandler` — template-aware placement with computed bounds
+- `MiniGolfHole` — template-aware drag collision
+- New `placingTemplateId` UIState field with mutual exclusion vs `placingType`
+- `addHole` extended with optional `templateId` parameter
+
+### Task 9: Migration Tests
+- Extracted `migratePersistedState()` as named export for testability
+- 16 tests: v5→v6, full chain v3→v6, passthrough, data preservation
+
+### Task 10: SVG Export + Detail Panel
+- `generateFloorPlanSVG()` handles template holes (bounding box + color)
+- `HoleDetail` + `MobileDetailPanel` show template info + "Edit in Builder" button
 
 ## Remaining Work
-- **Phase 9A**: COMPLETE (all 6 tasks done)
-- **All 9 phases complete** (1-8 + 9A)
+- **Phase 10A**: COMPLETE (all 10 tasks done)
+- **All 10 phases complete** (1-8 + 9A + 10A)
 - No further implementation plans exist yet
-- Potential future work: more hole types, Monte Carlo risk simulation, mobile UV sidebar theming, additional export formats
+- Potential future work: drag-to-reorder segments, segment rotation in builder, obstacle placement, more segment types, Monte Carlo risk simulation
 
 ## Known Issues / Blockers
 - THREE.Clock warning — upstream, harmless
-- vendor-react chunk is empty (Vite 7 handles React internally) — cosmetic, no impact
-- CanvasSkeleton.tsx created but unused (Suspense fallback is null) — can remove or wire up later
-- Playwright cannot click on R3F canvas reliably — use store manipulation via Vite HMR imports for testing
+- Chunk size warning (vendor-three ~1,250 KB) — consider code-splitting further
 - 6 Biome warnings (noExplicitAny) in `tests/utils/migrateBudgetConfig.test.ts` — pre-existing
+- Deleted screenshot PNGs not committed (unstaged deletions from WSL file cleanup)
+- Builder ghost preview not implemented (stretch goal — segments place directly on palette click)
+
+## Key Technical Details for Next Session
+- **Angle convention**: 0=+Z, 90=+X, 180=-Z, 270=-X. Entry always at origin facing -Z (angle 180).
+- **Rotation formula**: `currRotation = normalizeAngle(prev.rotation - prevSpec.exitPoint.angle)`
+- **R3F Y-rotation**: `yRot = -rotation * DEG2RAD` (negate for CCW→R3F CW)
+- **Store version**: 6 (migration from 5 adds holeTemplates/builderDraft)
+- **Builder undo**: snapshot-based (separate from planner's zundo temporal)
+- **Template placement**: uses `type: "straight"` as placeholder, templateId drives rendering/collision
 
 ## Environment Notes
 - fnm must be sourced: `export PATH="/home/ben/.local/share/fnm:$PATH" && eval "$(fnm env)"`
 - Git configured in golf-planner/ (user: Golf Planner Dev)
 - Biome uses **tabs** for indentation
 - PostToolUse hook runs `npx tsc --noEmit` automatically after edits
-- Playwright MCP runs on Windows side — WSL paths fail for screenshots; use relative filenames
 - SSH remote: `git@github.com:NatureFlyWoW/golf-planner.git`
