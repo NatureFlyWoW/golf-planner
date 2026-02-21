@@ -27,7 +27,7 @@ export function ExportButton() {
 		<button
 			type="button"
 			onClick={handleExport}
-			className="rounded bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200"
+			className="rounded bg-plasma px-3 py-1.5 text-sm font-medium text-text-secondary hover:bg-grid-ghost"
 		>
 			Export JSON
 		</button>

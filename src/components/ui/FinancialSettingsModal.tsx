@@ -52,18 +52,18 @@ export function FinancialSettingsModal({ onClose }: Props) {
 		>
 			{/* biome-ignore lint/a11y/noStaticElementInteractions: modal content */}
 			<div
-				className="mx-4 max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white shadow-xl"
+				className="mx-4 max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-surface-raised shadow-xl"
 				role="presentation"
 				onClick={(e) => e.stopPropagation()}
 				onKeyDown={(e) => e.stopPropagation()}
 			>
 				{/* Header */}
-				<div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+				<div className="flex items-center justify-between border-b border-subtle px-4 py-3">
 					<span className="text-sm font-semibold">Financial Settings</span>
 					<button
 						type="button"
 						onClick={onClose}
-						className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+						className="rounded-lg p-1 text-text-muted hover:bg-plasma hover:text-text-secondary"
 					>
 						<span className="text-lg">{"\u2715"}</span>
 					</button>
@@ -79,20 +79,20 @@ export function FinancialSettingsModal({ onClose }: Props) {
 								onChange={(e) =>
 									setSettings({ vatRegistered: e.target.checked })
 								}
-								className="h-4 w-4 rounded border-gray-300"
+								className="h-4 w-4 rounded border-subtle"
 							/>
-							<span className="text-xs font-medium text-gray-700">
+							<span className="text-xs font-medium text-primary">
 								VAT registered (Vorsteuerabzugsberechtigt)
 							</span>
 						</label>
-						<p className="mt-1 text-[10px] text-gray-400">
+						<p className="mt-1 text-[10px] text-text-muted">
 							When enabled, shows reclaimable Vorsteuer and net-basis budgeting.
 						</p>
 					</div>
 
 					{/* Display Mode */}
 					<div>
-						<span className="text-[10px] font-medium text-gray-500 uppercase">
+						<span className="text-[10px] font-medium text-text-secondary uppercase">
 							Display Mode
 						</span>
 						<div className="mt-1 flex gap-1">
@@ -103,8 +103,8 @@ export function FinancialSettingsModal({ onClose }: Props) {
 									onClick={() => setSettings({ displayMode: opt.value })}
 									className={`flex-1 rounded-lg px-2 py-1.5 text-[11px] ${
 										settings.displayMode === opt.value
-											? "bg-blue-500 text-white"
-											: "bg-gray-100 text-gray-600 hover:bg-gray-200"
+											? "bg-accent-text text-white"
+											: "bg-surface text-text-secondary hover:bg-plasma"
 									}`}
 								>
 									{opt.label}
@@ -115,7 +115,7 @@ export function FinancialSettingsModal({ onClose }: Props) {
 
 					{/* Risk Tolerance */}
 					<div>
-						<span className="text-[10px] font-medium text-gray-500 uppercase">
+						<span className="text-[10px] font-medium text-text-secondary uppercase">
 							Risk Tolerance
 						</span>
 						<div className="mt-1 flex flex-col gap-1">
@@ -126,12 +126,12 @@ export function FinancialSettingsModal({ onClose }: Props) {
 									onClick={() => setSettings({ riskTolerance: opt.value })}
 									className={`flex items-baseline justify-between rounded-lg px-3 py-2 text-left ${
 										settings.riskTolerance === opt.value
-											? "bg-blue-50 ring-1 ring-blue-500"
-											: "bg-gray-50 hover:bg-gray-100"
+											? "bg-plasma ring-1 ring-accent-text"
+											: "bg-surface-raised hover:bg-plasma"
 									}`}
 								>
 									<span className="text-xs font-medium">{opt.label}</span>
-									<span className="text-[10px] text-gray-400">{opt.desc}</span>
+									<span className="text-[10px] text-text-muted">{opt.desc}</span>
 								</button>
 							))}
 						</div>
@@ -139,7 +139,7 @@ export function FinancialSettingsModal({ onClose }: Props) {
 
 					{/* Build Mode */}
 					<div>
-						<span className="text-[10px] font-medium text-gray-500 uppercase">
+						<span className="text-[10px] font-medium text-text-secondary uppercase">
 							Build Mode (Course Costs)
 						</span>
 						<div className="mt-1 flex flex-col gap-1">
@@ -150,12 +150,12 @@ export function FinancialSettingsModal({ onClose }: Props) {
 									onClick={() => setSettings({ buildMode: opt.value })}
 									className={`flex items-baseline justify-between rounded-lg px-3 py-2 text-left ${
 										settings.buildMode === opt.value
-											? "bg-blue-50 ring-1 ring-blue-500"
-											: "bg-gray-50 hover:bg-gray-100"
+											? "bg-plasma ring-1 ring-accent-text"
+											: "bg-surface-raised hover:bg-plasma"
 									}`}
 								>
 									<span className="text-xs font-medium">{opt.label}</span>
-									<span className="text-[10px] text-gray-400">{opt.desc}</span>
+									<span className="text-[10px] text-text-muted">{opt.desc}</span>
 								</button>
 							))}
 						</div>
@@ -164,7 +164,7 @@ export function FinancialSettingsModal({ onClose }: Props) {
 					{/* Inflation Adjustment */}
 					<div>
 						<label className="flex flex-col gap-1">
-							<span className="text-[10px] font-medium text-gray-500 uppercase">
+							<span className="text-[10px] font-medium text-text-secondary uppercase">
 								Inflation Adjustment
 							</span>
 							<div className="flex items-center gap-2">
@@ -179,12 +179,12 @@ export function FinancialSettingsModal({ onClose }: Props) {
 											inflationFactor: 1 + Number(e.target.value) / 100,
 										})
 									}
-									className="w-20 rounded border border-gray-200 px-2 py-1 text-xs"
+									className="w-20 rounded border border-subtle px-2 py-1 text-xs"
 								/>
-								<span className="text-xs text-gray-500">%</span>
+								<span className="text-xs text-text-secondary">%</span>
 							</div>
 							{settings.inflationFactor !== 1 && (
-								<p className="text-[10px] text-amber-600">
+								<p className="text-[10px] text-neon-amber">
 									Estimates adjusted for{" "}
 									{Math.round((settings.inflationFactor - 1) * 100)}% inflation
 									(non-fixed categories only).
@@ -195,7 +195,7 @@ export function FinancialSettingsModal({ onClose }: Props) {
 
 					{/* GPU Quality */}
 					<div>
-						<span className="text-[10px] font-medium text-gray-500 uppercase">
+						<span className="text-[10px] font-medium text-text-secondary uppercase">
 							GPU Quality
 						</span>
 						<div className="mt-1 flex gap-1">
@@ -211,8 +211,8 @@ export function FinancialSettingsModal({ onClose }: Props) {
 									}}
 									className={`flex-1 rounded-lg px-2 py-1.5 text-[11px] ${
 										gpuTierOverride === opt.value
-											? "bg-blue-500 text-white"
-											: "bg-gray-100 text-gray-600 hover:bg-gray-200"
+											? "bg-accent-text text-white"
+											: "bg-surface text-text-secondary hover:bg-plasma"
 									}`}
 								>
 									{opt.value === "auto"
@@ -221,18 +221,18 @@ export function FinancialSettingsModal({ onClose }: Props) {
 								</button>
 							))}
 						</div>
-						<p className="mt-1 text-[10px] text-gray-400">
+						<p className="mt-1 text-[10px] text-text-muted">
 							Controls 3D rendering quality. Lower = better performance.
 						</p>
 					</div>
 				</div>
 
 				{/* Footer */}
-				<div className="flex justify-end border-t border-gray-200 px-4 py-3">
+				<div className="flex justify-end border-t border-subtle px-4 py-3">
 					<button
 						type="button"
 						onClick={onClose}
-						className="rounded-lg bg-blue-500 px-4 py-1.5 text-xs text-white hover:bg-blue-600"
+						className="rounded-lg bg-accent-text px-4 py-1.5 text-xs text-white hover:bg-accent-text/80"
 					>
 						Done
 					</button>

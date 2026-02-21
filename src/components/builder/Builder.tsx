@@ -14,7 +14,7 @@ export default function Builder() {
 	if (!builderMode) return null;
 
 	return (
-		<div className="fixed inset-0 z-50 flex flex-col bg-gray-100">
+		<div className="fixed inset-0 z-50 flex flex-col bg-surface">
 			<BuilderUI
 				selectedSegmentId={selectedSegmentId}
 				onSelectSegment={setSelectedSegmentId}

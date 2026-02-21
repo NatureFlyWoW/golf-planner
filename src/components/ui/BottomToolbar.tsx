@@ -20,7 +20,6 @@ export function BottomToolbar() {
 	const holeOrder = useStore((s) => s.holeOrder);
 	const activePanel = useStore((s) => s.ui.activePanel);
 	const setActivePanel = useStore((s) => s.setActivePanel);
-	const uvMode = useStore((s) => s.ui.uvMode);
 	const [showOverflow, setShowOverflow] = useState(false);
 
 	const selectedHole = selectedId ? holes[selectedId] : null;
@@ -60,9 +59,7 @@ export function BottomToolbar() {
 
 	return (
 		<div
-			className={`flex flex-col border-t md:hidden ${
-				uvMode ? "border-indigo-900 bg-gray-900" : "border-gray-200 bg-white"
-			}`}
+			className="flex flex-col border-t border-subtle bg-surface-raised md:hidden"
 			style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
 		>
 			{/* Info chip row — only when hole selected */}
@@ -70,19 +67,19 @@ export function BottomToolbar() {
 				<button
 					type="button"
 					onClick={handleInfoChipTap}
-					className="flex items-center gap-2 border-b border-gray-100 px-3 py-1.5"
+					className="flex items-center gap-2 border-b border-subtle px-3 py-1.5"
 				>
-					<span className="text-xs font-medium text-gray-700">
+					<span className="text-xs font-medium text-primary">
 						Hole {selectedIndex + 1} &middot; {selectedHole.type}
 					</span>
-					<span className="text-[10px] text-gray-400">tap for details</span>
+					<span className="text-[10px] text-text-muted">tap for details</span>
 				</button>
 			)}
 
 			{/* Placing type chip */}
 			{placingType && (
-				<div className="flex items-center gap-2 border-b border-gray-100 px-3 py-1">
-					<span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+				<div className="flex items-center gap-2 border-b border-subtle px-3 py-1">
+					<span className="rounded-full bg-plasma px-2 py-0.5 text-xs font-medium text-accent-text">
 						{placingType}
 					</span>
 					<button
@@ -91,7 +88,7 @@ export function BottomToolbar() {
 							setPlacingType(null);
 							setTool("select");
 						}}
-						className="text-xs text-gray-400 hover:text-gray-600"
+						className="text-xs text-text-muted hover:text-text-secondary"
 					>
 						&#x2715;
 					</button>
@@ -108,12 +105,8 @@ export function BottomToolbar() {
 						className={`flex min-w-[48px] flex-col items-center justify-center rounded-lg px-2 py-1 ${
 							activeTool === tool ||
 							(tool === "place" && activePanel === "holes")
-								? uvMode
-									? "bg-purple-600 text-white"
-									: "bg-blue-600 text-white"
-								: uvMode
-									? "text-gray-400"
-									: "text-gray-600"
+								? "bg-accent-text text-white"
+								: "text-text-secondary"
 						}`}
 					>
 						<span className="text-lg">{icon}</span>
@@ -121,13 +114,13 @@ export function BottomToolbar() {
 					</button>
 				))}
 
-				<div className={`h-8 w-px ${uvMode ? "bg-gray-700" : "bg-gray-200"}`} />
+				<div className="h-8 w-px bg-grid-ghost" />
 
 				{/* Undo */}
 				<button
 					type="button"
 					onClick={() => useStore.temporal?.getState()?.undo()}
-					className={`flex min-w-[48px] flex-col items-center justify-center rounded-lg px-2 py-1 ${uvMode ? "text-gray-400" : "text-gray-600"}`}
+					className="flex min-w-[48px] flex-col items-center justify-center rounded-lg px-2 py-1 text-text-secondary"
 				>
 					<span className="text-lg">&#x21A9;</span>
 					<span className="text-[10px]">Undo</span>
@@ -137,26 +130,26 @@ export function BottomToolbar() {
 				<button
 					type="button"
 					onClick={() => useStore.temporal?.getState()?.redo()}
-					className={`flex min-w-[48px] flex-col items-center justify-center rounded-lg px-2 py-1 ${uvMode ? "text-gray-400" : "text-gray-600"}`}
+					className="flex min-w-[48px] flex-col items-center justify-center rounded-lg px-2 py-1 text-text-secondary"
 				>
 					<span className="text-lg">&#x21AA;</span>
 					<span className="text-[10px]">Redo</span>
 				</button>
 
-				<div className={`h-8 w-px ${uvMode ? "bg-gray-700" : "bg-gray-200"}`} />
+				<div className="h-8 w-px bg-grid-ghost" />
 
 				{/* More (overflow) */}
 				<button
 					type="button"
 					onClick={() => setShowOverflow((v) => !v)}
 					className={`relative flex min-w-[48px] flex-col items-center justify-center rounded-lg px-2 py-1 ${
-						showOverflow ? "bg-gray-200 text-gray-800" : "text-gray-600"
+						showOverflow ? "bg-plasma text-primary" : "text-text-secondary"
 					}`}
 				>
 					<span className="text-lg">&middot;&middot;&middot;</span>
 					<span className="text-[10px]">More</span>
 					{hasActiveToggles && (
-						<span className="absolute right-1 top-0 h-2 w-2 rounded-full bg-blue-500" />
+						<span className="absolute right-1 top-0 h-2 w-2 rounded-full bg-accent-text" />
 					)}
 				</button>
 			</div>
@@ -197,11 +190,7 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 				role="presentation"
 			/>
 			{/* Popover */}
-			<div
-				className={`absolute bottom-16 right-2 z-50 grid grid-cols-2 gap-2 rounded-lg border p-3 shadow-lg ${
-					uvMode ? "border-indigo-900 bg-gray-900" : "border-gray-200 bg-white"
-				}`}
-			>
+			<div className="absolute bottom-16 right-2 z-50 grid grid-cols-2 gap-2 rounded-lg border border-subtle bg-surface-raised p-3 shadow-lg">
 				<ToggleBtn label="Snap" active={snapEnabled} onTap={toggleSnap} />
 				<ToggleBtn label="Flow" active={showFlowPath} onTap={toggleFlowPath} />
 				<ToggleBtn
@@ -227,9 +216,7 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 						}
 						onClose();
 					}}
-					className={`rounded-lg px-4 py-2 text-sm font-medium ${
-						uvMode ? "bg-gray-800 text-gray-300" : "bg-gray-100 text-gray-700"
-					}`}
+					className="rounded-lg bg-plasma px-4 py-2 text-sm font-medium text-text-secondary"
 				>
 					Save
 				</button>
@@ -248,9 +235,7 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 						downloadJson(data);
 						onClose();
 					}}
-					className={`rounded-lg px-4 py-2 text-sm font-medium ${
-						uvMode ? "bg-gray-800 text-gray-300" : "bg-gray-100 text-gray-700"
-					}`}
+					className="rounded-lg bg-plasma px-4 py-2 text-sm font-medium text-text-secondary"
 				>
 					Export
 				</button>
@@ -260,9 +245,7 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 						setActivePanel("budget");
 						onClose();
 					}}
-					className={`rounded-lg px-4 py-2 text-sm font-medium ${
-						uvMode ? "bg-gray-800 text-gray-300" : "bg-gray-100 text-gray-700"
-					}`}
+					className="rounded-lg bg-plasma px-4 py-2 text-sm font-medium text-text-secondary"
 				>
 					Budget
 				</button>
@@ -280,19 +263,14 @@ function ToggleBtn({
 	active: boolean;
 	onTap: () => void;
 }) {
-	const uvMode = useStore((s) => s.ui.uvMode);
 	return (
 		<button
 			type="button"
 			onClick={onTap}
 			className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
 				active
-					? uvMode
-						? "bg-purple-600 text-white"
-						: "bg-blue-600 text-white"
-					: uvMode
-						? "bg-gray-800 text-gray-300"
-						: "bg-gray-100 text-gray-700"
+					? "bg-accent-text text-white"
+					: "bg-plasma text-text-secondary"
 			}`}
 		>
 			{label}

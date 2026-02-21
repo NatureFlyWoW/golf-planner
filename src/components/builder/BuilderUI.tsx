@@ -79,16 +79,16 @@ export function BuilderUI({ selectedSegmentId, onSelectSegment }: Props) {
 
 	// Top bar
 	const topBar = (
-		<div className="flex items-center gap-2 border-b bg-white px-3 py-2">
+		<div className="flex items-center gap-2 border-b border-subtle bg-surface-raised px-3 py-2">
 			<input
 				type="text"
 				value={draft?.name ?? ""}
 				onChange={(e) => setDraftName(e.target.value)}
-				className="w-24 min-w-0 flex-shrink rounded border px-2 py-1 text-sm"
+				className="w-24 min-w-0 flex-shrink rounded border border-subtle bg-surface px-2 py-1 text-sm text-primary"
 				placeholder="Hole name"
 			/>
 
-			<div className="flex items-center gap-1 text-xs text-gray-500">
+			<div className="flex items-center gap-1 text-xs text-text-secondary">
 				<span>W:</span>
 				<input
 					type="range"
@@ -102,12 +102,12 @@ export function BuilderUI({ selectedSegmentId, onSelectSegment }: Props) {
 				<span>{(draft?.feltWidth ?? 0.6).toFixed(1)}m</span>
 			</div>
 
-			<div className="flex items-center gap-1 text-xs text-gray-500">
+			<div className="flex items-center gap-1 text-xs text-text-secondary">
 				<span>Par:</span>
 				<select
 					value={draft?.defaultPar ?? 3}
 					onChange={(e) => setDraftPar(Number(e.target.value))}
-					className="rounded border px-1 py-0.5 text-xs"
+					className="rounded border border-subtle bg-surface px-1 py-0.5 text-xs text-primary"
 				>
 					{[1, 2, 3, 4, 5, 6].map((p) => (
 						<option key={p} value={p}>
@@ -121,7 +121,7 @@ export function BuilderUI({ selectedSegmentId, onSelectSegment }: Props) {
 				<button
 					type="button"
 					onClick={builderUndo}
-					className="rounded p-1 text-gray-500 hover:bg-gray-100"
+					className="rounded p-1 text-text-secondary hover:bg-plasma"
 					title="Undo"
 				>
 					&#x21A9;
@@ -129,7 +129,7 @@ export function BuilderUI({ selectedSegmentId, onSelectSegment }: Props) {
 				<button
 					type="button"
 					onClick={builderRedo}
-					className="rounded p-1 text-gray-500 hover:bg-gray-100"
+					className="rounded p-1 text-text-secondary hover:bg-plasma"
 					title="Redo"
 				>
 					&#x21AA;
@@ -137,7 +137,7 @@ export function BuilderUI({ selectedSegmentId, onSelectSegment }: Props) {
 				<button
 					type="button"
 					onClick={removeLastSegment}
-					className="rounded p-1 text-gray-500 hover:bg-gray-100"
+					className="rounded p-1 text-text-secondary hover:bg-plasma"
 					title="Remove last segment"
 				>
 					&#x232B;
@@ -148,8 +148,8 @@ export function BuilderUI({ selectedSegmentId, onSelectSegment }: Props) {
 					disabled={!canDelete}
 					className={`rounded p-1 transition-colors ${
 						canDelete
-							? "text-red-500 hover:bg-red-50"
-							: "cursor-not-allowed text-gray-300"
+							? "text-neon-pink hover:bg-neon-pink/10"
+							: "cursor-not-allowed text-text-muted"
 					}`}
 					title="Delete selected segment (Delete key)"
 				>
@@ -158,7 +158,7 @@ export function BuilderUI({ selectedSegmentId, onSelectSegment }: Props) {
 				<button
 					type="button"
 					onClick={handleCancel}
-					className="rounded bg-gray-200 px-2 py-1 text-xs text-gray-700 hover:bg-gray-300"
+					className="rounded bg-plasma px-2 py-1 text-xs text-text-secondary hover:bg-grid-ghost"
 				>
 					Cancel
 				</button>
@@ -168,8 +168,8 @@ export function BuilderUI({ selectedSegmentId, onSelectSegment }: Props) {
 					disabled={!canSave}
 					className={`rounded px-2 py-1 text-xs font-medium ${
 						canSave
-							? "bg-green-600 text-white hover:bg-green-700"
-							: "cursor-not-allowed bg-gray-300 text-gray-500"
+							? "bg-neon-green/80 text-surface hover:bg-neon-green/90"
+							: "cursor-not-allowed bg-plasma text-text-muted"
 					}`}
 				>
 					Save
@@ -182,13 +182,13 @@ export function BuilderUI({ selectedSegmentId, onSelectSegment }: Props) {
 	const panelContent = (
 		<>
 			{isMobile && (
-				<div className="flex border-b">
+				<div className="flex border-b border-subtle">
 					<button
 						type="button"
 						className={`flex-1 py-2 text-xs font-medium ${
 							activeTab === "build"
-								? "border-b-2 border-green-600 text-green-700"
-								: "text-gray-500"
+								? "border-b-2 border-neon-green text-neon-green"
+								: "text-text-secondary"
 						}`}
 						onClick={() => setActiveTab("build")}
 					>
@@ -198,8 +198,8 @@ export function BuilderUI({ selectedSegmentId, onSelectSegment }: Props) {
 						type="button"
 						className={`flex-1 py-2 text-xs font-medium ${
 							activeTab === "chain"
-								? "border-b-2 border-green-600 text-green-700"
-								: "text-gray-500"
+								? "border-b-2 border-neon-green text-neon-green"
+								: "text-text-secondary"
 						}`}
 						onClick={() => setActiveTab("chain")}
 					>
@@ -230,7 +230,7 @@ export function BuilderUI({ selectedSegmentId, onSelectSegment }: Props) {
 			<>
 				{topBar}
 				{/* Bottom panel */}
-				<div className="absolute inset-x-0 bottom-0 z-10 flex max-h-[40vh] flex-col border-t bg-white">
+				<div className="absolute inset-x-0 bottom-0 z-10 flex max-h-[40vh] flex-col border-t border-subtle bg-surface-raised">
 					{panelContent}
 				</div>
 			</>
@@ -241,7 +241,7 @@ export function BuilderUI({ selectedSegmentId, onSelectSegment }: Props) {
 	return (
 		<>
 			{topBar}
-			<div className="absolute inset-y-0 left-0 top-[41px] z-10 flex w-64 flex-col border-r bg-white">
+			<div className="absolute inset-y-0 left-0 top-[41px] z-10 flex w-64 flex-col border-r border-subtle bg-surface-raised">
 				{panelContent}
 			</div>
 		</>

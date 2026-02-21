@@ -74,21 +74,21 @@ export function CostSettingsModal({ onClose }: Props) {
 		>
 			{/* biome-ignore lint/a11y/noStaticElementInteractions: modal content */}
 			<div
-				className="mx-4 w-full max-w-sm rounded-xl bg-white shadow-xl"
+				className="mx-4 w-full max-w-sm rounded-xl bg-surface-raised shadow-xl"
 				role="presentation"
 				onClick={(e) => e.stopPropagation()}
 				onKeyDown={(e) => e.stopPropagation()}
 			>
 				{/* Header */}
-				<div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+				<div className="flex items-center justify-between border-b border-subtle px-4 py-3">
 					<div className="flex flex-col">
 						<span className="text-sm font-semibold">Per-Type Hole Costs</span>
-						<span className="text-[10px] text-gray-400">{modeLabel}</span>
+						<span className="text-[10px] text-text-muted">{modeLabel}</span>
 					</div>
 					<button
 						type="button"
 						onClick={onClose}
-						className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+						className="rounded-lg p-1 text-text-muted hover:bg-plasma hover:text-text-secondary"
 					>
 						<span className="text-lg">✕</span>
 					</button>
@@ -96,8 +96,8 @@ export function CostSettingsModal({ onClose }: Props) {
 
 				{/* Material Tier */}
 				{buildMode !== "professional" && (
-					<div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
-						<span className="text-[10px] text-gray-500 uppercase font-medium">
+					<div className="flex items-center justify-between px-4 py-2 border-b border-subtle">
+						<span className="text-[10px] text-text-secondary uppercase font-medium">
 							Material Tier
 						</span>
 						<select
@@ -108,7 +108,7 @@ export function CostSettingsModal({ onClose }: Props) {
 										.value as MaterialProfile,
 								})
 							}
-							className="rounded border border-gray-200 px-2 py-1 text-xs"
+							className="rounded border border-subtle px-2 py-1 text-xs"
 						>
 							<option value="budget_diy">
 								Budget DIY (0.65x)
@@ -126,9 +126,9 @@ export function CostSettingsModal({ onClose }: Props) {
 					{HOLE_TYPES.map((ht) => (
 						// biome-ignore lint/a11y/noLabelWithoutControl: input is conditionally rendered inside
 						<label key={ht.type} className="flex items-center justify-between">
-							<span className="text-xs text-gray-700">{ht.label}</span>
+							<span className="text-xs text-primary">{ht.label}</span>
 							<div className="flex items-center gap-1">
-								<span className="text-xs text-gray-400">€</span>
+								<span className="text-xs text-text-muted">€</span>
 								{isEditable ? (
 									<input
 										type="number"
@@ -137,10 +137,10 @@ export function CostSettingsModal({ onClose }: Props) {
 										onChange={(e) =>
 											handleCostChange(ht.type, Number(e.target.value))
 										}
-										className="w-24 rounded border border-gray-200 px-1.5 py-1 text-right text-xs"
+										className="w-24 rounded border border-subtle px-1.5 py-1 text-right text-xs"
 									/>
 								) : (
-									<span className="w-24 text-right text-xs text-gray-600">
+									<span className="w-24 text-right text-xs text-text-secondary">
 										{(costMap[ht.type] ?? 0).toLocaleString("de-AT")}
 									</span>
 								)}
@@ -151,7 +151,7 @@ export function CostSettingsModal({ onClose }: Props) {
 
 				{/* Build mode info */}
 				{buildMode === "professional" && (
-					<div className="px-4 pb-2 text-[10px] text-gray-400 italic">
+					<div className="px-4 pb-2 text-[10px] text-text-muted italic">
 						Professional costs are fixed. Switch to DIY or Mixed in Financial
 						Settings to edit.
 					</div>
@@ -159,18 +159,18 @@ export function CostSettingsModal({ onClose }: Props) {
 
 				{/* Override warning */}
 				{manualOverride && (
-					<div className="px-4 pb-2 text-[10px] text-amber-600 italic">
+					<div className="px-4 pb-2 text-[10px] text-neon-amber italic">
 						Course estimate is pinned. Changes here apply when you unlock it.
 					</div>
 				)}
 
 				{/* Footer */}
-				<div className="flex justify-end gap-2 border-t border-gray-200 px-4 py-3">
+				<div className="flex justify-end gap-2 border-t border-subtle px-4 py-3">
 					{isEditable && (
 						<button
 							type="button"
 							onClick={handleReset}
-							className="rounded-lg px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-100"
+							className="rounded-lg px-3 py-1.5 text-xs text-text-secondary hover:bg-plasma"
 						>
 							Reset Defaults
 						</button>
@@ -178,7 +178,7 @@ export function CostSettingsModal({ onClose }: Props) {
 					<button
 						type="button"
 						onClick={onClose}
-						className="rounded-lg bg-blue-500 px-3 py-1.5 text-xs text-white hover:bg-blue-600"
+						className="rounded-lg bg-accent-text px-3 py-1.5 text-xs text-white hover:bg-accent-text/80"
 					>
 						Close
 					</button>

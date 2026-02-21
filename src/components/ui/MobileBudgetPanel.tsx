@@ -12,14 +12,14 @@ export function MobileBudgetPanel() {
 	}
 
 	return (
-		<div className="fixed inset-0 z-50 flex flex-col bg-white md:hidden">
+		<div className="fixed inset-0 z-50 flex flex-col bg-surface md:hidden">
 			{/* Header */}
-			<div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+			<div className="flex items-center justify-between border-b border-subtle px-4 py-3">
 				<span className="text-base font-semibold">Budget</span>
 				<button
 					type="button"
 					onClick={handleClose}
-					className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+					className="rounded-lg p-2 text-text-muted hover:bg-plasma hover:text-text-secondary"
 				>
 					<span className="text-xl">&#x2715;</span>
 				</button>

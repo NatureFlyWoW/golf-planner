@@ -29,18 +29,18 @@ export function HoleDrawer() {
 				role="presentation"
 			/>
 			{/* Drawer */}
-			<div className="fixed inset-x-0 bottom-0 z-40 flex max-h-[40vh] flex-col rounded-t-2xl bg-white shadow-2xl md:hidden">
+			<div className="fixed inset-x-0 bottom-0 z-40 flex max-h-[40vh] flex-col rounded-t-2xl bg-surface-raised shadow-2xl md:hidden">
 				{/* Handle bar */}
 				<div className="flex justify-center py-2">
-					<div className="h-1 w-10 rounded-full bg-gray-300" />
+					<div className="h-1 w-10 rounded-full bg-grid-ghost" />
 				</div>
 				{/* Header */}
-				<div className="flex items-center justify-between border-b border-gray-100 px-4 pb-2">
+				<div className="flex items-center justify-between border-b border-subtle px-4 pb-2">
 					<span className="text-sm font-semibold">Choose Hole Type</span>
 					<button
 						type="button"
 						onClick={handleClose}
-						className="text-gray-400 hover:text-gray-600"
+						className="text-text-muted hover:text-text-secondary"
 					>
 						&#x2715;
 					</button>
@@ -55,8 +55,8 @@ export function HoleDrawer() {
 								onClick={() => handleSelect(ht.type)}
 								className={`flex items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
 									placingType === ht.type
-										? "border-blue-500 bg-blue-50"
-										: "border-gray-200 active:bg-gray-50"
+										? "border-accent-text bg-plasma"
+										: "border-subtle active:bg-surface-raised"
 								}`}
 							>
 								<div
@@ -65,7 +65,7 @@ export function HoleDrawer() {
 								/>
 								<div>
 									<p className="text-sm font-medium">{ht.label}</p>
-									<p className="text-xs text-gray-400">
+									<p className="text-xs text-text-muted">
 										{ht.dimensions.width}m &times; {ht.dimensions.length}m
 										&middot; Par {ht.defaultPar}
 									</p>

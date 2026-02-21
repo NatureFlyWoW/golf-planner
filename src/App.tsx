@@ -46,7 +46,7 @@ export default function App() {
 	}, [budgetSize, initBudget]);
 
 	return (
-		<div className="flex h-screen w-screen flex-col overflow-hidden bg-gray-100">
+		<div className="flex h-screen w-screen flex-col overflow-hidden bg-surface">
 			<Toolbar />
 			<div className="flex flex-1 overflow-hidden">
 				<Sidebar />

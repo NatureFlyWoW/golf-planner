@@ -28,7 +28,7 @@ export function SegmentPalette({ onSelect, activeSpecId, replaceMode }: Props) {
 		<div className="flex flex-col gap-2">
 			{/* Replace mode banner */}
 			{replaceMode && (
-				<div className="rounded-md bg-orange-50 px-2 py-1.5 text-center text-xs font-medium text-orange-700 ring-1 ring-orange-200">
+				<div className="rounded-md bg-neon-amber/10 px-2 py-1.5 text-center text-xs font-medium text-neon-amber ring-1 ring-neon-amber/30">
 					Tap type to replace selected segment
 				</div>
 			)}
@@ -41,8 +41,8 @@ export function SegmentPalette({ onSelect, activeSpecId, replaceMode }: Props) {
 						type="button"
 						className={`flex-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors ${
 							activeCategory === id
-								? "bg-green-600 text-white"
-								: "bg-gray-200 text-gray-700 hover:bg-gray-300"
+								? "bg-neon-green/80 text-surface"
+								: "bg-plasma text-primary hover:bg-grid-ghost"
 						}`}
 						onClick={() => setActiveCategory(id)}
 					>
@@ -59,10 +59,10 @@ export function SegmentPalette({ onSelect, activeSpecId, replaceMode }: Props) {
 						type="button"
 						className={`rounded-md border px-2 py-2 text-xs font-medium transition-colors ${
 							activeSpecId === spec.id
-								? "border-green-500 bg-green-50 text-green-700"
+								? "border-neon-green bg-neon-green/10 text-neon-green"
 								: replaceMode
-									? "border-orange-300 bg-orange-50 text-orange-700 hover:bg-orange-100"
-									: "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+									? "border-neon-amber/50 bg-neon-amber/10 text-neon-amber hover:bg-neon-amber/15"
+									: "border-subtle bg-surface-raised text-primary hover:bg-plasma"
 						}`}
 						onClick={() => onSelect(spec.id)}
 					>

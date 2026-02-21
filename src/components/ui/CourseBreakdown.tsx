@@ -58,25 +58,25 @@ export function CourseBreakdown({ onOpenSettings }: Props) {
 
 	if (holeCount === 0) {
 		return (
-			<div className="px-3 py-2 text-center text-xs text-gray-400 italic">
+			<div className="px-3 py-2 text-center text-xs text-text-muted italic">
 				Place holes to see course cost estimate
 			</div>
 		);
 	}
 
 	return (
-		<div className="border-b border-gray-200">
+		<div className="border-b border-subtle">
 			<div className="flex items-center justify-between px-3 py-2">
 				<div className="flex items-center gap-2">
 					<button
 						type="button"
 						onClick={() => setExpanded(!expanded)}
-						className="flex items-center gap-1 text-xs font-medium text-gray-700"
+						className="flex items-center gap-1 text-xs font-medium text-primary"
 					>
 						<span>{expanded ? "▼" : "▶"}</span>
 						<span>Course Cost Breakdown</span>
 					</button>
-					<span className="text-[10px] text-gray-400">
+					<span className="text-[10px] text-text-muted">
 						(
 						{buildMode === "diy"
 							? "DIY"
@@ -89,7 +89,7 @@ export function CourseBreakdown({ onOpenSettings }: Props) {
 				<button
 					type="button"
 					onClick={onOpenSettings}
-					className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+					className="rounded p-1 text-text-muted hover:bg-plasma hover:text-text-secondary"
 					title="Edit per-type costs"
 				>
 					<span className="text-sm">⚙</span>
@@ -104,12 +104,12 @@ export function CourseBreakdown({ onOpenSettings }: Props) {
 								key={item.type}
 								className="flex items-baseline justify-between text-xs"
 							>
-								<span className="text-gray-600">
+								<span className="text-text-secondary">
 									{item.count}× {item.label}
 								</span>
-								<span className="text-gray-500">
+								<span className="text-text-secondary">
 									@ {formatEur(item.unitCost)} ={" "}
-									<span className="font-medium text-gray-700">
+									<span className="font-medium text-primary">
 										{formatEur(item.subtotal)}
 									</span>
 								</span>
@@ -117,22 +117,22 @@ export function CourseBreakdown({ onOpenSettings }: Props) {
 						))}
 					</div>
 
-					<div className="my-1 border-t border-gray-100" />
+					<div className="my-1 border-t border-subtle" />
 					<div className="flex items-baseline justify-between text-xs">
-						<span className="font-medium text-gray-700">
+						<span className="font-medium text-primary">
 							Course total ({holeCount} holes)
 						</span>
 						<span className="font-semibold">{formatEur(courseCost)}</span>
 					</div>
 
 					{manualOverride && (
-						<div className="mt-1 text-[10px] text-amber-600 italic">
+						<div className="mt-1 text-[10px] text-neon-amber italic">
 							Pinned estimate — unlock to auto-calculate
 						</div>
 					)}
 
 					{!manualOverride && (
-						<div className="mt-1 text-[10px] text-gray-400 italic">
+						<div className="mt-1 text-[10px] text-text-muted italic">
 							Planning estimates — replace with real quotes when available
 						</div>
 					)}

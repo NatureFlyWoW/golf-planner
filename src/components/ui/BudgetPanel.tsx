@@ -23,9 +23,9 @@ function displayEur(n: number): string {
 
 /** Progress bar color based on actual/estimated ratio */
 function progressColor(ratio: number): string {
-	if (ratio > 1) return "bg-red-500";
-	if (ratio > 0.8) return "bg-amber-500";
-	return "bg-blue-500";
+	if (ratio > 1) return "bg-neon-pink";
+	if (ratio > 0.8) return "bg-neon-amber";
+	return "bg-accent-text";
 }
 
 type BudgetWarning = {
@@ -47,16 +47,16 @@ function quoteStatusBadge(quote: QuoteInfo | undefined): {
 	if (daysRemaining < 0) {
 		return {
 			label: `Expired ${Math.abs(daysRemaining)}d ago`,
-			className: "bg-red-100 text-red-700",
+			className: "bg-neon-pink/15 text-neon-pink",
 		};
 	}
 	if (daysRemaining <= 14) {
 		return {
 			label: `Expires in ${daysRemaining}d`,
-			className: "bg-amber-100 text-amber-700",
+			className: "bg-neon-amber/10 text-neon-amber",
 		};
 	}
-	return { label: "Quoted", className: "bg-green-100 text-green-700" };
+	return { label: "Quoted", className: "bg-neon-green/15 text-neon-green" };
 }
 
 export function BudgetPanel() {
@@ -177,13 +177,13 @@ export function BudgetPanel() {
 	return (
 		<div className="flex h-full flex-col">
 			{/* Summary header */}
-			<div className="border-b border-gray-200 px-3 py-2">
+			<div className="border-b border-subtle px-3 py-2">
 				<div className="flex items-center justify-between">
-					<span className="text-xs font-semibold text-gray-700">Budget</span>
+					<span className="text-xs font-semibold text-primary">Budget</span>
 					<button
 						type="button"
 						onClick={() => setShowFinancialSettings(true)}
-						className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+						className="rounded p-1 text-text-muted hover:bg-plasma hover:text-text-secondary"
 						title="Financial Settings"
 					>
 						<span className="text-sm">{"\u2699"}</span>
@@ -198,10 +198,10 @@ export function BudgetPanel() {
 								key={w.id}
 								className={`rounded px-2 py-1 text-[10px] ${
 									w.severity === "critical"
-										? "bg-red-50 text-red-700"
+										? "bg-neon-pink/10 text-neon-pink"
 										: w.severity === "warning"
-											? "bg-amber-50 text-amber-700"
-											: "bg-blue-50 text-blue-700"
+											? "bg-neon-amber/10 text-neon-amber"
+											: "bg-plasma text-accent-text"
 								}`}
 							>
 								{w.title}
@@ -211,31 +211,31 @@ export function BudgetPanel() {
 				)}
 
 				<div className="mt-1 flex items-baseline justify-between">
-					<span className="text-xs text-gray-500">Subtotal (net)</span>
+					<span className="text-xs text-text-secondary">Subtotal (net)</span>
 					<span className="text-sm font-semibold">
 						{displayEur(subtotalNet)}
 					</span>
 				</div>
 				{hasInflation && (
 					<div className="flex items-baseline justify-between">
-						<span className="text-xs text-amber-600">
+						<span className="text-xs text-neon-amber">
 							Inflated (+{inflationPct}%)
 						</span>
-						<span className="text-xs font-medium text-amber-600">
+						<span className="text-xs font-medium text-neon-amber">
 							{displayEur(inflatedSubtotalNet)}
 						</span>
 					</div>
 				)}
 				<div className="flex items-baseline justify-between">
-					<span className="text-xs text-gray-500">
+					<span className="text-xs text-text-secondary">
 						Risk buffer ({toleranceLabel}, {riskPercent}%)
 					</span>
-					<span className="text-xs text-gray-600">
+					<span className="text-xs text-text-secondary">
 						{displayEur(riskBuffer)}
 					</span>
 				</div>
 				<div className="mt-0.5 flex items-baseline justify-between">
-					<span className="text-xs font-semibold text-gray-700">
+					<span className="text-xs font-semibold text-primary">
 						Budget Target
 					</span>
 					<span className="text-sm font-bold">
@@ -243,17 +243,17 @@ export function BudgetPanel() {
 					</span>
 				</div>
 				<div className="flex items-baseline justify-between">
-					<span className="text-xs text-gray-500">Actual (spent)</span>
+					<span className="text-xs text-text-secondary">Actual (spent)</span>
 					<span className="text-sm font-semibold">
 						{displayEur(actualTotal)}
 					</span>
 				</div>
 				{financialSettings.vatRegistered && reclaimableVat > 0 && (
 					<div className="mt-0.5 flex items-baseline justify-between">
-						<span className="text-[10px] text-green-600">
+						<span className="text-[10px] text-neon-green">
 							Reclaimable Vorsteuer
 						</span>
-						<span className="text-xs font-medium text-green-600">
+						<span className="text-xs font-medium text-neon-green">
 							{displayEur(reclaimableVat)}
 						</span>
 					</div>
@@ -277,13 +277,13 @@ export function BudgetPanel() {
 								ref={(el) => {
 									cardRefs.current[cat.id] = el;
 								}}
-								className="rounded-lg border border-gray-200 bg-white"
+								className="rounded-lg border border-subtle bg-surface-raised"
 							>
 								{/* Card header */}
 								<div className="flex items-center gap-1 px-2.5 pt-2">
 									{cat.mandatory && (
 										<span
-											className="text-[10px] text-gray-400"
+											className="text-[10px] text-text-muted"
 											title="Mandatory"
 										>
 											{"\uD83D\uDD12"}
@@ -292,7 +292,7 @@ export function BudgetPanel() {
 									<button
 										type="button"
 										onClick={() => handleExpand(cat.id)}
-										className="flex-1 text-left text-xs font-medium text-gray-700"
+										className="flex-1 text-left text-xs font-medium text-primary"
 									>
 										{cat.name}
 									</button>
@@ -300,14 +300,14 @@ export function BudgetPanel() {
 									<span
 										className={`rounded px-1 py-0.5 text-[9px] font-medium ${
 											cat.confidenceTier === "fixed"
-												? "bg-green-100 text-green-700"
+												? "bg-neon-green/15 text-neon-green"
 												: cat.confidenceTier === "low"
-													? "bg-blue-100 text-blue-700"
+													? "bg-plasma text-accent-text"
 													: cat.confidenceTier === "medium"
-														? "bg-yellow-100 text-yellow-700"
+														? "bg-neon-amber/15 text-neon-amber"
 														: cat.confidenceTier === "high"
-															? "bg-orange-100 text-orange-700"
-															: "bg-red-100 text-red-700"
+															? "bg-neon-amber/20 text-neon-amber"
+															: "bg-neon-pink/15 text-neon-pink"
 										}`}
 									>
 										{cat.confidenceTier === "very_high"
@@ -330,7 +330,7 @@ export function BudgetPanel() {
 										<button
 											type="button"
 											onClick={() => toggleCourseOverride()}
-											className="rounded p-0.5 text-gray-400 hover:text-gray-600"
+											className="rounded p-0.5 text-text-muted hover:text-text-secondary"
 											title={
 												cat.manualOverride
 													? "Unlock auto-calculation"
@@ -349,13 +349,13 @@ export function BudgetPanel() {
 									className="w-full px-2.5 pb-2 text-left"
 								>
 									{BUDGET_HINTS[cat.id] && (
-										<div className="text-[10px] text-gray-400 italic">
+										<div className="text-[10px] text-text-muted italic">
 											{BUDGET_HINTS[cat.id]}
 										</div>
 									)}
 									<div className="mt-1 flex gap-2">
 										<div className="flex items-center gap-1">
-											<span className="text-[10px] text-gray-400">Net</span>
+											<span className="text-[10px] text-text-muted">Net</span>
 											<span className="text-xs font-medium">
 												{displayEur(displayNet)}
 											</span>
@@ -363,23 +363,23 @@ export function BudgetPanel() {
 										{financialSettings.displayMode !== "net" &&
 											cat.vatProfile === "standard_20" && (
 												<div className="flex items-center gap-1">
-													<span className="text-[10px] text-gray-400">
+													<span className="text-[10px] text-text-muted">
 														Gross
 													</span>
-													<span className="text-xs text-gray-500">
+													<span className="text-xs text-text-secondary">
 														{displayEur(Math.round(displayNet * 1.2))}
 													</span>
 												</div>
 											)}
 										<div className="flex items-center gap-1">
-											<span className="text-[10px] text-gray-400">Spent</span>
+											<span className="text-[10px] text-text-muted">Spent</span>
 											<span className="text-xs font-medium">
 												{displayEur(catActual)}
 											</span>
 										</div>
 									</div>
 									{/* Progress bar */}
-									<div className="mt-1.5 h-1 w-full rounded-full bg-gray-100">
+									<div className="mt-1.5 h-1 w-full rounded-full bg-plasma">
 										<div
 											className={`h-1 rounded-full transition-all ${progressColor(ratio)}`}
 											style={{
@@ -391,11 +391,11 @@ export function BudgetPanel() {
 
 								{/* Expanded: edit fields */}
 								{isExpanded && (
-									<div className="border-t border-gray-100 px-2.5 py-2">
+									<div className="border-t border-subtle px-2.5 py-2">
 										<div className="flex flex-col gap-2">
 											{isCourse && !cat.manualOverride ? (
 												<div className="flex flex-col gap-0.5">
-													<span className="text-[10px] text-gray-400">
+													<span className="text-[10px] text-text-muted">
 														Estimated (auto)
 													</span>
 													<span className="text-xs font-medium">
@@ -404,12 +404,12 @@ export function BudgetPanel() {
 												</div>
 											) : (
 												<label className="flex flex-col gap-0.5">
-													<span className="text-[10px] text-gray-400">
+													<span className="text-[10px] text-text-muted">
 														Estimated (net)
 														{isCourse ? " \u2014 pinned" : ""}
 													</span>
 													<div className="flex items-center gap-1">
-														<span className="text-xs text-gray-400">
+														<span className="text-xs text-text-muted">
 															{"\u20AC"}
 														</span>
 														<input
@@ -424,14 +424,14 @@ export function BudgetPanel() {
 																	),
 																})
 															}
-															className="w-full rounded border border-gray-200 px-1.5 py-1 text-xs"
+															className="w-full rounded border border-subtle bg-surface px-1.5 py-1 text-xs text-primary"
 														/>
 													</div>
 												</label>
 											)}
 											{/* Confidence tier selector */}
 											<label className="flex flex-col gap-0.5">
-												<span className="text-[10px] text-gray-400">
+												<span className="text-[10px] text-text-muted">
 													Confidence Tier
 												</span>
 												<select
@@ -442,7 +442,7 @@ export function BudgetPanel() {
 															e.target.value as ConfidenceTier,
 														)
 													}
-													className="w-full rounded border border-gray-200 px-1.5 py-1 text-xs"
+													className="w-full rounded border border-subtle bg-surface px-1.5 py-1 text-xs text-primary"
 												>
 													<option value="fixed">Fixed price (\u00B12%)</option>
 													<option value="low">
@@ -460,7 +460,7 @@ export function BudgetPanel() {
 												</select>
 											</label>
 											<label className="flex flex-col gap-0.5">
-												<span className="text-[10px] text-gray-400">Notes</span>
+												<span className="text-[10px] text-text-muted">Notes</span>
 												<textarea
 													value={cat.notes}
 													onChange={(e) =>
@@ -469,7 +469,7 @@ export function BudgetPanel() {
 														})
 													}
 													rows={2}
-													className="w-full rounded border border-gray-200 px-1.5 py-1 text-xs"
+													className="w-full rounded border border-subtle bg-surface px-1.5 py-1 text-xs text-primary"
 												/>
 											</label>
 											{/* Expense tracking */}
@@ -484,17 +484,17 @@ export function BudgetPanel() {
 			</div>
 
 			{/* Footer: risk buffer + budget target */}
-			<div className="border-t border-gray-200 px-3 py-2">
+			<div className="border-t border-subtle px-3 py-2">
 				<div className="flex items-baseline justify-between">
-					<span className="text-[10px] text-gray-400">
+					<span className="text-[10px] text-text-muted">
 						Risk buffer ({toleranceLabel}, {riskPercent}%)
 					</span>
-					<span className="text-xs text-gray-600">
+					<span className="text-xs text-text-secondary">
 						{displayEur(riskBuffer)}
 					</span>
 				</div>
 				<div className="mt-0.5 flex items-baseline justify-between">
-					<span className="text-xs font-semibold text-gray-700">
+					<span className="text-xs font-semibold text-primary">
 						Budget Target
 					</span>
 					<span className="text-sm font-bold">
@@ -503,10 +503,10 @@ export function BudgetPanel() {
 				</div>
 				{financialSettings.vatRegistered && reclaimableVat > 0 && (
 					<div className="mt-0.5 flex items-baseline justify-between">
-						<span className="text-[10px] text-green-600">
+						<span className="text-[10px] text-neon-green">
 							Reclaimable Vorsteuer
 						</span>
-						<span className="text-xs font-medium text-green-600">
+						<span className="text-xs font-medium text-neon-green">
 							{displayEur(reclaimableVat)}
 						</span>
 					</div>

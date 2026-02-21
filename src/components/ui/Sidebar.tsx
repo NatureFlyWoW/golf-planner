@@ -15,8 +15,8 @@ export function Sidebar() {
 	const setSidebarTab = useStore((s) => s.setSidebarTab);
 
 	return (
-		<div className="hidden h-full w-64 flex-col border-r border-gray-200 bg-white md:flex">
-			<div className="flex border-b border-gray-200">
+		<div className="hidden h-full w-64 flex-col border-r border-subtle bg-surface-raised md:flex">
+			<div className="flex border-b border-subtle">
 				{tabs.map(({ tab, label }) => (
 					<button
 						type="button"
@@ -24,8 +24,8 @@ export function Sidebar() {
 						onClick={() => setSidebarTab(tab)}
 						className={`flex-1 px-2 py-2 text-xs font-medium transition-colors ${
 							activeTab === tab
-								? "border-b-2 border-blue-600 text-blue-600"
-								: "text-gray-500 hover:text-gray-700"
+								? "border-b-2 border-accent-text text-accent-text"
+								: "text-text-secondary hover:text-primary"
 						}`}
 					>
 						{label}

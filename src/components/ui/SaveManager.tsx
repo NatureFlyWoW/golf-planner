@@ -79,7 +79,7 @@ export function SaveManager() {
 			<button
 				type="button"
 				onClick={() => setOpen(true)}
-				className="rounded bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200"
+				className="rounded bg-plasma px-3 py-1.5 text-sm font-medium text-text-secondary hover:bg-grid-ghost"
 			>
 				Saves
 			</button>
@@ -87,13 +87,13 @@ export function SaveManager() {
 	}
 
 	return (
-		<div className="absolute right-2 top-12 z-50 w-72 rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
+		<div className="absolute right-2 top-12 z-50 w-72 rounded-lg border border-subtle bg-surface-raised p-3 shadow-lg">
 			<div className="mb-2 flex items-center justify-between">
 				<span className="text-sm font-semibold">Saves ({saveCount}/10)</span>
 				<button
 					type="button"
 					onClick={() => setOpen(false)}
-					className="text-gray-400 hover:text-gray-600"
+					className="text-text-muted hover:text-text-secondary"
 				>
 					&#x2715;
 				</button>
@@ -107,24 +107,24 @@ export function SaveManager() {
 					onChange={(e) => setSaveName(e.target.value)}
 					onKeyDown={(e) => e.key === "Enter" && handleSave()}
 					placeholder="Save name..."
-					className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm"
+					className="flex-1 rounded border border-subtle bg-surface px-2 py-1 text-sm text-primary"
 					maxLength={40}
 				/>
 				<button
 					type="button"
 					onClick={handleSave}
 					disabled={!saveName.trim() || saveCount >= 10}
-					className="rounded bg-blue-600 px-2 py-1 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
+					className="rounded bg-accent-text px-2 py-1 text-sm text-white hover:bg-accent-text/80 disabled:opacity-50"
 				>
 					Save
 				</button>
 			</div>
 
-			{error && <p className="mb-2 text-xs text-red-600">{error}</p>}
+			{error && <p className="mb-2 text-xs text-neon-pink">{error}</p>}
 
 			{/* Save list */}
 			{sortedSaves.length === 0 ? (
-				<p className="text-center text-xs text-gray-400">
+				<p className="text-center text-xs text-text-muted">
 					No saved layouts yet
 				</p>
 			) : (
@@ -132,7 +132,7 @@ export function SaveManager() {
 					{sortedSaves.map(([id, slot]) => (
 						<li
 							key={id}
-							className="flex items-center gap-1 rounded bg-gray-50 px-2 py-1.5"
+							className="flex items-center gap-1 rounded bg-surface-raised px-2 py-1.5"
 						>
 							{editingId === id ? (
 								<input
@@ -141,7 +141,7 @@ export function SaveManager() {
 									onChange={(e) => setEditName(e.target.value)}
 									onKeyDown={(e) => e.key === "Enter" && handleRename(id)}
 									onBlur={() => handleRename(id)}
-									className="flex-1 rounded border border-gray-300 px-1 text-xs"
+									className="flex-1 rounded border border-subtle bg-surface px-1 text-xs text-primary"
 									maxLength={40}
 								/>
 							) : (
@@ -154,7 +154,7 @@ export function SaveManager() {
 									<span className="block truncate text-xs font-medium">
 										{slot.name}
 									</span>
-									<span className="text-[10px] text-gray-400">
+									<span className="text-[10px] text-text-muted">
 										{new Date(slot.savedAt).toLocaleString()}
 									</span>
 								</button>
@@ -165,7 +165,7 @@ export function SaveManager() {
 									setEditingId(id);
 									setEditName(slot.name);
 								}}
-								className="text-xs text-gray-400 hover:text-blue-600"
+								className="text-xs text-text-muted hover:text-accent-text"
 								title="Rename"
 							>
 								&#x270E;
@@ -173,7 +173,7 @@ export function SaveManager() {
 							<button
 								type="button"
 								onClick={() => handleDelete(id)}
-								className="text-xs text-gray-400 hover:text-red-600"
+								className="text-xs text-text-muted hover:text-neon-pink"
 								title="Delete"
 							>
 								&#x2715;

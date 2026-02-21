@@ -22,7 +22,7 @@ export function HoleLibrary() {
 
 	return (
 		<div className="flex flex-col gap-2">
-			<p className="text-xs font-medium text-gray-500 uppercase">Hole Types</p>
+			<p className="text-xs font-medium text-text-secondary uppercase">Hole Types</p>
 			{HOLE_TYPES.map((ht) => (
 				<button
 					key={ht.type}
@@ -30,8 +30,8 @@ export function HoleLibrary() {
 					onClick={() => handleSelect(ht.type)}
 					className={`flex items-center gap-3 rounded-lg border p-2.5 text-left transition-colors ${
 						placingType === ht.type
-							? "border-blue-500 bg-blue-50"
-							: "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+							? "border-accent-text bg-plasma"
+							: "border-subtle hover:border-grid-ghost hover:bg-plasma"
 					}`}
 				>
 					<div
@@ -40,7 +40,7 @@ export function HoleLibrary() {
 					/>
 					<div>
 						<p className="text-sm font-medium">{ht.label}</p>
-						<p className="text-xs text-gray-400">
+						<p className="text-xs text-text-muted">
 							{ht.dimensions.width}m x {ht.dimensions.length}m · Par{" "}
 							{ht.defaultPar}
 						</p>
@@ -50,7 +50,7 @@ export function HoleLibrary() {
 
 			{templateList.length > 0 && (
 				<>
-					<p className="mt-4 text-xs font-medium text-gray-500 uppercase">
+					<p className="mt-4 text-xs font-medium text-text-secondary uppercase">
 						My Holes
 					</p>
 					{templateList.map((template) => (
@@ -66,8 +66,8 @@ export function HoleLibrary() {
 								}}
 								className={`flex flex-1 items-center gap-3 rounded-lg border p-2.5 text-left transition-colors ${
 									placingTemplateId === template.id
-										? "border-blue-500 bg-blue-50"
-										: "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+										? "border-accent-text bg-plasma"
+										: "border-subtle hover:border-grid-ghost hover:bg-plasma"
 								}`}
 							>
 								<div
@@ -76,7 +76,7 @@ export function HoleLibrary() {
 								/>
 								<div>
 									<p className="text-sm font-medium">{template.name}</p>
-									<p className="text-xs text-gray-400">
+									<p className="text-xs text-text-muted">
 										{template.segments.length} segments · Par{" "}
 										{template.defaultPar}
 									</p>
@@ -85,7 +85,7 @@ export function HoleLibrary() {
 							<button
 								type="button"
 								onClick={() => enterBuilder(template.id)}
-								className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+								className="rounded p-1 text-text-muted hover:bg-plasma hover:text-text-secondary"
 								title="Edit template"
 							>
 								&#x270E;
@@ -98,7 +98,7 @@ export function HoleLibrary() {
 			<button
 				type="button"
 				onClick={() => enterBuilder()}
-				className="mt-4 w-full rounded-lg border-2 border-dashed border-gray-300 p-3 text-center text-sm font-medium text-gray-500 transition-colors hover:border-green-400 hover:text-green-600"
+				className="mt-4 w-full rounded-lg border-2 border-dashed border-grid-ghost p-3 text-center text-sm font-medium text-text-secondary transition-colors hover:border-neon-green hover:text-neon-green"
 			>
 				+ Build Custom Hole
 			</button>

@@ -22,8 +22,8 @@ export function Toolbar() {
 	const toggleFlowPath = useStore((s) => s.toggleFlowPath);
 	const view = useStore((s) => s.ui.view);
 	const setView = useStore((s) => s.setView);
-	const uvMode = useStore((s) => s.ui.uvMode);
 	const toggleUvMode = useStore((s) => s.toggleUvMode);
+	const uvMode = useStore((s) => s.ui.uvMode);
 	const captureScreenshot = useStore((s) => s.captureScreenshot);
 	const holes = useStore((s) => s.holes);
 	const holeOrder = useStore((s) => s.holeOrder);
@@ -40,61 +40,38 @@ export function Toolbar() {
 		downloadSVG(svg);
 	}
 
-	const barClass = uvMode
-		? "hidden items-center gap-1 border-b border-indigo-900 bg-gray-900 px-3 py-2 md:flex"
-		: "hidden items-center gap-1 border-b border-gray-200 bg-white px-3 py-2 md:flex";
+	const barClass = "hidden items-center gap-1 border-b border-subtle bg-surface-raised px-3 py-2 md:flex";
 
 	const btnClass = (active: boolean) =>
-		uvMode
-			? `rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-					active
-						? "bg-purple-600 text-white"
-						: "bg-gray-800 text-gray-300 hover:bg-gray-700"
-				}`
-			: `rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-					active
-						? "bg-blue-600 text-white"
-						: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-				}`;
+		`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+			active
+				? "bg-accent-text text-white"
+				: "bg-plasma text-text-secondary hover:bg-grid-ghost"
+		}`;
 
-	const neutralBtnClass = uvMode
-		? "rounded bg-gray-800 px-3 py-1.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-700"
-		: "rounded bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200";
+	const neutralBtnClass = "rounded bg-plasma px-3 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:bg-grid-ghost";
 
-	const smallBtnClass = uvMode
-		? "rounded bg-gray-800 px-2 py-1.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-700"
-		: "rounded bg-gray-100 px-2 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200";
+	const smallBtnClass = "rounded bg-plasma px-2 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:bg-grid-ghost";
 
-	const dividerClass = uvMode
-		? "mx-2 h-6 w-px bg-gray-700"
-		: "mx-2 h-6 w-px bg-gray-200";
+	const dividerClass = "mx-2 h-6 w-px bg-grid-ghost";
 
-	const snapBtnClass = uvMode
-		? `rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-				snapEnabled
-					? "bg-purple-600 text-white"
-					: "bg-gray-800 text-gray-300 hover:bg-gray-700"
-			}`
-		: `rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-				snapEnabled
-					? "bg-green-600 text-white"
-					: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-			}`;
+	const snapBtnClass = `rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+		snapEnabled
+			? "bg-accent-text text-white"
+			: "bg-plasma text-text-secondary hover:bg-grid-ghost"
+	}`;
 
-	const flowBtnClass = uvMode
-		? `rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-				showFlowPath
-					? "bg-purple-600 text-white"
-					: "bg-gray-800 text-gray-300 hover:bg-gray-700"
-			}`
-		: `rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-				showFlowPath
-					? "bg-purple-600 text-white"
-					: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-			}`;
+	const flowBtnClass = `rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+		showFlowPath
+			? "bg-accent-text text-white"
+			: "bg-plasma text-text-secondary hover:bg-grid-ghost"
+	}`;
 
 	return (
 		<div className={barClass}>
+			<span className="font-display text-sm font-bold tracking-wider text-accent-text" style={{ textShadow: "0 0 8px #9D00FF, 0 0 16px #9D00FF40" }}>GOLF FORGE</span>
+			<div className="mx-2 h-6 w-px bg-grid-ghost" />
+
 			{tools.map(({ tool, label, icon }) => (
 				<button
 					type="button"

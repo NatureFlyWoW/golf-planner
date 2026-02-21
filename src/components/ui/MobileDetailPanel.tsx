@@ -54,9 +54,9 @@ export function MobileDetailPanel() {
 	}
 
 	return (
-		<div className="fixed inset-0 z-50 flex flex-col bg-white md:hidden">
+		<div className="fixed inset-0 z-50 flex flex-col bg-surface md:hidden">
 			{/* Header */}
-			<div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+			<div className="flex items-center justify-between border-b border-subtle px-4 py-3">
 				<div className="flex items-center gap-2">
 					<div
 						className="h-6 w-6 rounded"
@@ -69,7 +69,7 @@ export function MobileDetailPanel() {
 				<button
 					type="button"
 					onClick={handleClose}
-					className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+					className="rounded-lg p-2 text-text-muted hover:bg-plasma hover:text-text-secondary"
 				>
 					<span className="text-xl">&#x2715;</span>
 				</button>
@@ -80,18 +80,18 @@ export function MobileDetailPanel() {
 				<div className="flex flex-col gap-5">
 					{/* Name */}
 					<label className="flex flex-col gap-1.5">
-						<span className="text-sm font-medium text-gray-500">Name</span>
+						<span className="text-sm font-medium text-text-secondary">Name</span>
 						<input
 							type="text"
 							value={hole.name}
 							onChange={(e) => updateHole(selectedId, { name: e.target.value })}
-							className="rounded-lg border border-gray-200 px-3 py-2.5 text-base"
+							className="rounded-lg border border-subtle px-3 py-2.5 text-base"
 						/>
 					</label>
 
 					{/* Par */}
 					<label className="flex flex-col gap-1.5">
-						<span className="text-sm font-medium text-gray-500">Par</span>
+						<span className="text-sm font-medium text-text-secondary">Par</span>
 						<input
 							type="number"
 							value={hole.par}
@@ -102,13 +102,13 @@ export function MobileDetailPanel() {
 									par: Math.min(6, Math.max(1, Number(e.target.value))),
 								})
 							}
-							className="w-24 rounded-lg border border-gray-200 px-3 py-2.5 text-base"
+							className="w-24 rounded-lg border border-subtle px-3 py-2.5 text-base"
 						/>
 					</label>
 
 					{/* Rotation — large preset buttons as primary */}
 					<div className="flex flex-col gap-1.5">
-						<span className="text-sm font-medium text-gray-500">Rotation</span>
+						<span className="text-sm font-medium text-text-secondary">Rotation</span>
 						<div className="flex gap-2">
 							{[0, 90, 180, 270].map((r) => (
 								<button
@@ -117,8 +117,8 @@ export function MobileDetailPanel() {
 									onClick={() => updateHole(selectedId, { rotation: r })}
 									className={`h-11 flex-1 rounded-lg text-sm font-medium ${
 										hole.rotation === r
-											? "bg-blue-600 text-white"
-											: "bg-gray-100 text-gray-600 active:bg-gray-200"
+											? "bg-accent-text text-white"
+											: "bg-surface text-text-secondary active:bg-plasma"
 									}`}
 								>
 									{r}&deg;
@@ -136,38 +136,38 @@ export function MobileDetailPanel() {
 									rotation: ((Number(e.target.value) % 360) + 360) % 360,
 								})
 							}
-							className="mt-1 w-24 rounded-lg border border-gray-200 px-3 py-2 text-sm"
+							className="mt-1 w-24 rounded-lg border border-subtle px-3 py-2 text-sm"
 						/>
 					</div>
 
 					{/* Position (read-only) */}
-					<div className="text-sm text-gray-400">
+					<div className="text-sm text-text-muted">
 						Position: ({hole.position.x.toFixed(1)},{" "}
 						{hole.position.z.toFixed(1)})
 					</div>
 
 					{/* Dimensions (read-only) */}
 					{dimensionLabel ? (
-						<div className="text-sm text-gray-400">Size: {dimensionLabel}</div>
+						<div className="text-sm text-text-muted">Size: {dimensionLabel}</div>
 					) : null}
 
 					{/* Template info */}
 					{template ? (
-						<div className="flex flex-col gap-2 rounded-lg border border-gray-100 bg-gray-50 p-3">
-							<div className="text-sm text-gray-500">
+						<div className="flex flex-col gap-2 rounded-lg border border-subtle bg-surface-raised p-3">
+							<div className="text-sm text-text-secondary">
 								Template:{" "}
-								<span className="font-medium text-gray-700">{template.name}</span>
+								<span className="font-medium text-primary">{template.name}</span>
 							</div>
-							<div className="text-sm text-gray-500">
+							<div className="text-sm text-text-secondary">
 								Segments:{" "}
-								<span className="font-medium text-gray-700">
+								<span className="font-medium text-primary">
 									{template.segments.length}
 								</span>
 							</div>
 							<button
 								type="button"
 								onClick={handleEditInBuilder}
-								className="rounded-lg bg-blue-50 px-4 py-2.5 text-sm font-medium text-blue-600 active:bg-blue-100"
+								className="rounded-lg bg-plasma px-4 py-2.5 text-sm font-medium text-accent-text active:bg-grid-ghost"
 							>
 								Edit in Builder
 							</button>
@@ -178,7 +178,7 @@ export function MobileDetailPanel() {
 					<button
 						type="button"
 						onClick={handleDelete}
-						className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-base font-medium text-red-600 active:bg-red-100"
+						className="mt-4 rounded-lg bg-neon-pink/10 px-4 py-3 text-base font-medium text-neon-pink active:bg-neon-pink/15"
 					>
 						Delete Hole
 					</button>

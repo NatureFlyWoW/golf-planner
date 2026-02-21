@@ -43,7 +43,7 @@ export function ExpenseList({ categoryId }: Props) {
 	return (
 		<div className="flex flex-col gap-1">
 			<div className="flex items-center justify-between">
-				<span className="text-[10px] text-gray-400">
+				<span className="text-[10px] text-text-muted">
 					Expenses ({catExpenses.length})
 				</span>
 				<span className="text-xs font-medium">
@@ -58,14 +58,14 @@ export function ExpenseList({ categoryId }: Props) {
 					{catExpenses.map((exp) => (
 						<div
 							key={exp.id}
-							className="flex items-center justify-between rounded bg-gray-50 px-2 py-1"
+							className="flex items-center justify-between rounded bg-surface-raised px-2 py-1"
 						>
 							<div className="flex flex-col">
-								<span className="text-[10px] text-gray-600">
+								<span className="text-[10px] text-text-secondary">
 									{exp.date} — {exp.vendor || "No vendor"}
 								</span>
 								{exp.note && (
-									<span className="text-[9px] text-gray-400">{exp.note}</span>
+									<span className="text-[9px] text-text-muted">{exp.note}</span>
 								)}
 							</div>
 							<div className="flex items-center gap-1">
@@ -78,7 +78,7 @@ export function ExpenseList({ categoryId }: Props) {
 								<button
 									type="button"
 									onClick={() => deleteExpense(exp.id)}
-									className="rounded p-0.5 text-[10px] text-gray-400 hover:text-red-500"
+									className="rounded p-0.5 text-[10px] text-text-muted hover:text-neon-pink"
 									title="Delete expense"
 								>
 									{"\u2715"}
@@ -91,23 +91,23 @@ export function ExpenseList({ categoryId }: Props) {
 
 			{/* Add expense form */}
 			{showForm ? (
-				<div className="flex flex-col gap-1.5 rounded border border-gray-200 bg-gray-50 p-2">
+				<div className="flex flex-col gap-1.5 rounded border border-subtle bg-surface-raised p-2">
 					<div className="flex gap-1">
 						<input
 							type="date"
 							value={date}
 							onChange={(e) => setDate(e.target.value)}
-							className="flex-1 rounded border border-gray-200 px-1.5 py-1 text-[10px]"
+							className="flex-1 rounded border border-subtle bg-surface px-1.5 py-1 text-[10px] text-primary"
 						/>
 						<div className="flex items-center gap-0.5">
-							<span className="text-[10px] text-gray-400">{"\u20AC"}</span>
+							<span className="text-[10px] text-text-muted">{"\u20AC"}</span>
 							<input
 								type="number"
 								value={amount}
 								min={0}
 								placeholder="Amount"
 								onChange={(e) => setAmount(e.target.value)}
-								className="w-20 rounded border border-gray-200 px-1.5 py-1 text-[10px]"
+								className="w-20 rounded border border-subtle px-1.5 py-1 text-[10px]"
 							/>
 						</div>
 					</div>
@@ -116,27 +116,27 @@ export function ExpenseList({ categoryId }: Props) {
 						value={vendor}
 						placeholder="Vendor (optional)"
 						onChange={(e) => setVendor(e.target.value)}
-						className="rounded border border-gray-200 px-1.5 py-1 text-[10px]"
+						className="rounded border border-subtle bg-surface px-1.5 py-1 text-[10px] text-primary"
 					/>
 					<input
 						type="text"
 						value={note}
 						placeholder="Note (optional)"
 						onChange={(e) => setNote(e.target.value)}
-						className="rounded border border-gray-200 px-1.5 py-1 text-[10px]"
+						className="rounded border border-subtle bg-surface px-1.5 py-1 text-[10px] text-primary"
 					/>
 					<div className="flex justify-end gap-1">
 						<button
 							type="button"
 							onClick={() => setShowForm(false)}
-							className="rounded px-2 py-1 text-[10px] text-gray-500 hover:bg-gray-200"
+							className="rounded px-2 py-1 text-[10px] text-text-secondary hover:bg-plasma"
 						>
 							Cancel
 						</button>
 						<button
 							type="button"
 							onClick={handleAdd}
-							className="rounded bg-blue-500 px-2 py-1 text-[10px] text-white hover:bg-blue-600"
+							className="rounded bg-accent-text px-2 py-1 text-[10px] text-white hover:bg-accent-text/80"
 						>
 							Add
 						</button>
@@ -146,7 +146,7 @@ export function ExpenseList({ categoryId }: Props) {
 				<button
 					type="button"
 					onClick={() => setShowForm(true)}
-					className="rounded border border-dashed border-gray-300 px-2 py-1 text-[10px] text-gray-400 hover:bg-gray-50 hover:text-gray-600"
+					className="rounded border border-dashed border-grid-ghost px-2 py-1 text-[10px] text-text-muted hover:bg-plasma hover:text-text-secondary"
 				>
 					+ Add expense
 				</button>

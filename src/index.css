@@ -98,6 +98,8 @@
 	--color-text-primary: var(--color-felt-white);
 	--color-accent: var(--color-neon-violet);
 	/* accent-text already defined as a base token above */
+	--color-text-secondary: #B0B0D8;
+	--color-text-muted: #6E6E9A;
 	--color-data: var(--color-neon-cyan);
 	--color-success: var(--color-neon-green);
 	--color-warning: var(--color-neon-amber);

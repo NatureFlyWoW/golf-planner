@@ -13,7 +13,7 @@ export function HoleDetail() {
 
 	if (!selectedId) {
 		return (
-			<p className="text-xs text-gray-400">Select a hole to see details</p>
+			<p className="text-xs text-text-muted">Select a hole to see details</p>
 		);
 	}
 
@@ -50,17 +50,17 @@ export function HoleDetail() {
 			</div>
 
 			<label className="flex flex-col gap-1">
-				<span className="text-xs text-gray-500">Name</span>
+				<span className="text-xs text-text-secondary">Name</span>
 				<input
 					type="text"
 					value={hole.name}
 					onChange={(e) => updateHole(selectedId, { name: e.target.value })}
-					className="rounded border border-gray-200 px-2 py-1 text-sm"
+					className="rounded border border-subtle bg-surface px-2 py-1 text-sm text-primary"
 				/>
 			</label>
 
 			<label className="flex flex-col gap-1">
-				<span className="text-xs text-gray-500">Par</span>
+				<span className="text-xs text-text-secondary">Par</span>
 				<input
 					type="number"
 					value={hole.par}
@@ -71,12 +71,12 @@ export function HoleDetail() {
 							par: Math.min(6, Math.max(1, Number(e.target.value))),
 						})
 					}
-					className="w-20 rounded border border-gray-200 px-2 py-1 text-sm"
+					className="w-20 rounded border border-subtle px-2 py-1 text-sm"
 				/>
 			</label>
 
 			<div className="flex flex-col gap-1">
-				<span className="text-xs text-gray-500">Rotation</span>
+				<span className="text-xs text-text-secondary">Rotation</span>
 				<div className="flex items-center gap-2">
 					<input
 						type="number"
@@ -89,9 +89,9 @@ export function HoleDetail() {
 								rotation: ((Number(e.target.value) % 360) + 360) % 360,
 							})
 						}
-						className="w-20 rounded border border-gray-200 px-2 py-1 text-sm"
+						className="w-20 rounded border border-subtle px-2 py-1 text-sm"
 					/>
-					<span className="text-xs text-gray-400">°</span>
+					<span className="text-xs text-text-muted">°</span>
 				</div>
 				<div className="flex gap-1">
 					{[0, 90, 180, 270].map((r) => (
@@ -101,8 +101,8 @@ export function HoleDetail() {
 							onClick={() => updateHole(selectedId, { rotation: r })}
 							className={`rounded px-2.5 py-1 text-xs font-medium ${
 								hole.rotation === r
-									? "bg-blue-600 text-white"
-									: "bg-gray-100 text-gray-600 hover:bg-gray-200"
+									? "bg-accent-text text-white"
+									: "bg-surface text-text-secondary hover:bg-plasma"
 							}`}
 						>
 							{r}°
@@ -111,26 +111,26 @@ export function HoleDetail() {
 				</div>
 			</div>
 
-			<div className="text-xs text-gray-400">
+			<div className="text-xs text-text-muted">
 				Position: ({hole.position.x.toFixed(1)}, {hole.position.z.toFixed(1)})
 			</div>
 
 			{dimensionLabel ? (
-				<div className="text-xs text-gray-400">Size: {dimensionLabel}</div>
+				<div className="text-xs text-text-muted">Size: {dimensionLabel}</div>
 			) : null}
 
 			{template ? (
-				<div className="flex flex-col gap-1 rounded border border-gray-100 bg-gray-50 p-2">
-					<div className="text-xs text-gray-500">
-						Template: <span className="font-medium text-gray-700">{template.name}</span>
+				<div className="flex flex-col gap-1 rounded border border-subtle bg-surface-raised p-2">
+					<div className="text-xs text-text-secondary">
+						Template: <span className="font-medium text-primary">{template.name}</span>
 					</div>
-					<div className="text-xs text-gray-500">
-						Segments: <span className="font-medium text-gray-700">{template.segments.length}</span>
+					<div className="text-xs text-text-secondary">
+						Segments: <span className="font-medium text-primary">{template.segments.length}</span>
 					</div>
 					<button
 						type="button"
 						onClick={() => enterBuilder(template.id)}
-						className="mt-1 rounded bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-100"
+						className="mt-1 rounded bg-plasma px-3 py-1.5 text-xs font-medium text-accent-text hover:bg-grid-ghost"
 					>
 						Edit in Builder
 					</button>
@@ -140,7 +140,7 @@ export function HoleDetail() {
 			<button
 				type="button"
 				onClick={() => removeHole(selectedId)}
-				className="mt-2 rounded bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
+				className="mt-2 rounded bg-neon-pink/10 px-3 py-1.5 text-xs font-medium text-neon-pink hover:bg-neon-pink/20"
 			>
 				Delete Hole
 			</button>

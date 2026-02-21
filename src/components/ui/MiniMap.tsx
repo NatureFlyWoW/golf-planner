@@ -67,7 +67,7 @@ export function MiniMap() {
 			</a>
 			{/* Attribution */}
 			<div
-				className="absolute right-0 bottom-0 bg-white/80 px-1 text-gray-600"
+				className="absolute right-0 bottom-0 bg-surface-raised/80 px-1 text-text-secondary"
 				style={{ fontSize: "8px" }}
 			>
 				OpenStreetMap

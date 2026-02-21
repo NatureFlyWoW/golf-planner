@@ -28,8 +28,8 @@ export function SunControls() {
 						}}
 						className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
 							activePreset === label
-								? "bg-amber-500 text-white"
-								: "bg-gray-800/70 text-gray-200 hover:bg-gray-700/70"
+								? "bg-neon-amber text-white"
+								: "bg-plasma/70 text-text-secondary hover:bg-plasma"
 						}`}
 					>
 						{label}
@@ -40,15 +40,15 @@ export function SunControls() {
 					onClick={() => setShowCustom(!showCustom)}
 					className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
 						activePreset === "Custom"
-							? "bg-amber-500 text-white"
-							: "bg-gray-800/70 text-gray-200 hover:bg-gray-700/70"
+							? "bg-neon-amber text-white"
+							: "bg-plasma/70 text-text-secondary hover:bg-plasma"
 					}`}
 				>
 					Custom
 				</button>
 			</div>
 			{showCustom && (
-				<div className="flex gap-1 rounded bg-gray-800/80 p-2">
+				<div className="flex gap-1 rounded bg-surface/80 p-2">
 					<input
 						type="date"
 						defaultValue="2026-06-21"
@@ -61,7 +61,7 @@ export function SunControls() {
 								new Date(y, m - 1, d, time.getHours(), time.getMinutes()),
 							);
 						}}
-						className="rounded bg-gray-700 px-1 py-0.5 text-xs text-white"
+						className="rounded bg-plasma px-1 py-0.5 text-xs text-primary"
 					/>
 					<input
 						type="time"
@@ -81,7 +81,7 @@ export function SunControls() {
 								),
 							);
 						}}
-						className="rounded bg-gray-700 px-1 py-0.5 text-xs text-white"
+						className="rounded bg-plasma px-1 py-0.5 text-xs text-primary"
 					/>
 				</div>
 			)}

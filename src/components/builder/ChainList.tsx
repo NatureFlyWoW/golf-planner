@@ -15,7 +15,7 @@ export function ChainList({ selectedSegmentId, onSelectSegment }: Props) {
 
 	if (segments.length === 0) {
 		return (
-			<div className="flex h-24 items-center justify-center text-sm text-gray-400">
+			<div className="flex h-24 items-center justify-center text-sm text-text-muted">
 				Add segments to build your hole
 			</div>
 		);
@@ -23,7 +23,7 @@ export function ChainList({ selectedSegmentId, onSelectSegment }: Props) {
 
 	return (
 		<div className="flex flex-col gap-1">
-			<div className="text-xs text-gray-500">
+			<div className="text-xs text-text-secondary">
 				{segments.length} segments · {totalLength.toFixed(1)}m total
 			</div>
 			<div
@@ -36,14 +36,14 @@ export function ChainList({ selectedSegmentId, onSelectSegment }: Props) {
 						type="button"
 						className={`flex items-center gap-2 rounded px-2 py-1 text-left text-xs transition-colors ${
 							selectedSegmentId === seg.id
-								? "bg-green-100 text-green-800"
-								: "text-gray-700 hover:bg-gray-100"
+								? "bg-neon-green/15 text-neon-green"
+								: "text-primary hover:bg-plasma"
 						}`}
 						onClick={() =>
 							onSelectSegment(selectedSegmentId === seg.id ? null : seg.id)
 						}
 					>
-						<span className="text-gray-400">{i + 1}.</span>
+						<span className="text-text-muted">{i + 1}.</span>
 						<span>{SEGMENT_SPECS[seg.specId].label}</span>
 					</button>
 				))}
