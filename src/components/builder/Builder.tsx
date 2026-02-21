@@ -1,4 +1,8 @@
+import { Canvas } from "@react-three/fiber";
+import { Suspense } from "react";
 import { useStore } from "../../store";
+import { isMobile } from "../../utils/isMobile";
+import { BuilderCanvas } from "./BuilderCanvas";
 import { BuilderUI } from "./BuilderUI";
 
 export default function Builder() {
@@ -9,9 +13,17 @@ export default function Builder() {
 	return (
 		<div className="fixed inset-0 z-50 flex flex-col bg-gray-100">
 			<BuilderUI />
-			{/* Canvas placeholder — replaced in Task 6 */}
-			<div className="relative flex flex-1 items-center justify-center bg-gray-200">
-				<p className="text-sm text-gray-400">3D Canvas (Task 6)</p>
+			<div className="relative flex-1" style={{ touchAction: "none" }}>
+				<Canvas
+					orthographic
+					camera={{ zoom: 80, position: [0, 10, 0], up: [0, 0, -1] }}
+					dpr={isMobile ? [1, 1.5] : [1, 2]}
+					frameloop="demand"
+				>
+					<Suspense fallback={null}>
+						<BuilderCanvas />
+					</Suspense>
+				</Canvas>
 			</div>
 		</div>
 	);
