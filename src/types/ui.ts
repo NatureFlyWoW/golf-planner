@@ -1,3 +1,5 @@
+import type { RefObject } from "react";
+import type { Mesh } from "three";
 import type { HoleType } from "./hole";
 
 export type Tool = "select" | "place" | "move" | "delete";
@@ -20,4 +22,5 @@ export type UIState = {
 	uvMode: boolean;
 	gpuTier: GpuTier;
 	transitioning: boolean;
+	godRaysLampRef: RefObject<Mesh | null> | null;
 };

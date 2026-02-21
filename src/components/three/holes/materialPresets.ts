@@ -18,4 +18,4 @@ export const FELT_PBR: Record<MaterialProfile, PBRProps> = {
 	semi_pro: { color: "#1B5E20", roughness: 0.95, metalness: 0.0 },
 };
 
-export const UV_EMISSIVE_INTENSITY = 0.8;
+export const UV_EMISSIVE_INTENSITY = 2.0;

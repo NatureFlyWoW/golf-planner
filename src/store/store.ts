@@ -57,7 +57,11 @@ type StoreState = {
 };
 
 type StoreActions = {
-	addHole: (type: HoleType, position: { x: number; z: number }, templateId?: string) => void;
+	addHole: (
+		type: HoleType,
+		position: { x: number; z: number },
+		templateId?: string,
+	) => void;
 	removeHole: (id: string) => void;
 	updateHole: (id: string, updates: Partial<Hole>) => void;
 	reorderHoles: (fromIndex: number, toIndex: number) => void;
@@ -79,6 +83,7 @@ type StoreActions = {
 	setGpuTier: (tier: GpuTier) => void;
 	setGpuTierOverride: (override: GpuTierOverride) => void;
 	setTransitioning: (transitioning: boolean) => void;
+	setGodRaysLampRef: (ref: UIState["godRaysLampRef"]) => void;
 	setFinancialSettings: (updates: Partial<FinancialSettings>) => void;
 	addExpense: (expense: ExpenseEntry) => void;
 	deleteExpense: (expenseId: string) => void;
@@ -116,6 +121,7 @@ const DEFAULT_UI: UIState = {
 	uvMode: false,
 	gpuTier: "low",
 	transitioning: false,
+	godRaysLampRef: null,
 };
 
 function migrateToV4(state: PersistedSlice): void {
@@ -501,6 +507,12 @@ export const useStore = create<Store>()(
 				setTransitioning: (transitioning) => {
 					set((state) => ({
 						ui: { ...state.ui, transitioning },
+					}));
+				},
+
+				setGodRaysLampRef: (ref) => {
+					set((state) => ({
+						ui: { ...state.ui, godRaysLampRef: ref },
 					}));
 				},
 

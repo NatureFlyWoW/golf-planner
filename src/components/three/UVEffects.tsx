@@ -1,14 +1,14 @@
-import { Suspense, lazy } from "react";
+import { lazy, Suspense } from "react";
 import { useStore } from "../../store";
 
-const UVPostProcessing = lazy(() => import("./UVPostProcessing"));
+const PostProcessing = lazy(() => import("./PostProcessing"));
 
 export function UVEffects() {
 	const uvMode = useStore((s) => s.ui.uvMode);
 	if (!uvMode) return null;
 	return (
 		<Suspense fallback={null}>
-			<UVPostProcessing />
+			<PostProcessing />
 		</Suspense>
 	);
 }

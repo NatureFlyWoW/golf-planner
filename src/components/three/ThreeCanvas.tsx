@@ -3,6 +3,7 @@ import {
 	Lightformer,
 	PerformanceMonitor,
 	SoftShadows,
+	Sparkles,
 	Stats,
 } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
@@ -15,6 +16,7 @@ import {
 	shouldEnableSoftShadows,
 } from "../../utils/environmentGating";
 import { isMobile } from "../../utils/isMobile";
+import { shouldShowSparkles } from "../../utils/postprocessingConfig";
 import { CameraControls } from "./CameraControls";
 import { FloorGrid } from "./FloorGrid";
 import { FlowPath } from "./FlowPath";
@@ -49,9 +51,7 @@ export default function ThreeCanvas({ sunData }: ThreeCanvasProps) {
 	return (
 		<>
 			{/* Fog: exponential, only in UV mode + 3D perspective view */}
-			{fogEnabled && (
-				<fogExp2 attach="fog" args={["#07071A", 0.04]} />
-			)}
+			{fogEnabled && <fogExp2 attach="fog" args={["#07071A", 0.04]} />}
 			<FogController enabled={fogEnabled} />
 
 			{/* Environment with UV tube lightformers for PBR reflections */}
@@ -60,9 +60,9 @@ export default function ThreeCanvas({ sunData }: ThreeCanvasProps) {
 				environmentIntensity={0.15}
 				background={false}
 			>
-				{UV_LAMP_POSITIONS.map((pos, i) => (
+				{UV_LAMP_POSITIONS.map((pos) => (
 					<Lightformer
-						key={i}
+						key={`lamp-${pos[0]}-${pos[1]}-${pos[2]}`}
 						form="rect"
 						intensity={0.4}
 						color="#8800FF"
@@ -99,14 +99,10 @@ export default function ThreeCanvas({ sunData }: ThreeCanvasProps) {
 					position={
 						sunData
 							? [
-									-Math.sin(sunData.azimuth) *
-										Math.cos(sunData.altitude) *
-										30 +
+									-Math.sin(sunData.azimuth) * Math.cos(sunData.altitude) * 30 +
 										5,
 									Math.sin(sunData.altitude) * 30,
-									Math.cos(sunData.azimuth) *
-										Math.cos(sunData.altitude) *
-										30 +
+									Math.cos(sunData.azimuth) * Math.cos(sunData.altitude) * 30 +
 										10,
 								]
 							: [10, 20, 5]
@@ -130,6 +126,16 @@ export default function ThreeCanvas({ sunData }: ThreeCanvasProps) {
 			<PlacedHoles />
 			<FlowPath />
 			<SunIndicator sunData={sunData} />
+			{shouldShowSparkles({ gpuTier, uvMode }) && (
+				<Sparkles
+					count={400}
+					color="#9D00FF"
+					size={2}
+					speed={0.3}
+					scale={[10, 4.3, 20]}
+					position={[5, 2.15, 10]}
+				/>
+			)}
 			<UVEffects />
 			<ScreenshotCapture />
 		</>
