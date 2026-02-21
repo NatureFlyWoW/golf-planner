@@ -1,5 +1,6 @@
 import { HOLE_TYPE_MAP } from "../../constants";
 import { useStore } from "../../store";
+import { computeTemplateBounds } from "../../utils/chainCompute";
 
 export function MobileDetailPanel() {
 	const activePanel = useStore((s) => s.ui.activePanel);
@@ -7,16 +8,32 @@ export function MobileDetailPanel() {
 	const selectedId = useStore((s) => s.selectedId);
 	const holes = useStore((s) => s.holes);
 	const holeOrder = useStore((s) => s.holeOrder);
+	const holeTemplates = useStore((s) => s.holeTemplates);
 	const updateHole = useStore((s) => s.updateHole);
 	const removeHole = useStore((s) => s.removeHole);
+	const enterBuilder = useStore((s) => s.enterBuilder);
 
 	if (activePanel !== "detail" || !selectedId) return null;
 
 	const hole = holes[selectedId];
 	if (!hole) return null;
 
-	const definition = HOLE_TYPE_MAP[hole.type];
+	const template = hole.templateId ? holeTemplates[hole.templateId] : null;
+	const definition = template ? null : HOLE_TYPE_MAP[hole.type];
 	const orderIndex = holeOrder.indexOf(selectedId);
+
+	const swatchColor = template ? template.color : (definition?.color ?? "#999");
+	const headerLabel = template ? template.name : (definition?.label ?? hole.type);
+
+	let dimensionLabel: string;
+	if (template) {
+		const bounds = computeTemplateBounds(template);
+		dimensionLabel = `${bounds.width.toFixed(1)} × ${bounds.length.toFixed(1)} m`;
+	} else if (definition) {
+		dimensionLabel = `${definition.dimensions.width} × ${definition.dimensions.length} m`;
+	} else {
+		dimensionLabel = "";
+	}
 
 	function handleClose() {
 		setActivePanel(null);
@@ -29,6 +46,13 @@ export function MobileDetailPanel() {
 		}
 	}
 
+	function handleEditInBuilder() {
+		if (template) {
+			enterBuilder(template.id);
+			setActivePanel(null);
+		}
+	}
+
 	return (
 		<div className="fixed inset-0 z-50 flex flex-col bg-white md:hidden">
 			{/* Header */}
@@ -36,10 +60,10 @@ export function MobileDetailPanel() {
 				<div className="flex items-center gap-2">
 					<div
 						className="h-6 w-6 rounded"
-						style={{ backgroundColor: definition?.color ?? "#999" }}
+						style={{ backgroundColor: swatchColor }}
 					/>
 					<span className="text-base font-semibold">
-						#{orderIndex + 1} &middot; {definition?.label}
+						#{orderIndex + 1} &middot; {headerLabel}
 					</span>
 				</div>
 				<button
@@ -121,6 +145,34 @@ export function MobileDetailPanel() {
 						Position: ({hole.position.x.toFixed(1)},{" "}
 						{hole.position.z.toFixed(1)})
 					</div>
+
+					{/* Dimensions (read-only) */}
+					{dimensionLabel ? (
+						<div className="text-sm text-gray-400">Size: {dimensionLabel}</div>
+					) : null}
+
+					{/* Template info */}
+					{template ? (
+						<div className="flex flex-col gap-2 rounded-lg border border-gray-100 bg-gray-50 p-3">
+							<div className="text-sm text-gray-500">
+								Template:{" "}
+								<span className="font-medium text-gray-700">{template.name}</span>
+							</div>
+							<div className="text-sm text-gray-500">
+								Segments:{" "}
+								<span className="font-medium text-gray-700">
+									{template.segments.length}
+								</span>
+							</div>
+							<button
+								type="button"
+								onClick={handleEditInBuilder}
+								className="rounded-lg bg-blue-50 px-4 py-2.5 text-sm font-medium text-blue-600 active:bg-blue-100"
+							>
+								Edit in Builder
+							</button>
+						</div>
+					) : null}
 
 					{/* Delete */}
 					<button

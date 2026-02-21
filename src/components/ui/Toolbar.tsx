@@ -28,12 +28,14 @@ export function Toolbar() {
 	const holes = useStore((s) => s.holes);
 	const holeOrder = useStore((s) => s.holeOrder);
 	const hall = useStore((s) => s.hall);
+	const holeTemplates = useStore((s) => s.holeTemplates);
 
 	function handleFloorPlanExport() {
 		const svg = generateFloorPlanSVG(
 			{ width: hall.width, length: hall.length },
 			holes,
 			holeOrder,
+			holeTemplates,
 		);
 		downloadSVG(svg);
 	}

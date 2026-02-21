@@ -1,5 +1,6 @@
 import { HOLE_TYPE_MAP } from "../constants/holeTypes";
-import type { Hole } from "../types";
+import type { Hole, HoleTemplate } from "../types";
+import { computeTemplateBounds } from "./chainCompute";
 
 const PX_PER_M = 50;
 const MARGIN = 40;
@@ -17,6 +18,7 @@ export function generateFloorPlanSVG(
 	hall: { width: number; length: number },
 	holes: Record<string, Hole>,
 	holeOrder: string[],
+	templates: Record<string, HoleTemplate> = {},
 ): string {
 	const hallW = hall.width * PX_PER_M;
 	const hallH = hall.length * PX_PER_M;
@@ -68,14 +70,34 @@ export function generateFloorPlanSVG(
 	// Hole rectangles
 	for (let i = 0; i < orderedHoles.length; i++) {
 		const hole = orderedHoles[i];
-		const def = HOLE_TYPE_MAP[hole.type];
-		if (!def) continue;
 
 		const cx = MARGIN + hole.position.x * PX_PER_M;
 		const cy = MARGIN + hole.position.z * PX_PER_M;
-		const w = def.dimensions.width * PX_PER_M;
-		const h = def.dimensions.length * PX_PER_M;
-		const color = HOLE_COLORS[hole.type] ?? "#888";
+
+		let w: number;
+		let h: number;
+		let color: string;
+		let label: string;
+		let dimLabel: string;
+
+		if (hole.templateId) {
+			const tmpl = templates[hole.templateId];
+			if (!tmpl) continue;
+			const bounds = computeTemplateBounds(tmpl);
+			w = bounds.width * PX_PER_M;
+			h = bounds.length * PX_PER_M;
+			color = tmpl.color;
+			label = tmpl.name;
+			dimLabel = `${bounds.width.toFixed(1)}×${bounds.length.toFixed(1)}m`;
+		} else {
+			const def = HOLE_TYPE_MAP[hole.type];
+			if (!def) continue;
+			w = def.dimensions.width * PX_PER_M;
+			h = def.dimensions.length * PX_PER_M;
+			color = HOLE_COLORS[hole.type] ?? "#888";
+			label = def.label;
+			dimLabel = `${def.dimensions.width}×${def.dimensions.length}m`;
+		}
 
 		lines.push(
 			`<g transform="translate(${cx},${cy}) rotate(${hole.rotation})">`,
@@ -87,10 +109,10 @@ export function generateFloorPlanSVG(
 			`<text x="0" y="-4" text-anchor="middle" font-size="10" font-weight="bold" fill="#333">#${i + 1}</text>`,
 		);
 		lines.push(
-			`<text x="0" y="8" text-anchor="middle" font-size="8" fill="#555">${def.label}</text>`,
+			`<text x="0" y="8" text-anchor="middle" font-size="8" fill="#555">${label}</text>`,
 		);
 		lines.push(
-			`<text x="0" y="${h / 2 - 4}" text-anchor="middle" font-size="7" fill="#777">${def.dimensions.width}×${def.dimensions.length}m</text>`,
+			`<text x="0" y="${h / 2 - 4}" text-anchor="middle" font-size="7" fill="#777">${dimLabel}</text>`,
 		);
 		lines.push(`</g>`);
 	}

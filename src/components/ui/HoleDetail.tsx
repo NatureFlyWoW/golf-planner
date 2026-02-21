@@ -1,12 +1,15 @@
 import { HOLE_TYPE_MAP } from "../../constants";
 import { useStore } from "../../store";
+import { computeTemplateBounds } from "../../utils/chainCompute";
 
 export function HoleDetail() {
 	const selectedId = useStore((s) => s.selectedId);
 	const holes = useStore((s) => s.holes);
 	const holeOrder = useStore((s) => s.holeOrder);
+	const holeTemplates = useStore((s) => s.holeTemplates);
 	const updateHole = useStore((s) => s.updateHole);
 	const removeHole = useStore((s) => s.removeHole);
+	const enterBuilder = useStore((s) => s.enterBuilder);
 
 	if (!selectedId) {
 		return (
@@ -17,18 +20,32 @@ export function HoleDetail() {
 	const hole = holes[selectedId];
 	if (!hole) return null;
 
-	const definition = HOLE_TYPE_MAP[hole.type];
+	const template = hole.templateId ? holeTemplates[hole.templateId] : null;
+	const definition = template ? null : HOLE_TYPE_MAP[hole.type];
 	const orderIndex = holeOrder.indexOf(selectedId);
+
+	const swatchColor = template ? template.color : (definition?.color ?? "#999");
+	const headerLabel = template ? template.name : (definition?.label ?? hole.type);
+
+	let dimensionLabel: string;
+	if (template) {
+		const bounds = computeTemplateBounds(template);
+		dimensionLabel = `${bounds.width.toFixed(1)} × ${bounds.length.toFixed(1)} m`;
+	} else if (definition) {
+		dimensionLabel = `${definition.dimensions.width} × ${definition.dimensions.length} m`;
+	} else {
+		dimensionLabel = "";
+	}
 
 	return (
 		<div className="flex flex-col gap-3">
 			<div className="flex items-center gap-2">
 				<div
 					className="h-6 w-6 rounded"
-					style={{ backgroundColor: definition?.color ?? "#999" }}
+					style={{ backgroundColor: swatchColor }}
 				/>
 				<span className="text-sm font-medium">
-					#{orderIndex + 1} · {definition?.label}
+					#{orderIndex + 1} · {headerLabel}
 				</span>
 			</div>
 
@@ -97,6 +114,28 @@ export function HoleDetail() {
 			<div className="text-xs text-gray-400">
 				Position: ({hole.position.x.toFixed(1)}, {hole.position.z.toFixed(1)})
 			</div>
+
+			{dimensionLabel ? (
+				<div className="text-xs text-gray-400">Size: {dimensionLabel}</div>
+			) : null}
+
+			{template ? (
+				<div className="flex flex-col gap-1 rounded border border-gray-100 bg-gray-50 p-2">
+					<div className="text-xs text-gray-500">
+						Template: <span className="font-medium text-gray-700">{template.name}</span>
+					</div>
+					<div className="text-xs text-gray-500">
+						Segments: <span className="font-medium text-gray-700">{template.segments.length}</span>
+					</div>
+					<button
+						type="button"
+						onClick={() => enterBuilder(template.id)}
+						className="mt-1 rounded bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-100"
+					>
+						Edit in Builder
+					</button>
+				</div>
+			) : null}
 
 			<button
 				type="button"
