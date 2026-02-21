@@ -46,7 +46,7 @@ export function ExpenseList({ categoryId }: Props) {
 				<span className="text-[10px] text-text-muted">
 					Expenses ({catExpenses.length})
 				</span>
-				<span className="text-xs font-medium">
+				<span className="font-mono text-xs font-medium text-neon-amber">
 					{"\u20AC"}
 					{total.toLocaleString("de-AT", { maximumFractionDigits: 0 })}
 				</span>
@@ -69,7 +69,7 @@ export function ExpenseList({ categoryId }: Props) {
 								)}
 							</div>
 							<div className="flex items-center gap-1">
-								<span className="text-xs font-medium">
+								<span className="font-mono text-xs font-medium text-neon-amber">
 									{"\u20AC"}
 									{exp.amount.toLocaleString("de-AT", {
 										maximumFractionDigits: 0,
@@ -107,7 +107,7 @@ export function ExpenseList({ categoryId }: Props) {
 								min={0}
 								placeholder="Amount"
 								onChange={(e) => setAmount(e.target.value)}
-								className="w-20 rounded border border-subtle px-1.5 py-1 text-[10px]"
+								className="w-20 rounded border border-subtle px-1.5 py-1 font-mono text-[10px]"
 							/>
 						</div>
 					</div>

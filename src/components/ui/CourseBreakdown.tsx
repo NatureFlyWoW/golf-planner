@@ -107,9 +107,9 @@ export function CourseBreakdown({ onOpenSettings }: Props) {
 								<span className="text-text-secondary">
 									{item.count}× {item.label}
 								</span>
-								<span className="text-text-secondary">
+								<span className="font-mono text-text-secondary">
 									@ {formatEur(item.unitCost)} ={" "}
-									<span className="font-medium text-primary">
+									<span className="font-medium font-mono text-primary">
 										{formatEur(item.subtotal)}
 									</span>
 								</span>
@@ -122,7 +122,7 @@ export function CourseBreakdown({ onOpenSettings }: Props) {
 						<span className="font-medium text-primary">
 							Course total ({holeCount} holes)
 						</span>
-						<span className="font-semibold">{formatEur(courseCost)}</span>
+						<span className="font-mono font-semibold text-neon-amber">{formatEur(courseCost)}</span>
 					</div>
 
 					{manualOverride && (

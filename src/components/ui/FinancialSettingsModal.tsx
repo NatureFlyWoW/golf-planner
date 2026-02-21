@@ -179,7 +179,7 @@ export function FinancialSettingsModal({ onClose }: Props) {
 											inflationFactor: 1 + Number(e.target.value) / 100,
 										})
 									}
-									className="w-20 rounded border border-subtle px-2 py-1 text-xs"
+									className="w-20 rounded border border-subtle px-2 py-1 font-mono text-xs"
 								/>
 								<span className="text-xs text-text-secondary">%</span>
 							</div>

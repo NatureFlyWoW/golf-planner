@@ -128,7 +128,7 @@ export function CostSettingsModal({ onClose }: Props) {
 						<label key={ht.type} className="flex items-center justify-between">
 							<span className="text-xs text-primary">{ht.label}</span>
 							<div className="flex items-center gap-1">
-								<span className="text-xs text-text-muted">€</span>
+								<span className="font-mono text-xs text-text-muted">€</span>
 								{isEditable ? (
 									<input
 										type="number"
@@ -137,10 +137,10 @@ export function CostSettingsModal({ onClose }: Props) {
 										onChange={(e) =>
 											handleCostChange(ht.type, Number(e.target.value))
 										}
-										className="w-24 rounded border border-subtle px-1.5 py-1 text-right text-xs"
+										className="w-24 rounded border border-subtle px-1.5 py-1 text-right font-mono text-xs"
 									/>
 								) : (
-									<span className="w-24 text-right text-xs text-text-secondary">
+									<span className="w-24 text-right font-mono text-xs text-text-secondary">
 										{(costMap[ht.type] ?? 0).toLocaleString("de-AT")}
 									</span>
 								)}

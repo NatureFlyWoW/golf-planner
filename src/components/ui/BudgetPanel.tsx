@@ -212,7 +212,7 @@ export function BudgetPanel() {
 
 				<div className="mt-1 flex items-baseline justify-between">
 					<span className="text-xs text-text-secondary">Subtotal (net)</span>
-					<span className="text-sm font-semibold">
+					<span className="font-mono text-sm font-semibold">
 						{displayEur(subtotalNet)}
 					</span>
 				</div>
@@ -221,7 +221,7 @@ export function BudgetPanel() {
 						<span className="text-xs text-neon-amber">
 							Inflated (+{inflationPct}%)
 						</span>
-						<span className="text-xs font-medium text-neon-amber">
+						<span className="font-mono text-xs font-medium text-neon-amber">
 							{displayEur(inflatedSubtotalNet)}
 						</span>
 					</div>
@@ -230,7 +230,7 @@ export function BudgetPanel() {
 					<span className="text-xs text-text-secondary">
 						Risk buffer ({toleranceLabel}, {riskPercent}%)
 					</span>
-					<span className="text-xs text-text-secondary">
+					<span className="font-mono text-xs text-text-secondary">
 						{displayEur(riskBuffer)}
 					</span>
 				</div>
@@ -238,13 +238,13 @@ export function BudgetPanel() {
 					<span className="text-xs font-semibold text-primary">
 						Budget Target
 					</span>
-					<span className="text-sm font-bold">
+					<span className="font-mono text-sm font-bold">
 						{displayEur(budgetTargetNet)}
 					</span>
 				</div>
 				<div className="flex items-baseline justify-between">
 					<span className="text-xs text-text-secondary">Actual (spent)</span>
-					<span className="text-sm font-semibold">
+					<span className="font-mono text-sm font-semibold">
 						{displayEur(actualTotal)}
 					</span>
 				</div>
@@ -253,7 +253,7 @@ export function BudgetPanel() {
 						<span className="text-[10px] text-neon-green">
 							Reclaimable Vorsteuer
 						</span>
-						<span className="text-xs font-medium text-neon-green">
+						<span className="font-mono text-xs font-medium text-neon-green">
 							{displayEur(reclaimableVat)}
 						</span>
 					</div>
@@ -356,7 +356,7 @@ export function BudgetPanel() {
 									<div className="mt-1 flex gap-2">
 										<div className="flex items-center gap-1">
 											<span className="text-[10px] text-text-muted">Net</span>
-											<span className="text-xs font-medium">
+											<span className="font-mono text-xs font-medium">
 												{displayEur(displayNet)}
 											</span>
 										</div>
@@ -366,14 +366,14 @@ export function BudgetPanel() {
 													<span className="text-[10px] text-text-muted">
 														Gross
 													</span>
-													<span className="text-xs text-text-secondary">
+													<span className="font-mono text-xs text-text-secondary">
 														{displayEur(Math.round(displayNet * 1.2))}
 													</span>
 												</div>
 											)}
 										<div className="flex items-center gap-1">
 											<span className="text-[10px] text-text-muted">Spent</span>
-											<span className="text-xs font-medium">
+											<span className="font-mono text-xs font-medium">
 												{displayEur(catActual)}
 											</span>
 										</div>
@@ -398,7 +398,7 @@ export function BudgetPanel() {
 													<span className="text-[10px] text-text-muted">
 														Estimated (auto)
 													</span>
-													<span className="text-xs font-medium">
+													<span className="font-mono text-xs font-medium">
 														{displayEur(courseCost)}
 													</span>
 												</div>
@@ -489,7 +489,7 @@ export function BudgetPanel() {
 					<span className="text-[10px] text-text-muted">
 						Risk buffer ({toleranceLabel}, {riskPercent}%)
 					</span>
-					<span className="text-xs text-text-secondary">
+					<span className="font-mono text-xs text-text-secondary">
 						{displayEur(riskBuffer)}
 					</span>
 				</div>
@@ -497,7 +497,7 @@ export function BudgetPanel() {
 					<span className="text-xs font-semibold text-primary">
 						Budget Target
 					</span>
-					<span className="text-sm font-bold">
+					<span className="font-mono text-sm font-bold">
 						{displayEur(budgetTargetNet)}
 					</span>
 				</div>
@@ -506,7 +506,7 @@ export function BudgetPanel() {
 						<span className="text-[10px] text-neon-green">
 							Reclaimable Vorsteuer
 						</span>
-						<span className="text-xs font-medium text-neon-green">
+						<span className="font-mono text-xs font-medium text-neon-green">
 							{displayEur(reclaimableVat)}
 						</span>
 					</div>
