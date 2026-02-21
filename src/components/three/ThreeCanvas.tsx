@@ -16,10 +16,12 @@ import {
 	shouldEnableSoftShadows,
 } from "../../utils/environmentGating";
 import { isMobile } from "../../utils/isMobile";
+import { shouldShowGodRays } from "../../utils/godraysConfig";
 import { shouldShowSparkles } from "../../utils/postprocessingConfig";
 import { CameraControls } from "./CameraControls";
 import { FloorGrid } from "./FloorGrid";
 import { FlowPath } from "./FlowPath";
+import { GodRaysSource } from "./GodRaysSource";
 import { Hall } from "./Hall";
 import { PlacedHoles } from "./PlacedHoles";
 import { PlacementHandler } from "./PlacementHandler";
@@ -121,6 +123,7 @@ export default function ThreeCanvas({ sunData }: ThreeCanvasProps) {
 				/>
 			)}
 			{uvMode && <UVLamps />}
+			{shouldShowGodRays({ gpuTier, uvMode }) && <GodRaysSource />}
 			<CameraControls />
 			<FloorGrid />
 			<Hall sunData={sunData} />
