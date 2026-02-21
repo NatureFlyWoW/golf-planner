@@ -16,7 +16,7 @@ import { Toolbar } from "./components/ui/Toolbar";
 import { useGpuTier } from "./hooks/useGpuTier";
 import { useSunPosition } from "./hooks/useSunPosition";
 import { useStore } from "./store";
-import { deriveFrameloop, shouldEnableSoftShadows } from "./utils/environmentGating";
+import { deriveFrameloop, getShadowType } from "./utils/environmentGating";
 import { isMobile } from "./utils/isMobile";
 import { canvasPointerEvents } from "./utils/uvTransitionConfig";
 
@@ -44,7 +44,7 @@ export default function App() {
 				? [1, 1.5]
 				: [1, 1];
 	const frameloop = deriveFrameloop(uvMode, gpuTier, transitioning);
-	const shadows = shouldEnableSoftShadows(gpuTier) && !isMobile ? "soft" as const : true;
+	const shadows = getShadowType(gpuTier, isMobile);
 
 	useEffect(() => {
 		if (budgetSize === 0) {

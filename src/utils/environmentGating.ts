@@ -29,3 +29,11 @@ export function deriveFrameloop(
 export function shouldEnableSoftShadows(gpuTier: GpuTier): boolean {
 	return gpuTier === "mid" || gpuTier === "high";
 }
+
+/**
+ * Shadow type: mobile gets basic boolean shadows (cheaper),
+ * desktop gets "soft" (PCSS) when GPU tier allows it.
+ */
+export function getShadowType(gpuTier: GpuTier, mobile: boolean): true | "soft" {
+	return shouldEnableSoftShadows(gpuTier) && !mobile ? "soft" : true;
+}
