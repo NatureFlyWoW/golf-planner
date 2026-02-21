@@ -13,10 +13,12 @@
 - `86709f9` feat: integrate template holes into planner — place, render, collide
 - `bfb769e` feat: add SVG export and detail panel for template holes
 - `ba63623` test: add v5→v6 migration tests for holeTemplates persistence
+- `60d6d64` docs: session handoff + memory update
+- `84644c3` docs: add Phase 10A feature screenshots (9 images)
 
 ## Current State
 - **Branch**: master
-- **Working tree**: clean (except deleted screenshot PNGs from Phase 9A — not tracked)
+- **Working tree**: clean (7 deleted old screenshot PNGs from earlier phases — not staged)
 - **Tests**: 229 passing (20 test files), 0 failing
 - **Build**: passing (main ~83 KB, vendor-three ~1,250 KB, PWA v1.2.0)
 - **Type check**: passing (zero errors)
@@ -89,8 +91,20 @@
 - THREE.Clock warning — upstream, harmless
 - Chunk size warning (vendor-three ~1,250 KB) — consider code-splitting further
 - 6 Biome warnings (noExplicitAny) in `tests/utils/migrateBudgetConfig.test.ts` — pre-existing
-- Deleted screenshot PNGs not committed (unstaged deletions from WSL file cleanup)
+- 7 old screenshot PNGs deleted (unstaged deletions from WSL file cleanup)
 - Builder ghost preview not implemented (stretch goal — segments place directly on palette click)
+
+## Phase 10A Screenshots
+9 screenshots in `docs/screenshots/phase10a-*.png`:
+1. Hole library with "+ Build Custom Hole" button
+2. Empty builder with grid canvas, segment palette tabs
+3. Builder with 5-segment S-curve hole (felt, bumpers, tee/cup)
+4. "My Holes" section with saved template + edit pencil
+5. Placement mode active for template
+6. Template hole placed on hall floor alongside standard holes
+7. Detail panel showing template info + "Edit in Builder" button
+8. 3D isometric view with template + standard holes
+9. UV blacklight mode with neon emissive template segments
 
 ## Key Technical Details for Next Session
 - **Angle convention**: 0=+Z, 90=+X, 180=-Z, 270=-X. Entry always at origin facing -Z (angle 180).
