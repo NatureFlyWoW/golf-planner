@@ -1,5 +1,113 @@
 @import "tailwindcss";
 
+/* =========================================================================
+   @font-face — Self-hosted WOFF2 for offline PWA support
+   ========================================================================= */
+
+@font-face {
+	font-family: "Orbitron";
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url("/fonts/orbitron-v700.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Inter";
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("/fonts/inter-v400.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Inter";
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url("/fonts/inter-v500.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Inter";
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url("/fonts/inter-v600.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Inter";
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url("/fonts/inter-v700.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "JetBrains Mono";
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("/fonts/jetbrains-mono-v400.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "JetBrains Mono";
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url("/fonts/jetbrains-mono-v500.woff2") format("woff2");
+}
+
+/* =========================================================================
+   @theme — GOLF FORGE Blacklight Palette (additive, preserves Tailwind defaults)
+   ========================================================================= */
+
+@theme {
+	/* Base color tokens — 11 blacklight palette colors */
+	--color-void: #07071A;
+	--color-deep-space: #0F0F2E;
+	--color-plasma: #1A1A4A;
+	--color-grid-ghost: #2A2A5E;
+	--color-neon-violet: #9D00FF;
+	--color-accent-text: #B94FFF;
+	--color-neon-cyan: #00F5FF;
+	--color-neon-green: #00FF88;
+	--color-neon-amber: #FFB700;
+	--color-neon-pink: #FF0090;
+	--color-felt-white: #E8E8FF;
+
+	/* Font family tokens */
+	--font-display: "Orbitron", ui-sans-serif, system-ui, sans-serif;
+	--font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+	--font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* =========================================================================
+   Semantic tokens — purpose-driven aliases via @theme inline
+   These resolve to the base tokens above, creating a semantic layer:
+     bg-surface → bg-void, text-primary → text-felt-white, etc.
+   ========================================================================= */
+
+@theme inline {
+	--color-surface: var(--color-void);
+	--color-surface-raised: var(--color-deep-space);
+	--color-surface-elevated: var(--color-plasma);
+	--color-border-subtle: var(--color-grid-ghost);
+	--color-text-primary: var(--color-felt-white);
+	--color-accent: var(--color-neon-violet);
+	/* accent-text already defined as a base token above */
+	--color-data: var(--color-neon-cyan);
+	--color-success: var(--color-neon-green);
+	--color-warning: var(--color-neon-amber);
+	--color-error: var(--color-neon-pink);
+}
+
+/* =========================================================================
+   Global styles
+   ========================================================================= */
+
 html,
 body {
 	overscroll-behavior: none;

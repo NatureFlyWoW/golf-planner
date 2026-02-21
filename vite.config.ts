@@ -10,7 +10,7 @@ export default defineConfig({
 		VitePWA({
 			registerType: "autoUpdate",
 			workbox: {
-				globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
+				globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
 				runtimeCaching: [
 					{
 						urlPattern: /^https:\/\/tile\.openstreetmap\.org\//,
@@ -26,10 +26,10 @@ export default defineConfig({
 				],
 			},
 			manifest: {
-				name: "Golf Planner",
-				short_name: "Golf",
-				theme_color: "#1d4ed8",
-				background_color: "#f3f4f6",
+				name: "GOLF FORGE",
+				short_name: "FORGE",
+				theme_color: "#07071A",
+				background_color: "#07071A",
 				display: "standalone",
 				orientation: "landscape",
 				icons: [
