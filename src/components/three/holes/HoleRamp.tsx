@@ -1,9 +1,10 @@
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
+import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { BumperRail } from "./BumperRail";
 import { Cup } from "./Cup";
-import { TeePad } from "./TeePad";
 import { BUMPER_HEIGHT, BUMPER_THICKNESS, SURFACE_THICKNESS } from "./shared";
+import { TeePad } from "./TeePad";
 import { useMaterials } from "./useMaterials";
 
 // ── Ramp Constants ─────────────────────────────────────────
@@ -50,11 +51,13 @@ export function HoleRamp({
 		);
 		shape.lineTo(RAMP_SLOPE_LENGTH, 0);
 		shape.closePath();
-		return new THREE.ExtrudeGeometry(shape, {
-			depth: laneW,
-			bevelEnabled: false,
-			curveSegments: RAMP_CURVE_SEGMENTS,
-		});
+		return mergeVertices(
+			new THREE.ExtrudeGeometry(shape, {
+				depth: laneW,
+				bevelEnabled: false,
+				curveSegments: RAMP_CURVE_SEGMENTS,
+			}),
+		);
 	}, [laneW]);
 
 	const rampDownGeo = useMemo(() => {
@@ -71,11 +74,13 @@ export function HoleRamp({
 		shape.lineTo(RAMP_SLOPE_LENGTH, 0);
 		shape.lineTo(0, 0);
 		shape.closePath();
-		return new THREE.ExtrudeGeometry(shape, {
-			depth: laneW,
-			bevelEnabled: false,
-			curveSegments: RAMP_CURVE_SEGMENTS,
-		});
+		return mergeVertices(
+			new THREE.ExtrudeGeometry(shape, {
+				depth: laneW,
+				bevelEnabled: false,
+				curveSegments: RAMP_CURVE_SEGMENTS,
+			}),
+		);
 	}, [laneW]);
 
 	// ── Geometry Disposal ───────────────────────────────────

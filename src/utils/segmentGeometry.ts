@@ -1,5 +1,8 @@
 import * as THREE from "three";
-import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import {
+	mergeGeometries,
+	mergeVertices,
+} from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { SEGMENT_SPECS } from "../constants/segmentSpecs";
 import type { SegmentSpecId } from "../types/template";
 import { createBumperGeometry, createBumperProfile } from "./bumperProfile";
@@ -32,31 +35,33 @@ export function createSegmentGeometries(
 ): SegmentGeometries {
 	const spec = SEGMENT_SPECS[specId];
 
+	let result: SegmentGeometries;
+
 	if (spec.category === "straight") {
-		return createStraightGeometries(spec.length, feltWidth);
-	}
-
-	// Complex types handled individually (u_turn has arc data but is still complex)
-	if (spec.category === "complex") {
-		return createComplexGeometries(specId, feltWidth);
-	}
-
-	// Standard single-arc curves
-	if (
+		result = createStraightGeometries(spec.length, feltWidth);
+	} else if (spec.category === "complex") {
+		result = createComplexGeometries(specId, feltWidth);
+	} else if (
 		spec.arcRadius !== undefined &&
 		spec.arcSweep !== undefined &&
 		spec.arcCenter !== undefined
 	) {
-		return createCurveGeometries(
+		result = createCurveGeometries(
 			spec.arcRadius,
 			spec.arcSweep,
 			spec.arcCenter,
 			feltWidth,
 		);
+	} else {
+		// Fallback — should never reach here for valid specIds
+		result = createStraightGeometries(spec.length, feltWidth);
 	}
 
-	// Fallback — should never reach here for valid specIds
-	return createStraightGeometries(spec.length, feltWidth);
+	return {
+		felt: mergeVertices(result.felt),
+		bumperLeft: mergeVertices(result.bumperLeft),
+		bumperRight: mergeVertices(result.bumperRight),
+	};
 }
 
 // ── Straight ──────────────────────────────────────────────────────────────────
