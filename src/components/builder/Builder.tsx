@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useStore } from "../../store";
 import { isMobile } from "../../utils/isMobile";
 import { BuilderCanvas } from "./BuilderCanvas";
@@ -7,12 +7,18 @@ import { BuilderUI } from "./BuilderUI";
 
 export default function Builder() {
 	const builderMode = useStore((s) => s.builderMode);
+	const [selectedSegmentId, setSelectedSegmentId] = useState<string | null>(
+		null,
+	);
 
 	if (!builderMode) return null;
 
 	return (
 		<div className="fixed inset-0 z-50 flex flex-col bg-gray-100">
-			<BuilderUI />
+			<BuilderUI
+				selectedSegmentId={selectedSegmentId}
+				onSelectSegment={setSelectedSegmentId}
+			/>
 			<div className="relative flex-1" style={{ touchAction: "none" }}>
 				<Canvas
 					orthographic
@@ -21,7 +27,10 @@ export default function Builder() {
 					frameloop="demand"
 				>
 					<Suspense fallback={null}>
-						<BuilderCanvas />
+						<BuilderCanvas
+							selectedSegmentId={selectedSegmentId}
+							onSelectSegment={setSelectedSegmentId}
+						/>
 					</Suspense>
 				</Canvas>
 			</div>

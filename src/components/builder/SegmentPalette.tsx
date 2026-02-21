@@ -8,9 +8,11 @@ import type { SegmentCategory, SegmentSpecId } from "../../types/template";
 type Props = {
 	onSelect: (specId: SegmentSpecId) => void;
 	activeSpecId?: SegmentSpecId;
+	/** When true, tapping a type replaces the selected segment rather than appending. */
+	replaceMode?: boolean;
 };
 
-export function SegmentPalette({ onSelect, activeSpecId }: Props) {
+export function SegmentPalette({ onSelect, activeSpecId, replaceMode }: Props) {
 	const [activeCategory, setActiveCategory] =
 		useState<SegmentCategory>("straight");
 
@@ -24,6 +26,13 @@ export function SegmentPalette({ onSelect, activeSpecId }: Props) {
 
 	return (
 		<div className="flex flex-col gap-2">
+			{/* Replace mode banner */}
+			{replaceMode && (
+				<div className="rounded-md bg-orange-50 px-2 py-1.5 text-center text-xs font-medium text-orange-700 ring-1 ring-orange-200">
+					Tap type to replace selected segment
+				</div>
+			)}
+
 			{/* Category tabs */}
 			<div className="flex gap-1">
 				{categories.map(([id, label]) => (
@@ -51,7 +60,9 @@ export function SegmentPalette({ onSelect, activeSpecId }: Props) {
 						className={`rounded-md border px-2 py-2 text-xs font-medium transition-colors ${
 							activeSpecId === spec.id
 								? "border-green-500 bg-green-50 text-green-700"
-								: "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+								: replaceMode
+									? "border-orange-300 bg-orange-50 text-orange-700 hover:bg-orange-100"
+									: "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
 						}`}
 						onClick={() => onSelect(spec.id)}
 					>

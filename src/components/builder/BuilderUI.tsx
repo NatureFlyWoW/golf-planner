@@ -1,11 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "../../store";
 import type { SegmentSpecId } from "../../types/template";
 import { isMobile } from "../../utils/isMobile";
 import { ChainList } from "./ChainList";
 import { SegmentPalette } from "./SegmentPalette";
 
-export function BuilderUI() {
+type Props = {
+	selectedSegmentId: string | null;
+	onSelectSegment: (id: string | null) => void;
+};
+
+export function BuilderUI({ selectedSegmentId, onSelectSegment }: Props) {
 	const draft = useStore((s) => s.builderDraft);
 	const appendSegment = useStore((s) => s.appendSegment);
 	const removeLastSegment = useStore((s) => s.removeLastSegment);
@@ -19,14 +24,26 @@ export function BuilderUI() {
 	const setDraftFeltWidth = useStore((s) => s.setDraftFeltWidth);
 
 	const [activeTab, setActiveTab] = useState<"build" | "chain">("build");
-	const [selectedSegmentId, setSelectedSegmentId] = useState<string | null>(
-		null,
-	);
+
+	const segments = draft?.segments ?? [];
+	const lastSegmentId =
+		segments.length > 0 ? segments[segments.length - 1].id : null;
+
+	// Delete is enabled only when the selected segment is the last one.
+	// (removeLastSegment is the only store action for single-segment removal.)
+	const canDelete =
+		selectedSegmentId !== null && selectedSegmentId === lastSegmentId;
+
+	const handleDeleteSelected = () => {
+		if (!canDelete) return;
+		removeLastSegment();
+		onSelectSegment(null);
+	};
 
 	const handleSegmentSelect = (specId: SegmentSpecId) => {
 		if (selectedSegmentId) {
 			replaceSegment(selectedSegmentId, specId);
-			setSelectedSegmentId(null);
+			onSelectSegment(null);
 		} else {
 			appendSegment(specId);
 		}
@@ -40,6 +57,25 @@ export function BuilderUI() {
 	};
 
 	const canSave = draft !== null && draft.segments.length >= 2;
+
+	// Keyboard shortcuts
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			// Ignore when focus is in an input/select element
+			const tag = (e.target as HTMLElement).tagName;
+			if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+
+			if (e.key === "Escape") {
+				onSelectSegment(null);
+			} else if (e.key === "Delete" || e.key === "Backspace") {
+				handleDeleteSelected();
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [canDelete, selectedSegmentId]);
 
 	// Top bar
 	const topBar = (
@@ -102,9 +138,22 @@ export function BuilderUI() {
 					type="button"
 					onClick={removeLastSegment}
 					className="rounded p-1 text-gray-500 hover:bg-gray-100"
-					title="Remove last"
+					title="Remove last segment"
 				>
 					&#x232B;
+				</button>
+				<button
+					type="button"
+					onClick={handleDeleteSelected}
+					disabled={!canDelete}
+					className={`rounded p-1 transition-colors ${
+						canDelete
+							? "text-red-500 hover:bg-red-50"
+							: "cursor-not-allowed text-gray-300"
+					}`}
+					title="Delete selected segment (Delete key)"
+				>
+					&#x1F5D1;
 				</button>
 				<button
 					type="button"
@@ -161,12 +210,15 @@ export function BuilderUI() {
 
 			<div className="overflow-y-auto p-2">
 				{(!isMobile || activeTab === "build") && (
-					<SegmentPalette onSelect={handleSegmentSelect} />
+					<SegmentPalette
+						onSelect={handleSegmentSelect}
+						replaceMode={selectedSegmentId !== null}
+					/>
 				)}
 				{(!isMobile || activeTab === "chain") && (
 					<ChainList
 						selectedSegmentId={selectedSegmentId}
-						onSelectSegment={setSelectedSegmentId}
+						onSelectSegment={onSelectSegment}
 					/>
 				)}
 			</div>

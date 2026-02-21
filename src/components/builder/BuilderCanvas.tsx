@@ -1,4 +1,5 @@
 import { MapControls } from "@react-three/drei";
+import { useThree } from "@react-three/fiber";
 import { useMemo } from "react";
 import { SEGMENT_SPECS } from "../../constants/segmentSpecs";
 import { useStore } from "../../store";
@@ -37,6 +38,8 @@ function SegmentMesh({
 	isSelected,
 	onClick,
 }: SegmentMeshProps) {
+	const { invalidate } = useThree();
+
 	const geometries = useMemo(
 		() => createSegmentGeometries(specId, feltWidth),
 		[specId, feltWidth],
@@ -46,6 +49,13 @@ function SegmentMesh({
 	const spec = SEGMENT_SPECS[specId];
 	const cupLocalX = spec.exitPoint.x;
 	const cupLocalZ = spec.exitPoint.z;
+
+	// Compute a bounding box that spans the full segment length for the
+	// selection outline. We use the absolute exit coordinates so that
+	// curved segments still get a reasonable (approximate) highlight.
+	const selectionWidth = Math.max(Math.abs(cupLocalX) + feltWidth, feltWidth + 0.06);
+	const selectionDepth = Math.max(Math.abs(cupLocalZ), spec.length) + 0.06;
+	const selectionCenterZ = cupLocalZ / 2;
 
 	const DEG2RAD = Math.PI / 180;
 
@@ -63,6 +73,7 @@ function SegmentMesh({
 			onClick={(e) => {
 				e.stopPropagation();
 				onClick();
+				invalidate();
 			}}
 		>
 			<mesh geometry={geometries.felt} material={feltMaterial} />
@@ -89,11 +100,13 @@ function SegmentMesh({
 				</mesh>
 			)}
 
-			{/* Selection outline: slightly enlarged semi-transparent orange box */}
+			{/* Selection outline: semi-transparent orange box covering segment bounds */}
 			{isSelected && (
-				<mesh position={[0, SURFACE_THICKNESS / 2, 0]}>
+				<mesh
+					position={[cupLocalX / 2, SURFACE_THICKNESS / 2, selectionCenterZ]}
+				>
 					<boxGeometry
-						args={[feltWidth + 0.06, SURFACE_THICKNESS + 0.02, 0.1]}
+						args={[selectionWidth, SURFACE_THICKNESS + 0.02, selectionDepth]}
 					/>
 					<meshBasicMaterial
 						color="orange"
@@ -109,15 +122,30 @@ function SegmentMesh({
 
 // ── BuilderCanvas (exported) ──────────────────────────────────────────────────
 
+type BuilderCanvasProps = {
+	selectedSegmentId: string | null;
+	onSelectSegment: (id: string | null) => void;
+};
+
 /**
  * R3F scene content for the hole builder. Renders all segments from the current
- * builderDraft, a grid floor for orientation, and basic lighting. Interactions
- * (click-to-select, ghost preview) are wired in Task 7.
+ * builderDraft, a grid floor for orientation, and basic lighting. Selection is
+ * controlled via the lifted selectedSegmentId prop from Builder.
  */
-export function BuilderCanvas() {
+export function BuilderCanvas({
+	selectedSegmentId,
+	onSelectSegment,
+}: BuilderCanvasProps) {
 	const draft = useStore((s) => s.builderDraft);
 	const segments: Segment[] = draft?.segments ?? [];
 	const feltWidth = draft?.feltWidth ?? 0.6;
+	const { invalidate } = useThree();
+
+	const handleSegmentClick = (segId: string) => {
+		// Toggle: clicking already-selected segment deselects it
+		onSelectSegment(selectedSegmentId === segId ? null : segId);
+		invalidate();
+	};
 
 	return (
 		<>
@@ -136,12 +164,24 @@ export function BuilderCanvas() {
 					rotation={seg.rotation}
 					isFirst={i === 0}
 					isLast={i === segments.length - 1}
-					isSelected={false}
-					onClick={() => {
-						// Selection wiring in Task 7
-					}}
+					isSelected={seg.id === selectedSegmentId}
+					onClick={() => handleSegmentClick(seg.id)}
 				/>
 			))}
+
+			{/* Transparent background plane to catch missed clicks and deselect */}
+			<mesh
+				position={[0, -0.01, 0]}
+				rotation={[-Math.PI / 2, 0, 0]}
+				onPointerDown={(e) => {
+					e.stopPropagation();
+					onSelectSegment(null);
+					invalidate();
+				}}
+			>
+				<planeGeometry args={[200, 200]} />
+				<meshBasicMaterial transparent opacity={0} depthWrite={false} />
+			</mesh>
 
 			<MapControls
 				enableRotate={false}
