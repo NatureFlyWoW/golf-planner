@@ -2,11 +2,13 @@ import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { SEGMENT_SPECS } from "../constants/segmentSpecs";
 import type { SegmentSpecId } from "../types/template";
+import { createBumperGeometry, createBumperProfile } from "./bumperProfile";
 
 // ── Constants (mirrored from shared.ts to avoid React/DOM deps in pure util) ─
 const SURFACE_THICKNESS = 0.02;
 const BUMPER_HEIGHT = 0.08;
 const BUMPER_THICKNESS = 0.05;
+const BEVEL_RADIUS = 0.008;
 
 // ── Public Types ──────────────────────────────────────────────────────────────
 
@@ -69,29 +71,21 @@ function createStraightGeometries(
 	const felt = new THREE.BoxGeometry(feltWidth, SURFACE_THICKNESS, length);
 	felt.translate(0, SURFACE_THICKNESS / 2, length / 2);
 
-	// Left bumper: negative X side
-	const bumperLeft = new THREE.BoxGeometry(
-		BUMPER_THICKNESS,
+	// Rounded bumper cross-section profile
+	const profile = createBumperProfile(
 		BUMPER_HEIGHT,
-		length,
-	);
-	bumperLeft.translate(
-		-(hw + BUMPER_THICKNESS / 2),
-		BUMPER_HEIGHT / 2,
-		length / 2,
+		BUMPER_THICKNESS,
+		BEVEL_RADIUS,
 	);
 
+	// Left bumper: negative X side
+	// ExtrudeGeometry: X centered, Y from 0 to BUMPER_HEIGHT, Z from 0 to length
+	const bumperLeft = createBumperGeometry(profile, length);
+	bumperLeft.translate(-(hw + BUMPER_THICKNESS / 2), 0, 0);
+
 	// Right bumper: positive X side
-	const bumperRight = new THREE.BoxGeometry(
-		BUMPER_THICKNESS,
-		BUMPER_HEIGHT,
-		length,
-	);
-	bumperRight.translate(
-		hw + BUMPER_THICKNESS / 2,
-		BUMPER_HEIGHT / 2,
-		length / 2,
-	);
+	const bumperRight = createBumperGeometry(profile, length);
+	bumperRight.translate(hw + BUMPER_THICKNESS / 2, 0, 0);
 
 	return { felt, bumperLeft, bumperRight };
 }
@@ -352,6 +346,12 @@ function createChicaneGeometries(feltWidth: number): SegmentGeometries {
 	const leftParts: THREE.BufferGeometry[] = [];
 	const rightParts: THREE.BufferGeometry[] = [];
 
+	const profile = createBumperProfile(
+		BUMPER_HEIGHT,
+		BUMPER_THICKNESS,
+		BEVEL_RADIUS,
+	);
+
 	// Build one diagonal section centered at (cx, cz)
 	function addSection(cx: number, cz: number): void {
 		const f = new THREE.BoxGeometry(feltWidth, SURFACE_THICKNESS, sectionLen);
@@ -359,22 +359,18 @@ function createChicaneGeometries(feltWidth: number): SegmentGeometries {
 		f.translate(cx, SURFACE_THICKNESS / 2, cz);
 		feltParts.push(f);
 
-		const bl = new THREE.BoxGeometry(
-			BUMPER_THICKNESS,
-			BUMPER_HEIGHT,
-			sectionLen,
-		);
+		// ExtrudeGeometry: X centered, Y [0, BH], Z [0, sectionLen]
+		// Center Z for rotation, then translate to final position
+		const bl = createBumperGeometry(profile, sectionLen);
+		bl.translate(0, 0, -sectionLen / 2);
 		bl.rotateY(rotY);
-		bl.translate(cx - bumpOffsetX, BUMPER_HEIGHT / 2, cz - bumpOffsetZ);
+		bl.translate(cx - bumpOffsetX, 0, cz - bumpOffsetZ);
 		leftParts.push(bl);
 
-		const br = new THREE.BoxGeometry(
-			BUMPER_THICKNESS,
-			BUMPER_HEIGHT,
-			sectionLen,
-		);
+		const br = createBumperGeometry(profile, sectionLen);
+		br.translate(0, 0, -sectionLen / 2);
 		br.rotateY(rotY);
-		br.translate(cx + bumpOffsetX, BUMPER_HEIGHT / 2, cz + bumpOffsetZ);
+		br.translate(cx + bumpOffsetX, 0, cz + bumpOffsetZ);
 		rightParts.push(br);
 	}
 

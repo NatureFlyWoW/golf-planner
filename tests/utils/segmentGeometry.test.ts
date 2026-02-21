@@ -166,4 +166,58 @@ describe("createSegmentGeometries", () => {
 		// Outer (left) bumper spans a wider X range than inner (right) bumper
 		expect(leftSpanX).toBeGreaterThan(rightSpanX);
 	});
+
+	it("straight bumpers use ExtrudeGeometry (vertex count > 24)", () => {
+		const geom = createSegmentGeometries("straight_1m", 0.6);
+		// BoxGeometry has exactly 24 vertices; ExtrudeGeometry with rounded profile has more
+		expect(geom.bumperLeft.getAttribute("position").count).toBeGreaterThan(24);
+		expect(geom.bumperRight.getAttribute("position").count).toBeGreaterThan(24);
+	});
+
+	it("chicane bumpers use ExtrudeGeometry (vertex count > 48)", () => {
+		const geom = createSegmentGeometries("chicane", 0.6);
+		// Chicane merges 2 sections; with BoxGeometry that's 2×24=48.
+		// ExtrudeGeometry merged sections should exceed 48.
+		expect(geom.bumperLeft.getAttribute("position").count).toBeGreaterThan(48);
+		expect(geom.bumperRight.getAttribute("position").count).toBeGreaterThan(48);
+	});
+
+	it("all 11 segment types produce bumpers with vertex count > 24", () => {
+		const specs = [
+			"straight_1m",
+			"straight_2m",
+			"straight_3m",
+			"curve_90_left",
+			"curve_90_right",
+			"curve_45_left",
+			"curve_45_right",
+			"curve_30_wide",
+			"s_curve",
+			"u_turn",
+			"chicane",
+		] as const;
+		for (const specId of specs) {
+			const geom = createSegmentGeometries(specId, 0.6);
+			expect(
+				geom.bumperLeft.getAttribute("position").count,
+			).toBeGreaterThan(24);
+			expect(
+				geom.bumperRight.getAttribute("position").count,
+			).toBeGreaterThan(24);
+		}
+	});
+
+	it("bumper triangle count stays within budget (<=500 per rail)", () => {
+		const geom = createSegmentGeometries("straight_1m", 0.6);
+		const leftIdx = geom.bumperLeft.getIndex();
+		const leftTriangles = leftIdx
+			? leftIdx.count / 3
+			: geom.bumperLeft.getAttribute("position").count / 3;
+		const rightIdx = geom.bumperRight.getIndex();
+		const rightTriangles = rightIdx
+			? rightIdx.count / 3
+			: geom.bumperRight.getAttribute("position").count / 3;
+		expect(leftTriangles).toBeLessThanOrEqual(500);
+		expect(rightTriangles).toBeLessThanOrEqual(500);
+	});
 });
