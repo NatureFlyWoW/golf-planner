@@ -228,6 +228,50 @@ function migrateToV4(state: PersistedSlice): void {
 	}
 }
 
+/**
+ * Zustand persist migration function — extracted for unit testability.
+ * Called by the persist middleware whenever the stored version is older
+ * than the current store version (6).
+ */
+export function migratePersistedState(
+	persisted: unknown,
+	version: number,
+): unknown {
+	const p = persisted as PersistedSlice;
+	if (version < 3 && p) {
+		p.budgetConfig = migrateBudgetConfig(
+			(p.budgetConfig ?? {}) as Parameters<typeof migrateBudgetConfig>[0],
+		) as unknown as BudgetConfigV2;
+		if (p.budget) {
+			p.budget = migrateBudgetCategories(
+				p.budget as unknown as Parameters<typeof migrateBudgetCategories>[0],
+			) as unknown as Record<string, BudgetCategoryV2>;
+		}
+	}
+
+	if (version < 4 && p) {
+		migrateToV4(p);
+	}
+
+	if (version < 5 && p) {
+		if (p.budgetConfig && !("materialProfile" in p.budgetConfig)) {
+			(p.budgetConfig as Record<string, unknown>).materialProfile =
+				"standard_diy";
+		}
+	}
+
+	if (version < 6 && p) {
+		if (!("holeTemplates" in (p as Record<string, unknown>))) {
+			(p as Record<string, unknown>).holeTemplates = {};
+		}
+		if (!("builderDraft" in (p as Record<string, unknown>))) {
+			(p as Record<string, unknown>).builderDraft = null;
+		}
+	}
+
+	return p;
+}
+
 export const useStore = create<Store>()(
 	temporal(
 		persist(
@@ -473,45 +517,7 @@ export const useStore = create<Store>()(
 					holeTemplates: state.holeTemplates,
 					builderDraft: state.builderDraft,
 				}),
-				migrate: (persisted: unknown, version: number) => {
-					const p = persisted as PersistedSlice;
-					if (version < 3 && p) {
-						p.budgetConfig = migrateBudgetConfig(
-							(p.budgetConfig ?? {}) as Parameters<
-								typeof migrateBudgetConfig
-							>[0],
-						) as unknown as BudgetConfigV2;
-						if (p.budget) {
-							p.budget = migrateBudgetCategories(
-								p.budget as unknown as Parameters<
-									typeof migrateBudgetCategories
-								>[0],
-							) as unknown as Record<string, BudgetCategoryV2>;
-						}
-					}
-
-					if (version < 4 && p) {
-						migrateToV4(p);
-					}
-
-					if (version < 5 && p) {
-						if (p.budgetConfig && !("materialProfile" in p.budgetConfig)) {
-							(p.budgetConfig as Record<string, unknown>).materialProfile =
-								"standard_diy";
-						}
-					}
-
-					if (version < 6 && p) {
-						if (!("holeTemplates" in (p as Record<string, unknown>))) {
-							(p as Record<string, unknown>).holeTemplates = {};
-						}
-						if (!("builderDraft" in (p as Record<string, unknown>))) {
-							(p as Record<string, unknown>).builderDraft = null;
-						}
-					}
-
-					return p;
-				},
+				migrate: migratePersistedState,
 			},
 		),
 		{
