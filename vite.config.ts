@@ -2,6 +2,7 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+import { defaultExclude } from "vitest/config";
 
 export default defineConfig({
 	plugins: [
@@ -75,5 +76,8 @@ export default defineConfig({
 			usePolling: true,
 			interval: 100,
 		},
+	},
+	test: {
+		exclude: [...defaultExclude, "tests/visual/**"],
 	},
 });

@@ -9,7 +9,8 @@
 		"preview": "vite preview",
 		"check": "biome check .",
 		"format": "biome format --write .",
-		"test": "vitest"
+		"test": "vitest",
+		"test:visual": "playwright test"
 	},
 	"dependencies": {
 		"@pmndrs/detect-gpu": "6.0.0",
@@ -25,6 +26,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.2",
+		"@playwright/test": "^1.58.2",
 		"@tailwindcss/vite": "^4.2.0",
 		"@types/node": "^24.10.1",
 		"@types/react": "^19.2.7",

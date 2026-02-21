@@ -69,7 +69,7 @@ export function Toolbar() {
 	}`;
 
 	return (
-		<div className={barClass}>
+		<div className={barClass} data-testid="toolbar">
 			<span className="font-display text-sm font-bold tracking-wider text-accent-text" style={{ textShadow: "0 0 8px #9D00FF, 0 0 16px #9D00FF40" }}>GOLF FORGE</span>
 			<div className="mx-2 h-6 w-px bg-grid-ghost" />
 
@@ -110,6 +110,7 @@ export function Toolbar() {
 				onClick={() => setView(view === "top" ? "3d" : "top")}
 				className={neutralBtnClass}
 				title="Toggle 2D/3D view"
+				data-testid="view-toggle"
 			>
 				{view === "top" ? "3D" : "2D"}
 			</button>
@@ -120,6 +121,7 @@ export function Toolbar() {
 				disabled={transitioning}
 				className={`${btnClass(uvMode)}${uvMode && !transitioning ? " uv-button-pulse" : ""}`}
 				title="Toggle UV preview mode"
+				data-testid="uv-toggle"
 			>
 				UV
 			</button>

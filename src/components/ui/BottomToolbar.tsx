@@ -61,6 +61,7 @@ export function BottomToolbar() {
 		<div
 			className="flex flex-col border-t border-subtle bg-surface-raised md:hidden"
 			style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+			data-testid="bottom-toolbar"
 		>
 			{/* Info chip row — only when hole selected */}
 			{selectedHole && (
