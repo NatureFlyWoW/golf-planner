@@ -1,11 +1,9 @@
-import { useEffect, useMemo } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { useStore } from "../../../store";
 import type { MaterialProfile } from "../../../types/budget";
-import {
-	getTextureMapSet,
-	type TextureMapSet,
-} from "../../../utils/textureGating";
+import type { MaterialSet } from "../../../types/materials";
+import { getTextureMapSet } from "../../../utils/textureGating";
 import { BUMPER_PBR, FELT_PBR } from "./materialPresets";
 import {
 	cupMaterial,
@@ -15,15 +13,7 @@ import {
 	uvFeltMaterial,
 	uvTeeMaterial,
 } from "./shared";
-
-export type MaterialSet = {
-	felt: THREE.MeshStandardMaterial;
-	bumper: THREE.MeshStandardMaterial;
-	tee: THREE.MeshStandardMaterial;
-	cup: THREE.MeshStandardMaterial;
-	textureMapSet: TextureMapSet;
-	isTopDown: boolean;
-};
+import { TexturedMaterialsContext } from "./useTexturedMaterials";
 
 const uvMaterials: MaterialSet = {
 	felt: uvFeltMaterial,
@@ -40,6 +30,9 @@ export function useMaterials(): MaterialSet {
 		(s) => s.budgetConfig.materialProfile,
 	);
 
+	// Check if textured materials are provided via context (from TexturedMaterialsProvider)
+	const texturedMaterials = useContext(TexturedMaterialsContext);
+
 	const isTopDown = view === "top";
 	const textureMapSet = useMemo(
 		() => getTextureMapSet(gpuTier, isTopDown),
@@ -47,6 +40,9 @@ export function useMaterials(): MaterialSet {
 	);
 
 	const planningMaterials = useMemo(() => {
+		// Skip creating flat materials if textured context is available
+		if (texturedMaterials) return null;
+
 		const feltProps = FELT_PBR[materialProfile];
 		const bumperProps = BUMPER_PBR[materialProfile];
 
@@ -65,15 +61,21 @@ export function useMaterials(): MaterialSet {
 		});
 
 		return { felt, bumper, tee: teeMaterial, cup: cupMaterial };
-	}, [materialProfile]);
+	}, [materialProfile, texturedMaterials]);
 
 	useEffect(() => {
 		return () => {
-			planningMaterials.felt.dispose();
-			planningMaterials.bumper.dispose();
+			planningMaterials?.felt.dispose();
+			planningMaterials?.bumper.dispose();
 		};
 	}, [planningMaterials]);
 
-	const baseMaterials = uvMode ? uvMaterials : planningMaterials;
-	return { ...baseMaterials, textureMapSet, isTopDown };
+	// Priority: UV mode > textured context > flat planning materials
+	if (uvMode) {
+		return { ...uvMaterials, textureMapSet, isTopDown };
+	}
+	if (texturedMaterials) {
+		return texturedMaterials;
+	}
+	return { ...planningMaterials!, textureMapSet, isTopDown };
 }

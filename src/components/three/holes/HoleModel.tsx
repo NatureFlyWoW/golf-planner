@@ -5,11 +5,11 @@ import { HoleLoop } from "./HoleLoop";
 import { HoleLShape } from "./HoleLShape";
 import { HoleRamp } from "./HoleRamp";
 import { HoleStraight } from "./HoleStraight";
-import { HoleStraightTextured } from "./HoleStraightTextured";
 import { HoleTunnel } from "./HoleTunnel";
 import { HoleWindmill } from "./HoleWindmill";
 import { SURFACE_THICKNESS } from "./shared";
 import { TemplateHoleModel } from "./TemplateHoleModel";
+import { TexturedMaterialsProvider } from "./useTexturedMaterials";
 
 export type HoleModelProps = {
 	type: string;
@@ -26,8 +26,8 @@ type HoleSwitchProps = {
 	color: string;
 };
 
-/** Renders flat-color hole models (existing geometry) */
-function FlatHoleSwitch({ type, width, length, color }: HoleSwitchProps) {
+/** Renders hole models using whatever materials useMaterials() provides */
+function HoleSwitch({ type, width, length, color }: HoleSwitchProps) {
 	switch (type) {
 		case "straight":
 			return <HoleStraight width={width} length={length} />;
@@ -53,22 +53,16 @@ function FlatHoleSwitch({ type, width, length, color }: HoleSwitchProps) {
 	}
 }
 
-/** Renders textured hole models where available, falls back to flat */
+/**
+ * Wraps HoleSwitch in TexturedMaterialsProvider so all hole types
+ * automatically receive PBR texture maps via useMaterials() context.
+ */
 function TexturedHoleSwitch({ type, width, length, color }: HoleSwitchProps) {
-	switch (type) {
-		case "straight":
-			return <HoleStraightTextured width={width} length={length} />;
-		// Other types will get textured variants in Section 02+
-		default:
-			return (
-				<FlatHoleSwitch
-					type={type}
-					width={width}
-					length={length}
-					color={color}
-				/>
-			);
-	}
+	return (
+		<TexturedMaterialsProvider>
+			<HoleSwitch type={type} width={width} length={length} color={color} />
+		</TexturedMaterialsProvider>
+	);
 }
 
 /** Error boundary for texture loading failures */
@@ -106,7 +100,7 @@ export function HoleModel({
 
 	if (gpuTier !== "low") {
 		const flatFallback = (
-			<FlatHoleSwitch type={type} width={width} length={length} color={color} />
+			<HoleSwitch type={type} width={width} length={length} color={color} />
 		);
 		return (
 			<TextureErrorBoundary fallback={flatFallback}>
@@ -123,6 +117,6 @@ export function HoleModel({
 	}
 
 	return (
-		<FlatHoleSwitch type={type} width={width} length={length} color={color} />
+		<HoleSwitch type={type} width={width} length={length} color={color} />
 	);
 }

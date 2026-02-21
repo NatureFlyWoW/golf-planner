@@ -15,7 +15,7 @@ vi.mock("../../../src/store", () => ({
 import {
 	getTexturePathsForTier,
 	shouldLoadTextures,
-} from "../../src/components/three/holes/useTexturedMaterials";
+} from "../../src/components/three/holes/useTexturedMaterials.js";
 
 describe("shouldLoadTextures", () => {
 	it("returns false for GPU tier 'low'", () => {

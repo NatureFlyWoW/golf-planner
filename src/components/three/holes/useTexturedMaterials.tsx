@@ -1,12 +1,19 @@
 import { useTexture } from "@react-three/drei";
-import { useEffect, useMemo } from "react";
+import { createContext, useEffect, useMemo, type ReactNode } from "react";
 import * as THREE from "three";
 import { useStore } from "../../../store";
 import type { MaterialProfile } from "../../../types/budget";
 import type { GpuTier } from "../../../types/ui";
+import { getTextureMapSet } from "../../../utils/textureGating";
 import { BUMPER_PBR, FELT_PBR } from "./materialPresets";
 import { cupMaterial, teeMaterial } from "./shared";
-import type { MaterialSet } from "./useMaterials";
+import type { MaterialSet } from "../../../types/materials";
+
+/**
+ * Context that provides textured materials to all child hole components.
+ * When set, useMaterials() will use these instead of creating flat-color materials.
+ */
+export const TexturedMaterialsContext = createContext<MaterialSet | null>(null);
 
 /** Surface types that have texture assets */
 export type TextureSurface = "felt" | "wood" | "rubber";
@@ -63,8 +70,15 @@ function configureTexture(
  */
 export function useTexturedMaterials(): MaterialSet {
 	const gpuTier = useStore((s) => s.ui.gpuTier);
+	const view = useStore((s) => s.ui.view);
 	const materialProfile: MaterialProfile = useStore(
 		(s) => s.budgetConfig.materialProfile,
+	);
+
+	const isTopDown = view === "top";
+	const textureMapSet = useMemo(
+		() => getTextureMapSet(gpuTier, isTopDown),
+		[gpuTier, isTopDown],
 	);
 
 	// Load felt textures
@@ -125,7 +139,23 @@ export function useTexturedMaterials(): MaterialSet {
 		};
 	}, [materials]);
 
-	return materials;
+	return { ...materials, textureMapSet, isTopDown };
+}
+
+/**
+ * Provider that loads textured materials and makes them available to
+ * all child hole components via TexturedMaterialsContext.
+ * Must be wrapped in a Suspense boundary.
+ */
+export function TexturedMaterialsProvider({
+	children,
+}: { children: ReactNode }) {
+	const materials = useTexturedMaterials();
+	return (
+		<TexturedMaterialsContext.Provider value={materials}>
+			{children}
+		</TexturedMaterialsContext.Provider>
+	);
 }
 
 // Preload critical textures

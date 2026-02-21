@@ -6,7 +6,7 @@ import { computeChainPositions } from "../../../utils/chainCompute";
 import { createSegmentGeometries } from "../../../utils/segmentGeometry";
 import { Cup } from "./Cup";
 import { TeePad } from "./TeePad";
-import type { MaterialSet } from "./useMaterials";
+import type { MaterialSet } from "../../../types/materials";
 import { useMaterials } from "./useMaterials";
 
 type Props = { templateId: string };
