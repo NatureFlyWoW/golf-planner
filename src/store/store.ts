@@ -47,6 +47,7 @@ type StoreState = {
 	ui: UIState;
 	captureScreenshot: (() => void) | null;
 	gpuTierOverride: GpuTierOverride;
+	uvTransitionEnabled: boolean;
 	// Builder state
 	holeTemplates: Record<string, HoleTemplate>;
 	builderDraft: HoleTemplate | null;
@@ -80,6 +81,8 @@ type StoreActions = {
 	setBudgetConfig: (updates: Partial<BudgetConfigV2>) => void;
 	toggleCourseOverride: () => void;
 	toggleUvMode: () => void;
+	flipUvMode: () => void;
+	setUvTransitionEnabled: (enabled: boolean) => void;
 	setGpuTier: (tier: GpuTier) => void;
 	setGpuTierOverride: (override: GpuTierOverride) => void;
 	setTransitioning: (transitioning: boolean) => void;
@@ -104,6 +107,7 @@ type PersistedSlice = {
 	holeTemplates?: Record<string, HoleTemplate>;
 	builderDraft?: HoleTemplate | null;
 	gpuTierOverride?: GpuTierOverride;
+	uvTransitionEnabled?: boolean;
 	// Legacy fields for migration
 	costPerHole?: number;
 };
@@ -294,6 +298,12 @@ export function migratePersistedState(
 		}
 	}
 
+	if (version < 8 && p) {
+		if (!("uvTransitionEnabled" in (p as Record<string, unknown>))) {
+			(p as Record<string, unknown>).uvTransitionEnabled = true;
+		}
+	}
+
 	return p;
 }
 
@@ -312,6 +322,7 @@ export const useStore = create<Store>()(
 				ui: DEFAULT_UI,
 				captureScreenshot: null,
 				gpuTierOverride: "auto" as GpuTierOverride,
+			uvTransitionEnabled: true,
 				...BUILDER_INITIAL_STATE,
 				...createBuilderActions(set, get),
 
@@ -489,9 +500,21 @@ export const useStore = create<Store>()(
 				},
 
 				toggleUvMode: () => {
-					set((state) => ({
-						ui: { ...state.ui, uvMode: !state.ui.uvMode },
-					}));
+					const state = get();
+					if (state.ui.transitioning) return;
+					if (!state.uvTransitionEnabled) {
+						set((s) => ({ ui: { ...s.ui, uvMode: !s.ui.uvMode } }));
+					} else {
+						set((s) => ({ ui: { ...s.ui, transitioning: true } }));
+					}
+				},
+
+				flipUvMode: () => {
+					set((s) => ({ ui: { ...s.ui, uvMode: !s.ui.uvMode } }));
+				},
+
+				setUvTransitionEnabled: (enabled) => {
+					set({ uvTransitionEnabled: enabled });
 				},
 
 				setGpuTier: (tier) => {
@@ -554,7 +577,7 @@ export const useStore = create<Store>()(
 			}),
 			{
 				name: "golf-planner-state",
-				version: 7,
+				version: 8,
 				partialize: (state) => ({
 					holes: state.holes,
 					holeOrder: state.holeOrder,
@@ -565,6 +588,7 @@ export const useStore = create<Store>()(
 					holeTemplates: state.holeTemplates,
 					builderDraft: state.builderDraft,
 					gpuTierOverride: state.gpuTierOverride,
+					uvTransitionEnabled: state.uvTransitionEnabled,
 				}),
 				migrate: migratePersistedState,
 			},

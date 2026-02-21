@@ -24,6 +24,7 @@ export function Toolbar() {
 	const setView = useStore((s) => s.setView);
 	const toggleUvMode = useStore((s) => s.toggleUvMode);
 	const uvMode = useStore((s) => s.ui.uvMode);
+	const transitioning = useStore((s) => s.ui.transitioning);
 	const captureScreenshot = useStore((s) => s.captureScreenshot);
 	const holes = useStore((s) => s.holes);
 	const holeOrder = useStore((s) => s.holeOrder);
@@ -116,7 +117,8 @@ export function Toolbar() {
 			<button
 				type="button"
 				onClick={toggleUvMode}
-				className={btnClass(uvMode)}
+				disabled={transitioning}
+				className={`${btnClass(uvMode)}${uvMode && !transitioning ? " uv-button-pulse" : ""}`}
 				title="Toggle UV preview mode"
 			>
 				UV

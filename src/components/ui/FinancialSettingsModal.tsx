@@ -42,6 +42,8 @@ export function FinancialSettingsModal({ onClose }: Props) {
 	const gpuTier = useStore((s) => s.ui.gpuTier);
 	const setGpuTierOverride = useStore((s) => s.setGpuTierOverride);
 	const setGpuTier = useStore((s) => s.setGpuTier);
+	const uvTransitionEnabled = useStore((s) => s.uvTransitionEnabled);
+	const setUvTransitionEnabled = useStore((s) => s.setUvTransitionEnabled);
 
 	return (
 		// biome-ignore lint/a11y/noStaticElementInteractions: backdrop dismiss
@@ -223,6 +225,26 @@ export function FinancialSettingsModal({ onClose }: Props) {
 						</div>
 						<p className="mt-1 text-[10px] text-text-muted">
 							Controls 3D rendering quality. Lower = better performance.
+						</p>
+					</div>
+
+					{/* UV Transition Animation */}
+					<div>
+						<label className="flex items-center gap-2">
+							<input
+								type="checkbox"
+								checked={uvTransitionEnabled}
+								onChange={(e) =>
+									setUvTransitionEnabled(e.target.checked)
+								}
+								className="h-4 w-4 rounded border-subtle"
+							/>
+							<span className="text-xs font-medium text-primary">
+								UV transition animation
+							</span>
+						</label>
+						<p className="mt-1 text-[10px] text-text-muted">
+							Play theatrical lighting transition when toggling UV mode.
 						</p>
 					</div>
 				</div>

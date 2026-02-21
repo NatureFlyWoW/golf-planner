@@ -11,12 +11,14 @@ import { MobileDetailPanel } from "./components/ui/MobileDetailPanel";
 import { MobileSunControls } from "./components/ui/MobileSunControls";
 import { Sidebar } from "./components/ui/Sidebar";
 import { SunControls } from "./components/ui/SunControls";
+import { UVTransition } from "./components/three/UVTransition";
 import { Toolbar } from "./components/ui/Toolbar";
 import { useGpuTier } from "./hooks/useGpuTier";
 import { useSunPosition } from "./hooks/useSunPosition";
 import { useStore } from "./store";
 import { deriveFrameloop, shouldEnableSoftShadows } from "./utils/environmentGating";
 import { isMobile } from "./utils/isMobile";
+import { canvasPointerEvents } from "./utils/uvTransitionConfig";
 
 const Builder = lazy(() => import("./components/builder/Builder"));
 const ThreeCanvas = lazy(() => import("./components/three/ThreeCanvas"));
@@ -60,6 +62,7 @@ export default function App() {
 					style={{
 						cursor: tool === "delete" ? "crosshair" : "default",
 						touchAction: "none",
+						pointerEvents: canvasPointerEvents(transitioning),
 					}}
 				>
 					<Canvas
@@ -93,6 +96,7 @@ export default function App() {
 					<Builder />
 				</Suspense>
 			)}
+			<UVTransition />
 		</div>
 	);
 }

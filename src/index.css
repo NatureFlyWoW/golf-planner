@@ -114,3 +114,23 @@ html,
 body {
 	overscroll-behavior: none;
 }
+
+/* UV button pulse animation (active UV mode) */
+@keyframes uv-pulse {
+	0%,
+	100% {
+		box-shadow:
+			0 0 4px var(--color-neon-violet),
+			0 0 8px var(--color-neon-violet);
+	}
+	50% {
+		box-shadow:
+			0 0 8px var(--color-neon-violet),
+			0 0 16px var(--color-neon-violet),
+			0 0 24px var(--color-neon-violet);
+	}
+}
+
+.uv-button-pulse {
+	animation: uv-pulse 2s ease-in-out infinite;
+}

@@ -171,6 +171,7 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 	const setView = useStore((s) => s.setView);
 	const uvMode = useStore((s) => s.ui.uvMode);
 	const toggleUvMode = useStore((s) => s.toggleUvMode);
+	const transitioning = useStore((s) => s.ui.transitioning);
 	const holes = useStore((s) => s.holes);
 	const holeOrder = useStore((s) => s.holeOrder);
 	const budget = useStore((s) => s.budget);
@@ -198,7 +199,7 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 					active={false}
 					onTap={() => setView(view === "top" ? "3d" : "top")}
 				/>
-				<ToggleBtn label="UV" active={uvMode} onTap={toggleUvMode} />
+				<ToggleBtn label="UV" active={uvMode} onTap={toggleUvMode} disabled={transitioning} className={uvMode && !transitioning ? "uv-button-pulse" : ""} />
 				<ToggleBtn
 					label="Sun"
 					active={false}
@@ -258,20 +259,25 @@ function ToggleBtn({
 	label,
 	active,
 	onTap,
+	disabled,
+	className: extraClass,
 }: {
 	label: string;
 	active: boolean;
 	onTap: () => void;
+	disabled?: boolean;
+	className?: string;
 }) {
 	return (
 		<button
 			type="button"
 			onClick={onTap}
+			disabled={disabled}
 			className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
 				active
 					? "bg-accent-text text-white"
 					: "bg-plasma text-text-secondary"
-			}`}
+			}${disabled ? " opacity-50" : ""}${extraClass ? ` ${extraClass}` : ""}`}
 		>
 			{label}
 		</button>

@@ -271,11 +271,34 @@ describe("full migration chain v3 → v7 (gpuTierOverride)", () => {
 });
 
 // ---------------------------------------------------------------------------
-// v7 passthrough — no mutation of already-current state
+// v7 → v8 migration — adds uvTransitionEnabled
 // ---------------------------------------------------------------------------
 
-describe("v7 state passthrough", () => {
-	it("preserves all fields on current-version state (no migration branches run)", () => {
+describe("v7 → v8 migration", () => {
+	it("adds uvTransitionEnabled=true when migrating from v7", () => {
+		const v7 = {
+			...makeV6State(),
+			holeTemplates: {},
+			builderDraft: null,
+			gpuTierOverride: "auto",
+		};
+		const result = migratePersistedState(v7, 7) as Record<string, unknown>;
+		expect(result.uvTransitionEnabled).toBe(true);
+	});
+
+	it("preserves existing uvTransitionEnabled value", () => {
+		const v7 = {
+			...makeV6State(),
+			holeTemplates: {},
+			builderDraft: null,
+			gpuTierOverride: "auto",
+			uvTransitionEnabled: false,
+		};
+		const result = migratePersistedState(v7, 7) as Record<string, unknown>;
+		expect(result.uvTransitionEnabled).toBe(false);
+	});
+
+	it("preserves all v7 fields alongside new uvTransitionEnabled", () => {
 		const existingTemplates = {
 			"t1": { id: "t1", name: "T", segments: [] },
 		};
@@ -285,25 +308,29 @@ describe("v7 state passthrough", () => {
 			builderDraft: null,
 			gpuTierOverride: "mid",
 		};
-		// version === 7, so no migration branch should execute
 		const result = migratePersistedState(v7, 7) as Record<string, unknown>;
 		expect(result.holeTemplates).toEqual(existingTemplates);
 		expect(result.builderDraft).toBeNull();
 		expect(result.gpuTierOverride).toBe("mid");
+		expect(result.uvTransitionEnabled).toBe(true);
 	});
+});
 
-	it("preserves non-empty holeTemplates on v7 state", () => {
-		const templates = {
-			"tpl-abc": { id: "tpl-abc", name: "My Hole", segments: [{ id: "s1" }] },
-			"tpl-def": { id: "tpl-def", name: "Another", segments: [] },
-		};
-		const v7 = {
+// ---------------------------------------------------------------------------
+// v8 passthrough — no mutation of already-current state
+// ---------------------------------------------------------------------------
+
+describe("v8 state passthrough", () => {
+	it("preserves all fields on current-version state (no migration branches run)", () => {
+		const v8 = {
 			...makeV6State(),
-			holeTemplates: templates,
+			holeTemplates: {},
 			builderDraft: null,
 			gpuTierOverride: "auto",
+			uvTransitionEnabled: true,
 		};
-		const result = migratePersistedState(v7, 7) as Record<string, unknown>;
-		expect(Object.keys(result.holeTemplates as object)).toHaveLength(2);
+		const result = migratePersistedState(v8, 8) as Record<string, unknown>;
+		expect(result.uvTransitionEnabled).toBe(true);
+		expect(result.gpuTierOverride).toBe("auto");
 	});
 });
