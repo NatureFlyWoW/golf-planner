@@ -595,14 +595,20 @@ useEffect(() => {
 
 ## Implementation Checklist
 
-1. Write all test files (Part 1: 1A, 1B, 1C). Run tests -- they should all fail (red).
-2. Download CC0 texture assets to `public/textures/felt/`, `public/textures/wood/`, `public/textures/rubber/` (Part 2). If download fails, implement procedural texture fallback.
-3. Implement `src/utils/bumperProfile.ts` (Part 3). Run `bumperProfile.test.ts` -- should pass (green).
-4. Implement `src/utils/holeGeometry.ts` (Part 4). Run `holeGeometry.test.ts` -- should pass (green).
-5. Implement `src/components/three/holes/useTexturedMaterials.ts` (Part 5). Run `texturedMaterials.test.ts` -- should pass (green).
-6. Modify `HoleModel.tsx` to add TexturedHole/FlatHole dispatch pattern (Part 6).
-7. Create `HoleStraightTextured` variant and refactor `HoleStraight.tsx` (Part 7).
-8. Run full test suite (`npm run test`) -- all tests should pass.
-9. Run `npx tsc --noEmit` -- no type errors.
-10. Run `npm run check` -- Biome lint/format clean.
-11. Visual verification: open app in browser, place a straight hole, confirm textured appearance in 3D view, flat appearance when GPU tier overridden to "low", UV mode still works.
+1. [x] Write all test files (Part 1: 1A, 1B, 1C). Run tests -- they should all fail (red).
+2. [x] Texture assets created via Python PIL procedural generation (256x256 JPG). CC0 download not available in WSL2 env.
+3. [x] Implement `src/utils/bumperProfile.ts` (Part 3). Run `bumperProfile.test.ts` -- pass (green).
+4. [x] Implement `src/utils/holeGeometry.ts` (Part 4). Run `holeGeometry.test.ts` -- pass (green).
+5. [x] Implement `src/components/three/holes/useTexturedMaterials.ts` (Part 5). Run `texturedMaterials.test.ts` -- pass (green).
+6. [x] Modify `HoleModel.tsx` to add TexturedHole/FlatHole dispatch pattern (Part 6).
+7. [x] Create `HoleStraightTextured` as separate file (not inline in HoleStraight.tsx -- cleaner separation).
+8. [x] Full test suite: 399 tests pass (22 new).
+9. [x] `npx tsc --noEmit` -- clean.
+10. [x] Biome check -- clean on new files (pre-existing warnings in other files).
+11. [ ] Visual verification pending.
+
+## Implementation Notes
+
+- **HoleStraightTextured** placed in its own file `HoleStraightTextured.tsx` rather than modifying `HoleStraight.tsx`, keeping the flat variant untouched.
+- Textures are procedurally generated 256x256 placeholders. Replace with real CC0 textures (ambientCG Carpet012, Wood051, Rubber004) when convenient.
+- `useTexturedMaterials` mock required `preload` stub on the `useTexture` mock function.
