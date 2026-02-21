@@ -1,6 +1,6 @@
-import { PerformanceMonitor } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { lazy, Suspense, useEffect } from "react";
+import { NoToneMapping } from "three";
 import { BottomToolbar } from "./components/ui/BottomToolbar";
 import { HoleDrawer } from "./components/ui/HoleDrawer";
 import { KeyboardHelp } from "./components/ui/KeyboardHelp";
@@ -12,9 +12,10 @@ import { MobileSunControls } from "./components/ui/MobileSunControls";
 import { Sidebar } from "./components/ui/Sidebar";
 import { SunControls } from "./components/ui/SunControls";
 import { Toolbar } from "./components/ui/Toolbar";
-import { needsAlwaysFrameloop, useGpuTier } from "./hooks/useGpuTier";
+import { useGpuTier } from "./hooks/useGpuTier";
 import { useSunPosition } from "./hooks/useSunPosition";
 import { useStore } from "./store";
+import { deriveFrameloop, shouldEnableSoftShadows } from "./utils/environmentGating";
 import { isMobile } from "./utils/isMobile";
 
 const Builder = lazy(() => import("./components/builder/Builder"));
@@ -33,11 +34,15 @@ export default function App() {
 
 	useGpuTier();
 
-	const dpr: [number, number] =
-		gpuTier === "high" ? [1, 2] : gpuTier === "mid" ? [1, 1.5] : [1, 1];
-	const frameloop = needsAlwaysFrameloop(uvMode, gpuTier, transitioning)
-		? "always"
-		: "demand";
+	const dpr: [number, number] = isMobile
+		? [1, 1.5]
+		: gpuTier === "high"
+			? [1, 2]
+			: gpuTier === "mid"
+				? [1, 1.5]
+				: [1, 1];
+	const frameloop = deriveFrameloop(uvMode, gpuTier, transitioning);
+	const shadows = shouldEnableSoftShadows(gpuTier) && !isMobile ? "soft" as const : true;
 
 	useEffect(() => {
 		if (budgetSize === 0) {
@@ -60,17 +65,17 @@ export default function App() {
 					<Canvas
 						dpr={dpr}
 						frameloop={frameloop}
-						shadows={!uvMode ? "soft" : undefined}
+						shadows={shadows}
 						gl={{
 							antialias: !isMobile,
 							preserveDrawingBuffer: true,
+							powerPreference: "high-performance",
+							toneMapping: NoToneMapping,
 						}}
 					>
-						<PerformanceMonitor>
-							<Suspense fallback={null}>
-								<ThreeCanvas sunData={sunData} />
-							</Suspense>
-						</PerformanceMonitor>
+						<Suspense fallback={null}>
+							<ThreeCanvas sunData={sunData} />
+						</Suspense>
 					</Canvas>
 					<SunControls />
 					<KeyboardHelp />

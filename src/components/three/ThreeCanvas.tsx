@@ -1,5 +1,19 @@
+import {
+	Environment,
+	Lightformer,
+	PerformanceMonitor,
+	SoftShadows,
+	Stats,
+} from "@react-three/drei";
+import { useThree } from "@react-three/fiber";
+import { useEffect } from "react";
+import { UV_LAMP_POSITIONS } from "../../constants/uvLamps";
 import type { SunData } from "../../hooks/useSunPosition";
 import { useStore } from "../../store";
+import {
+	shouldEnableFog,
+	shouldEnableSoftShadows,
+} from "../../utils/environmentGating";
 import { isMobile } from "../../utils/isMobile";
 import { CameraControls } from "./CameraControls";
 import { FloorGrid } from "./FloorGrid";
@@ -15,12 +29,61 @@ type ThreeCanvasProps = {
 	sunData: SunData;
 };
 
+function FogController({ enabled }: { enabled: boolean }) {
+	const scene = useThree((s) => s.scene);
+	useEffect(() => {
+		if (!enabled) {
+			scene.fog = null;
+		}
+	}, [enabled, scene]);
+	return null;
+}
+
 export default function ThreeCanvas({ sunData }: ThreeCanvasProps) {
 	const uvMode = useStore((s) => s.ui.uvMode);
+	const view = useStore((s) => s.ui.view);
+	const gpuTier = useStore((s) => s.ui.gpuTier);
+
+	const fogEnabled = shouldEnableFog(uvMode, view);
 
 	return (
 		<>
-			{uvMode && <fog attach="fog" args={["#0A0A1A", 8, 25]} />}
+			{/* Fog: exponential, only in UV mode + 3D perspective view */}
+			{fogEnabled && (
+				<fogExp2 attach="fog" args={["#07071A", 0.04]} />
+			)}
+			<FogController enabled={fogEnabled} />
+
+			{/* Environment with UV tube lightformers for PBR reflections */}
+			<Environment
+				preset="night"
+				environmentIntensity={0.15}
+				background={false}
+			>
+				{UV_LAMP_POSITIONS.map((pos, i) => (
+					<Lightformer
+						key={i}
+						form="rect"
+						intensity={0.4}
+						color="#8800FF"
+						position={pos}
+						rotation-x={Math.PI / 2}
+						scale={[0.3, 2, 1]}
+					/>
+				))}
+			</Environment>
+
+			{/* SoftShadows: PCSS, mid+high tier only */}
+			{shouldEnableSoftShadows(gpuTier) && (
+				<SoftShadows size={25} samples={10} />
+			)}
+
+			{/* Performance monitoring */}
+			<PerformanceMonitor />
+
+			{/* Dev-only FPS counter */}
+			{import.meta.env.DEV && <Stats />}
+
 			<ambientLight
 				color={uvMode ? "#220044" : "#ffffff"}
 				intensity={uvMode ? 0.3 : 0.8}
