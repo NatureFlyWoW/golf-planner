@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { Suspense, lazy, useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { BottomToolbar } from "./components/ui/BottomToolbar";
 import { HoleDrawer } from "./components/ui/HoleDrawer";
 import { KeyboardHelp } from "./components/ui/KeyboardHelp";
@@ -15,11 +15,13 @@ import { useSunPosition } from "./hooks/useSunPosition";
 import { useStore } from "./store";
 import { isMobile } from "./utils/isMobile";
 
+const Builder = lazy(() => import("./components/builder/Builder"));
 const ThreeCanvas = lazy(() => import("./components/three/ThreeCanvas"));
 
 export default function App() {
 	const tool = useStore((s) => s.ui.tool);
 	const uvMode = useStore((s) => s.ui.uvMode);
+	const builderMode = useStore((s) => s.builderMode);
 	const sunDate = useStore((s) => s.ui.sunDate);
 	const sunData = useSunPosition(sunDate);
 	const budgetSize = useStore((s) => Object.keys(s.budget).length);
@@ -67,6 +69,11 @@ export default function App() {
 			<MobileDetailPanel />
 			<MobileSunControls />
 			<MobileBudgetPanel />
+			{builderMode && (
+				<Suspense fallback={null}>
+					<Builder />
+				</Suspense>
+			)}
 		</div>
 	);
 }
