@@ -23,8 +23,11 @@ import type {
 	Hall,
 	Hole,
 	HoleType,
+	LayerId,
+	LayerState,
 	UIState,
 	VatProfile,
+	ViewportLayout,
 } from "../types";
 import type { HoleTemplate } from "../types/template";
 import { uncertaintyFromTier } from "../utils/financial";
@@ -92,6 +95,19 @@ type StoreActions = {
 	deleteExpense: (expenseId: string) => void;
 	updateCategoryTier: (id: string, tier: ConfidenceTier) => void;
 	registerScreenshotCapture: (fn: () => void) => void;
+	// Viewport layout actions
+	setViewportLayout: (layout: ViewportLayout) => void;
+	setSplitRatio: (ratio: number) => void;
+	collapseTo: (pane: "2d" | "3d") => void;
+	expandDual: () => void;
+	setActiveViewport: (viewport: "2d" | "3d" | null) => void;
+	// Layer management actions
+	setLayerVisible: (layerId: LayerId, visible: boolean) => void;
+	setLayerOpacity: (layerId: LayerId, opacity: number) => void;
+	setLayerLocked: (layerId: LayerId, locked: boolean) => void;
+	toggleLayerVisible: (layerId: LayerId) => void;
+	toggleLayerLocked: (layerId: LayerId) => void;
+	resetLayers: () => void;
 } & BuilderActions;
 
 export type Store = StoreState & StoreActions;
@@ -112,6 +128,14 @@ type PersistedSlice = {
 	costPerHole?: number;
 };
 
+export const DEFAULT_LAYERS: Record<LayerId, LayerState> = {
+	holes: { visible: true, opacity: 1, locked: false },
+	flowPath: { visible: true, opacity: 1, locked: false },
+	grid: { visible: true, opacity: 1, locked: false },
+	walls: { visible: true, opacity: 1, locked: false },
+	sunIndicator: { visible: true, opacity: 1, locked: false },
+};
+
 const DEFAULT_UI: UIState = {
 	tool: "select",
 	placingType: null,
@@ -126,6 +150,10 @@ const DEFAULT_UI: UIState = {
 	gpuTier: "low",
 	transitioning: false,
 	godRaysLampRef: null,
+	viewportLayout: "dual",
+	activeViewport: null,
+	splitRatio: 0.5,
+	layers: { ...DEFAULT_LAYERS },
 };
 
 function migrateToV4(state: PersistedSlice): void {
@@ -574,6 +602,93 @@ export const useStore = create<Store>()(
 					}),
 
 				registerScreenshotCapture: (fn) => set({ captureScreenshot: fn }),
+
+				// Viewport layout actions
+				setViewportLayout: (layout) =>
+					set((state) => ({ ui: { ...state.ui, viewportLayout: layout } })),
+				setSplitRatio: (ratio) =>
+					set((state) => ({
+						ui: {
+							...state.ui,
+							splitRatio: Math.max(0.2, Math.min(0.8, ratio)),
+						},
+					})),
+				collapseTo: (pane) =>
+					set((state) => ({
+						ui: {
+							...state.ui,
+							viewportLayout: pane === "2d" ? "2d-only" : "3d-only",
+						},
+					})),
+				expandDual: () =>
+					set((state) => ({ ui: { ...state.ui, viewportLayout: "dual" } })),
+				setActiveViewport: (viewport) =>
+					set((state) => ({ ui: { ...state.ui, activeViewport: viewport } })),
+
+				// Layer management actions
+				setLayerVisible: (layerId, visible) =>
+					set((state) => ({
+						ui: {
+							...state.ui,
+							layers: {
+								...state.ui.layers,
+								[layerId]: { ...state.ui.layers[layerId], visible },
+							},
+						},
+					})),
+				setLayerOpacity: (layerId, opacity) =>
+					set((state) => ({
+						ui: {
+							...state.ui,
+							layers: {
+								...state.ui.layers,
+								[layerId]: {
+									...state.ui.layers[layerId],
+									opacity: Math.max(0, Math.min(1, opacity)),
+								},
+							},
+						},
+					})),
+				setLayerLocked: (layerId, locked) =>
+					set((state) => ({
+						ui: {
+							...state.ui,
+							layers: {
+								...state.ui.layers,
+								[layerId]: { ...state.ui.layers[layerId], locked },
+							},
+						},
+					})),
+				toggleLayerVisible: (layerId) =>
+					set((state) => ({
+						ui: {
+							...state.ui,
+							layers: {
+								...state.ui.layers,
+								[layerId]: {
+									...state.ui.layers[layerId],
+									visible: !state.ui.layers[layerId].visible,
+								},
+							},
+						},
+					})),
+				toggleLayerLocked: (layerId) =>
+					set((state) => ({
+						ui: {
+							...state.ui,
+							layers: {
+								...state.ui.layers,
+								[layerId]: {
+									...state.ui.layers[layerId],
+									locked: !state.ui.layers[layerId].locked,
+								},
+							},
+						},
+					})),
+				resetLayers: () =>
+					set((state) => ({
+						ui: { ...state.ui, layers: { ...DEFAULT_LAYERS } },
+					})),
 			}),
 			{
 				name: "golf-planner-state",

@@ -37,3 +37,10 @@ export type {
 	UIState,
 	ViewMode,
 } from "./ui";
+export type {
+	CameraPreset,
+	LayerDefinition,
+	LayerId,
+	LayerState,
+	ViewportLayout,
+} from "./viewport";
