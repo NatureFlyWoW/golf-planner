@@ -32,6 +32,7 @@ export function LayerRow({
 			<button
 				type="button"
 				onClick={onToggleVisible}
+				data-testid={`layer-visibility-${layerId}`}
 				aria-label={`Toggle ${label} visibility`}
 				className="w-6 text-center text-sm text-text-secondary hover:text-primary"
 				title={visible ? "Hide" : "Show"}

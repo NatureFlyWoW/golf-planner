@@ -22,6 +22,7 @@ export function SplitDivider({
 			aria-orientation="vertical"
 			aria-valuenow={Math.round(splitRatio * 100)}
 			tabIndex={0}
+			data-testid="split-divider"
 			className="group flex w-3 flex-shrink-0 cursor-col-resize items-center justify-center"
 			onMouseDown={onMouseDown}
 			onTouchStart={onTouchStart}

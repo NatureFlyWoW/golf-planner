@@ -1,7 +1,7 @@
 import { type Page, expect, test } from "@playwright/test";
 
 /**
- * Visual regression tests for GOLF FORGE Phase 11A.
+ * Visual regression tests for GOLF FORGE.
  *
  * These tests capture screenshots of key app states and compare
  * against baseline images stored in tests/visual/golf-forge.spec.ts-snapshots/.
@@ -16,6 +16,14 @@ import { type Page, expect, test } from "@playwright/test";
 async function waitForCanvasRender(page: Page) {
 	await page.waitForSelector("canvas", { timeout: 10000 });
 	await page.waitForTimeout(2000);
+}
+
+/** Collapse the dual viewport to 3D-only by hovering 3D pane then double-clicking divider. */
+async function collapseTo3DOnly(page: Page) {
+	await page.locator("[data-testid='pane-3d']").hover();
+	await page.waitForTimeout(200);
+	await page.locator("[data-testid='split-divider']").dblclick();
+	await page.waitForTimeout(1000);
 }
 
 test.describe("Setup validation", () => {
@@ -42,9 +50,8 @@ test.describe("Planning Mode", () => {
 	test("3D perspective view", async ({ page }) => {
 		await page.goto("/");
 		await waitForCanvasRender(page);
-		// Switch to 3D view
-		await page.locator("[data-testid='view-toggle']").click();
-		await page.waitForTimeout(1000);
+		// Collapse to 3D-only mode (view-toggle removed in dual-viewport migration)
+		await collapseTo3DOnly(page);
 		await expect(page).toHaveScreenshot("planning-3d.png");
 	});
 });
@@ -66,9 +73,9 @@ test.describe("UV Mode", () => {
 		// Toggle UV mode
 		await page.locator("[data-testid='uv-toggle']").click();
 		await page.waitForTimeout(3000);
-		// Switch to 3D view
-		await page.locator("[data-testid='view-toggle']").click();
-		await page.waitForTimeout(2000);
+		// Collapse to 3D-only mode (view-toggle removed in dual-viewport migration)
+		await collapseTo3DOnly(page);
+		await page.waitForTimeout(1000);
 		await expect(page).toHaveScreenshot("uv-3d.png");
 	});
 });

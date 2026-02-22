@@ -292,6 +292,7 @@ export function DualViewport({ sunData }: DualViewportProps) {
 	return (
 		<div
 			ref={containerRef}
+			data-testid="dual-viewport"
 			className={`relative flex flex-1 overflow-hidden ${
 				isDragging ? "cursor-col-resize select-none" : ""
 			}`}
@@ -309,6 +310,7 @@ export function DualViewport({ sunData }: DualViewportProps) {
 			{show2D && (
 				<div
 					ref={pane2DRef}
+					data-testid="pane-2d"
 					className="relative h-full overflow-hidden"
 					style={{
 						width: showDivider
@@ -366,6 +368,7 @@ export function DualViewport({ sunData }: DualViewportProps) {
 			{show3D && (
 				<div
 					ref={pane3DRef}
+					data-testid="pane-3d"
 					className="relative h-full overflow-hidden"
 					style={{
 						width: showDivider
