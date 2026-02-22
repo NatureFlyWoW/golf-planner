@@ -1,4 +1,5 @@
 import { useViewportId } from "../../../hooks/useViewportId";
+import { ArchitecturalWalls2D } from "./ArchitecturalWalls2D";
 
 /**
  * Container for all 2D architectural floor plan elements.
@@ -11,7 +12,7 @@ export function ArchitecturalFloorPlan() {
 
 	return (
 		<group name="architectural-floor-plan">
-			{/* Section 03: ArchitecturalWalls2D */}
+			<ArchitecturalWalls2D />
 			{/* Section 04: ArchitecturalOpenings2D */}
 			{/* Section 06: ArchitecturalGrid2D */}
 			{/* Section 07: HoleFelt2D overlays */}
