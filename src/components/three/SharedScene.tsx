@@ -6,6 +6,7 @@ import { FlowPath } from "./FlowPath";
 import { Hall } from "./Hall";
 import { PlacedHoles } from "./PlacedHoles";
 import { SunIndicator } from "./SunIndicator";
+import { ArchitecturalFloorPlan } from "./architectural/ArchitecturalFloorPlan";
 // Temporary spike — remove in Section 10
 import { RenderingSpike } from "./architectural/RenderingSpike";
 
@@ -61,6 +62,7 @@ export function SharedScene({ sunData }: SharedSceneProps) {
 			<PlacedHoles />
 			<FlowPath />
 			<FloorGrid />
+			<ArchitecturalFloorPlan />
 			<SunIndicator sunData={sunData} />
 			{/* Temporary spike — remove in Section 10 */}
 			<RenderingSpike />
