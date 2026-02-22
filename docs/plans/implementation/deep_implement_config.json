@@ -68,6 +68,42 @@
     "section-12-visual-tests": {
       "status": "complete",
       "commit_hash": "16ccb01"
+    },
+    "section-01-straight-glowup": {
+      "status": "complete",
+      "commit_hash": "8a66059"
+    },
+    "section-02-shared-library": {
+      "status": "complete",
+      "commit_hash": "08e695a"
+    },
+    "section-03-windmill": {
+      "status": "complete",
+      "commit_hash": "aa3aa98"
+    },
+    "section-04-tunnel": {
+      "status": "complete",
+      "commit_hash": "40f822c"
+    },
+    "section-05-loop-ramp": {
+      "status": "complete",
+      "commit_hash": "1258ef6"
+    },
+    "section-06-corner-fillets": {
+      "status": "complete",
+      "commit_hash": "86d1d21"
+    },
+    "section-07-template-parity": {
+      "status": "complete",
+      "commit_hash": "d3a50a6"
+    },
+    "section-08-hall-environment": {
+      "status": "complete",
+      "commit_hash": "06c4801"
+    },
+    "section-09-performance": {
+      "status": "complete",
+      "commit_hash": "bdf83bc"
     }
   },
   "pre_commit": {

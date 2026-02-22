@@ -1,128 +1,97 @@
-# Phase 11A — GOLF FORGE Visual Rendering Overhaul: Usage Guide
+# Phase 12: Beautiful 3D Models — Usage Guide
 
 ## Quick Start
 
 ```bash
 cd golf-planner
-npm run dev        # Start dev server at http://localhost:5173
-npm test           # Run 377 unit tests (Vitest)
-npm run test:visual # Run 10 visual regression tests (Playwright)
+npm run dev    # Start dev server at http://localhost:5173
+npm test       # Run 495 unit tests (Vitest)
 ```
 
 ## What Was Built
 
-Phase 11A transformed the GOLF FORGE planner from a plain wireframe tool into an immersive, themed 3D experience. All 12 sections are implemented across 12 commits.
+Phase 12 transformed flat-colored mini golf holes into textured, rounded 3D geometry with PBR materials. The hall environment received concrete floor and corrugated steel wall textures. GPU-tier-aware performance optimization ensures smooth rendering across devices.
 
-### Key Features
+### 9 Sections Implemented
 
-**GPU Tier System** (Section 01)
-- Auto-detects GPU capability (low/mid/high) on first load
-- Controls which effects are enabled (fog, bloom, soft shadows, reflections, god rays)
-- Manual override in settings: `Budget tab → Settings → GPU Tier`
-- Persisted in localStorage (store v8)
+1. **Straight Hole Glow-Up** — Beveled bumper rails, PBR felt/bumper/tee/cup materials, TexturedHole/FlatHole dispatch with Suspense
+2. **Shared Component Library** — BumperRail, Cup, TeePad extracted and reused across all 7 hole types
+3. **Windmill Overhaul** — Tapered octagonal tower, cone roof, shaped blades with hub, brick base
+4. **Tunnel Overhaul** — ExtrudeGeometry stone archway with entrance frames
+5. **Loop/Ramp Overhaul** — TubeGeometry arch for loop, bezier curve ramp slopes
+6. **Corner Fillets** — Quarter-cylinder fillets for dogleg and L-shape inner corners
+7. **Template Hole Parity** — Rounded bumpers + material migration for segment-based custom holes
+8. **Hall Environment** — Concrete floor + corrugated steel wall textures with GPU tier gating
+9. **Performance** — GPU tier texture gating, top-down view optimization, mergeVertices on all geometry
 
-**Dark Theme** (Sections 02-04)
-- Full dark theme with `--void` (#07071A) background
-- Self-hosted Rajdhani + Orbitron fonts for GOLF FORGE branding
-- High-contrast amber-on-dark data panels for financial figures
-- Monospace financial figures with amber accent color
+## Key Components
 
-**3D Environment** (Section 05)
-- HDR environment lighting (apartment preset)
-- Fog in UV+3D mode only (exponential, gated by view mode)
-- Frameloop optimization: `"demand"` when idle, `"always"` during UV/transitions
-- DPR scaling based on GPU tier and mobile detection
+### Shared Sub-Components (`src/components/three/holes/`)
+| Component | Purpose |
+|-----------|---------|
+| BumperRail.tsx | Reusable rounded bumper (ExtrudeGeometry + quadratic bevel) |
+| Cup.tsx | Recessed cup with flag pin (hidden in top-down) |
+| TeePad.tsx | Raised tee pad with marker dot |
+| FlagPin.tsx | Flag pin with top-down visibility gating |
+| useMaterials.ts | `useMaterials()` hook → MaterialSet + textureMapSet + isTopDown |
+| materialPresets.ts | PBR property tables per MaterialProfile |
 
-**PostProcessing Effects** (Section 06)
-- N8AO ambient occlusion (mid+ GPU)
-- Bloom (UV mode only, neon-violet theme)
-- Sparkles particle system (UV mode, high GPU)
-- All effects gated by GPU tier
+### Geometry Utilities (`src/utils/`)
+| Utility | Purpose |
+|---------|---------|
+| bumperProfile.ts | `createBumperProfile()` → THREE.Shape, `createBumperGeometry()` → ExtrudeGeometry |
+| segmentGeometry.ts | `createSegmentGeometries()` → felt + bumperLeft + bumperRight with mergeVertices |
+| filletGeometry.ts | Quarter-cylinder fillet geometry for corners |
 
-**Reflections** (Section 07)
-- MeshReflectorMaterial on hall floor in UV+3D mode
-- Mirror/blur/roughness parameters gated by GPU tier
+### Performance Gating (`src/utils/`)
+| Utility | Purpose |
+|---------|---------|
+| textureGating.ts | `getTextureMapSet(gpuTier, isTopDown)` → which texture maps to load |
+| topDownGating.ts | `shouldShowFlagPin()`, `shouldUseSimpleBumpers()`, `shouldSkipNormalMaps()` |
 
-**UV Lighting** (Section 08)
-- 6 RectAreaLight UV lamps at ceiling positions
-- Visible lamp fixture geometry (housing + lens)
-- Neon-violet (#9D00FF) emission
+### Hall Environment (`src/components/three/`)
+| Component | Purpose |
+|-----------|---------|
+| HallFloor.tsx | Concrete texture + reflector integration, Suspense fallback |
+| HallWalls.tsx | Corrugated steel texture, per-wall UV repeat, material disposal |
 
-**God Rays** (Section 09)
-- Screen-space radial blur from UV lamp positions
-- High GPU tier only, UV mode only
-- GodRays postprocessing effect from @react-three/postprocessing
+## GPU Tier Behavior
 
-**UV Transition** (Section 10)
-- 4-phase theatrical animation (flicker → darkness → reveal → complete)
-- 2.4 second duration, rAF-driven DOM overlay
-- Material swap hidden behind dark overlay at 800ms
-- Can be disabled in settings for instant toggle
-- Double-click guard prevents re-triggering during animation
+| Tier | Textures | Normal Maps | Roughness Maps |
+|------|----------|-------------|----------------|
+| low  | None (flat color) | None | None |
+| mid  | Color + Normal | Yes | No |
+| high | All PBR maps | Yes | Yes |
 
-**Performance** (Section 11)
-- Module-level singleton MeshStandardMaterial in HallWalls
-- Shadow type gated on GPU tier + mobile detection
+Top-down view: only color maps loaded (normal/roughness invisible from above).
 
-**Visual Tests** (Section 12)
-- 10 Playwright screenshot comparison tests
-- Covers planning mode, UV mode, dark theme UI, mobile layout
-- 8 baseline screenshots committed
-- Run: `npm run test:visual`
+## Triangle Budgets
 
-## Store Changes
+| Geometry | Budget |
+|----------|--------|
+| Straight segment | < 500 |
+| Curve segment | < 2,000 |
+| S-curve segment | < 4,000 |
+| 18-hole course | < 50,000 |
 
-Store format bumped from v7 to v8:
-- **v7→v8**: Adds `uvTransitionEnabled: true` (persisted)
-- Existing v7 data auto-migrates on load
+## Procedural Textures
 
-New persisted fields: `gpuTierOverride`, `uvTransitionEnabled`
-New ephemeral state: `gpuTier`, `transitioning`, `godRaysLampRef`
+All textures are procedurally generated (512px JPG) due to WSL2 environment limitations:
+- `public/textures/concrete/` — color, normal, roughness
+- `public/textures/steel/` — color, normal, roughness, metalness
+- `public/textures/felt/` — color, normal, roughness (per material profile)
+- `public/textures/wood/` — color, normal, roughness
+- `public/textures/rubber/` — color, normal, roughness
+- `public/textures/brick/` — color, normal, roughness
 
-## New Actions
+## Test Suite
 
-| Action | Description |
-|--------|-------------|
-| `flipUvMode()` | Direct UV mode flip (used by transition overlay) |
-| `setGpuTier(tier)` | Set detected GPU tier |
-| `setGpuTierOverride(val)` | Set manual GPU tier override |
-| `setTransitioning(bool)` | Set transition state |
-| `setGodRaysLampRef(ref)` | Wire GodRays emissive mesh ref |
-| `setUvTransitionEnabled(bool)` | Toggle transition animation |
-
-## File Structure (New)
-
-```
-src/
-  components/three/
-    GodRaysSource.tsx        # Emissive spheres for GodRays effect
-    UVLamps.tsx              # RectAreaLight fixtures
-    UVTransition.tsx         # DOM overlay transition
-    PostProcessing.tsx       # (modified) N8AO + GodRays + Bloom
-  constants/
-    uvLamps.ts               # Lamp position constants
-  hooks/
-    useGpuTier.ts            # GPU detection hook
-  theme/
-    tokens.ts                # CSS custom property tokens
-    fonts.css                # @font-face declarations
-  utils/
-    environmentGating.ts     # (modified) fog, frameloop, shadows, shadow type
-    godraysConfig.ts         # GodRays configuration constants
-    materialPresets.ts       # PBR material presets
-    reflectionConfig.ts      # Reflection parameters
-    uvTransitionConfig.ts    # Transition timing constants
-tests/
-  visual/
-    golf-forge.spec.ts       # Playwright visual regression tests
-    golf-forge.spec.ts-snapshots/  # Baseline screenshots
-playwright.config.ts         # Playwright configuration
-```
-
-## Updating Visual Baselines
-
-After making visual changes:
-```bash
-npx playwright test --update-snapshots
-git add tests/visual/golf-forge.spec.ts-snapshots/
-```
+495 tests across 46 files. New test files:
+- `tests/utils/bumperProfile.test.ts` — Bumper shape + geometry
+- `tests/utils/segmentGeometry.test.ts` — Segment geometry + triangle budgets
+- `tests/hooks/texturedMaterials.test.ts` — Material hook + texture loading
+- `tests/hooks/gpuTierTextures.test.ts` — GPU tier texture gating
+- `tests/components/holes/topDownView.test.ts` — Top-down optimization
+- `tests/utils/geometryOptimization.test.ts` — mergeVertices + budgets
+- `tests/components/three/hallEnvironment.test.ts` — Hall texture gating
+- `tests/components/holes/templateHole.test.ts` — Template hole migration
