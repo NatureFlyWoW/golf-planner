@@ -4,6 +4,7 @@ import { BottomToolbar } from "./components/ui/BottomToolbar";
 import { HoleDrawer } from "./components/ui/HoleDrawer";
 import { LocationBar } from "./components/ui/LocationBar";
 import { MobileBudgetPanel } from "./components/ui/MobileBudgetPanel";
+import { MobileLayerPanel } from "./components/ui/MobileLayerPanel";
 import { MobileDetailPanel } from "./components/ui/MobileDetailPanel";
 import { MobileSunControls } from "./components/ui/MobileSunControls";
 import { Sidebar } from "./components/ui/Sidebar";
@@ -43,6 +44,7 @@ export default function App() {
 			<MobileDetailPanel />
 			<MobileSunControls />
 			<MobileBudgetPanel />
+			<MobileLayerPanel />
 			{builderMode && (
 				<Suspense fallback={null}>
 					<Builder />

@@ -2,6 +2,7 @@ import type CameraControlsImpl from "camera-controls";
 import type { RefObject } from "react";
 import { useStore } from "../../store";
 import { getCameraPresets } from "../../utils/cameraPresets";
+import { isMobile } from "../../utils/isMobile";
 
 type CameraPresetsProps = {
 	cameraControlsRef: RefObject<CameraControlsImpl | null>;
@@ -18,6 +19,9 @@ const PRESET_BUTTONS = [
 
 export function CameraPresets({ cameraControlsRef }: CameraPresetsProps) {
 	const hall = useStore((s) => s.hall);
+
+	// Hide camera preset buttons on mobile — no dedicated 3D pane
+	if (isMobile) return null;
 
 	function handlePresetClick(presetKey: (typeof PRESET_BUTTONS)[number]["key"]) {
 		const ctrl = cameraControlsRef.current;

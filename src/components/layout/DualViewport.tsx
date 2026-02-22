@@ -11,6 +11,7 @@ import type CameraControlsImpl from "camera-controls";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { MOUSE, NoToneMapping, TOUCH } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
+import { useIsMobileViewport } from "../../hooks/useIsMobileViewport";
 import { useKeyboardControls } from "../../hooks/useKeyboardControls";
 import { useSplitPane } from "../../hooks/useSplitPane";
 import type { SunData } from "../../hooks/useSunPosition";
@@ -92,11 +93,13 @@ export function DualViewport({ sunData }: DualViewportProps) {
 	const viewportLayout = useStore((s) => s.ui.viewportLayout);
 	const splitRatio = useStore((s) => s.ui.splitRatio);
 	const tool = useStore((s) => s.ui.tool);
+	const view = useStore((s) => s.ui.view);
 	const uvMode = useStore((s) => s.ui.uvMode);
 	const gpuTier = useStore((s) => s.ui.gpuTier);
 	const transitioning = useStore((s) => s.ui.transitioning);
 	const hall = useStore((s) => s.hall);
 	const setActiveViewport = useStore((s) => s.setActiveViewport);
+	const isMobileViewport = useIsMobileViewport();
 	const {
 		isDragging,
 		onDividerMouseDown,
@@ -204,6 +207,87 @@ export function DualViewport({ sunData }: DualViewportProps) {
 				: [1, 1];
 	const frameloop = deriveFrameloop(uvMode, gpuTier, transitioning, viewportLayout);
 	const shadows = getShadowType(gpuTier, isMobile);
+
+	// Mobile: single-pane fallback — no View components, camera driven by ui.view
+	if (isMobileViewport) {
+		return (
+			<div
+				ref={containerRef}
+				className="relative flex-1 overflow-hidden"
+				style={{
+					cursor:
+						tool === "delete" ? "crosshair" : "default",
+					touchAction: "none",
+					pointerEvents: canvasPointerEvents(transitioning),
+				}}
+			>
+				<Canvas
+					dpr={dpr}
+					frameloop={frameloop}
+					shadows={shadows}
+					gl={{
+						antialias: false,
+						preserveDrawingBuffer: false,
+						powerPreference: "high-performance",
+						toneMapping: NoToneMapping,
+					}}
+				>
+					{shouldEnableSoftShadows(gpuTier) && (
+						<SoftShadows size={25} samples={10} />
+					)}
+					<Suspense fallback={null}>
+						{view === "top" ? (
+							<>
+								<OrthographicCamera
+									makeDefault
+									position={[defaultTarget[0], 50, defaultTarget[2]]}
+									zoom={DEFAULT_ORTHO_ZOOM}
+									near={0.1}
+									far={200}
+								/>
+								<OrbitControls
+									ref={controls2DRef}
+									target={defaultTarget}
+									enableRotate={false}
+									enablePan={true}
+									enableZoom={true}
+									minZoom={MIN_ORTHO_ZOOM}
+									maxZoom={MAX_ORTHO_ZOOM}
+									touches={{
+										ONE: TOUCH.PAN,
+										TWO: TOUCH.DOLLY_PAN,
+									}}
+									makeDefault
+								/>
+								<SharedScene sunData={sunData} />
+								<PlacementHandler />
+							</>
+						) : (
+							<>
+								<PerspectiveCamera
+									makeDefault
+									position={initialIsoPosition}
+									fov={PERSPECTIVE_FOV}
+									near={0.1}
+									far={500}
+								/>
+								<CameraControls
+									ref={controls3DRef}
+									makeDefault
+								/>
+								<SharedScene sunData={sunData} />
+								<ThreeDOnlyContent />
+								<PlacementHandler />
+							</>
+						)}
+					</Suspense>
+				</Canvas>
+				{/* Overlay components */}
+				<SunControls />
+				<KeyboardHelp />
+			</div>
+		);
+	}
 
 	return (
 		<div

@@ -251,6 +251,16 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 				>
 					Budget
 				</button>
+				<button
+					type="button"
+					onClick={() => {
+						setActivePanel("layers");
+						onClose();
+					}}
+					className="rounded-lg bg-plasma px-4 py-2 text-sm font-medium text-text-secondary"
+				>
+					Layers
+				</button>
 			</div>
 		</>
 	);
