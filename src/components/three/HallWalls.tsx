@@ -1,7 +1,8 @@
 import { useTexture } from "@react-three/drei";
-import { Suspense, useEffect, useMemo } from "react";
+import { Suspense, useEffect, useMemo, useRef } from "react";
 import { MeshStandardMaterial } from "three";
 import * as THREE from "three";
+import { useGroupOpacity } from "../../hooks/useGroupOpacity";
 import { useStore } from "../../store";
 import type { GpuTier } from "../../types/ui";
 
@@ -189,22 +190,35 @@ function TexturedHallWalls({
 	);
 }
 
-export function HallWalls() {
+type HallWallsOuterProps = {
+	layerOpacity?: number;
+};
+
+export function HallWalls({ layerOpacity = 1 }: HallWallsOuterProps) {
 	const { width, length, wallHeight, wallThickness } = useStore(
 		(s) => s.hall,
 	);
 	const uvMode = useStore((s) => s.ui.uvMode);
 	const gpuTier = useStore((s) => s.ui.gpuTier);
+	const groupRef = useRef<THREE.Group>(null);
+
+	useGroupOpacity(groupRef, layerOpacity);
 
 	const props = { width, length, wallHeight, wallThickness, uvMode };
 
 	if (!shouldLoadHallTextures(gpuTier)) {
-		return <FlatHallWalls {...props} />;
+		return (
+			<group ref={groupRef}>
+				<FlatHallWalls {...props} />
+			</group>
+		);
 	}
 
 	return (
-		<Suspense fallback={<FlatHallWalls {...props} />}>
-			<TexturedHallWalls {...props} />
-		</Suspense>
+		<group ref={groupRef}>
+			<Suspense fallback={<FlatHallWalls {...props} />}>
+				<TexturedHallWalls {...props} />
+			</Suspense>
+		</group>
 	);
 }

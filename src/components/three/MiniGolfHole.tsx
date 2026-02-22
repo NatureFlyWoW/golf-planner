@@ -19,12 +19,20 @@ type Props = {
 	hole: Hole;
 	isSelected: boolean;
 	onClick: () => void;
+	layerOpacity?: number;
+	layerLocked?: boolean;
 };
 
 const INTERACTION_HEIGHT = 0.3;
 const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
-export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
+export function MiniGolfHole({
+	hole,
+	isSelected,
+	onClick,
+	layerOpacity = 1,
+	layerLocked = false,
+}: Props) {
 	const definition = HOLE_TYPE_MAP[hole.type];
 	const updateHole = useStore((s) => s.updateHole);
 	const removeHole = useStore((s) => s.removeHole);
@@ -60,6 +68,7 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 	const rotationRad = (hole.rotation * Math.PI) / 180;
 
 	function handlePointerDown(e: ThreeEvent<PointerEvent>) {
+		if (layerLocked) return;
 		if (tool !== "select" || !isSelected) return;
 		if (viewportInfo && !isEventForThisViewport(e, viewportInfo)) return;
 		e.stopPropagation();
@@ -72,6 +81,7 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 	}
 
 	function handlePointerMove(e: ThreeEvent<PointerEvent>) {
+		if (layerLocked) return;
 		if (!dragStart.current || !pointerStartScreen.current) return;
 		if (viewportInfo && !isEventForThisViewport(e, viewportInfo)) return;
 		e.stopPropagation();
@@ -159,6 +169,8 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 		setIsDragging(false);
 		dragStart.current = null;
 		pointerStartScreen.current = null;
+		// If layer became locked mid-drag, we still clean up above
+		if (layerLocked) return;
 	}
 
 	const showOverlay =
@@ -180,6 +192,7 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 			<mesh
 				position={[0, INTERACTION_HEIGHT / 2, 0]}
 				onClick={(e) => {
+					if (layerLocked) return;
 					if (viewportInfo && !isEventForThisViewport(e, viewportInfo))
 						return;
 					e.stopPropagation();
@@ -193,11 +206,13 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 				onPointerMove={handlePointerMove}
 				onPointerUp={handlePointerUp}
 				onPointerEnter={(e) => {
+					if (layerLocked) return;
 					if (viewportInfo && !isEventForThisViewport(e, viewportInfo))
 						return;
 					setIsHovered(true);
 				}}
 				onPointerLeave={(e) => {
+					if (layerLocked) return;
 					if (viewportInfo && !isEventForThisViewport(e, viewportInfo))
 						return;
 					setIsHovered(false);
@@ -237,6 +252,7 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 				length={length}
 				color={color}
 				templateId={hole.templateId}
+				layerOpacity={layerOpacity}
 			/>
 
 			{/* Selection outline — sized to model height */}

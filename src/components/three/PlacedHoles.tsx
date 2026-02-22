@@ -7,6 +7,9 @@ export function PlacedHoles() {
 	const holeOrder = useStore((s) => s.holeOrder);
 	const selectedId = useStore((s) => s.selectedId);
 	const selectHole = useStore((s) => s.selectHole);
+	const holesLayer = useStore((s) => s.ui.layers.holes);
+
+	if (!holesLayer.visible) return null;
 
 	return (
 		<group>
@@ -19,15 +22,18 @@ export function PlacedHoles() {
 						hole={hole}
 						isSelected={selectedId === id}
 						onClick={() => selectHole(id)}
+						layerOpacity={holesLayer.opacity}
+						layerLocked={holesLayer.locked}
 					/>
 				);
 			})}
-			{selectedId && holes[selectedId] && (
+			{selectedId && holes[selectedId] && !holesLayer.locked && (
 				<RotationHandle
 					holeId={selectedId}
 					holeX={holes[selectedId].position.x}
 					holeZ={holes[selectedId].position.z}
 					rotation={holes[selectedId].rotation}
+					layerLocked={holesLayer.locked}
 				/>
 			)}
 		</group>

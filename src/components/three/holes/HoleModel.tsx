@@ -1,4 +1,6 @@
-import { Component, type ReactNode, Suspense } from "react";
+import { Component, type ReactNode, Suspense, useRef } from "react";
+import type { Group } from "three";
+import { useGroupOpacity } from "../../../hooks/useGroupOpacity";
 import { useStore } from "../../../store";
 import { HoleDogleg } from "./HoleDogleg";
 import { HoleLoop } from "./HoleLoop";
@@ -17,6 +19,7 @@ export type HoleModelProps = {
 	length: number;
 	color: string;
 	templateId?: string;
+	layerOpacity?: number;
 };
 
 type HoleSwitchProps = {
@@ -91,11 +94,18 @@ export function HoleModel({
 	length,
 	color,
 	templateId,
+	layerOpacity = 1,
 }: HoleModelProps) {
 	const gpuTier = useStore((s) => s.ui.gpuTier);
+	const groupRef = useRef<Group>(null);
+	useGroupOpacity(groupRef, layerOpacity);
 
 	if (templateId) {
-		return <TemplateHoleModel templateId={templateId} />;
+		return (
+			<group ref={groupRef}>
+				<TemplateHoleModel templateId={templateId} />
+			</group>
+		);
 	}
 
 	if (gpuTier !== "low") {
@@ -103,20 +113,24 @@ export function HoleModel({
 			<HoleSwitch type={type} width={width} length={length} color={color} />
 		);
 		return (
-			<TextureErrorBoundary fallback={flatFallback}>
-				<Suspense fallback={flatFallback}>
-					<TexturedHoleSwitch
-						type={type}
-						width={width}
-						length={length}
-						color={color}
-					/>
-				</Suspense>
-			</TextureErrorBoundary>
+			<group ref={groupRef}>
+				<TextureErrorBoundary fallback={flatFallback}>
+					<Suspense fallback={flatFallback}>
+						<TexturedHoleSwitch
+							type={type}
+							width={width}
+							length={length}
+							color={color}
+						/>
+					</Suspense>
+				</TextureErrorBoundary>
+			</group>
 		);
 	}
 
 	return (
-		<HoleSwitch type={type} width={width} length={length} color={color} />
+		<group ref={groupRef}>
+			<HoleSwitch type={type} width={width} length={length} color={color} />
+		</group>
 	);
 }

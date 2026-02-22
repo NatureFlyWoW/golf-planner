@@ -46,21 +46,31 @@ export function SunIndicator({ sunData }: SunIndicatorProps) {
 	}, [sunData.azimuth, sunData.isDay, width, length]);
 
 	const uvMode = useStore((s) => s.ui.uvMode);
+	const sunLayer = useStore((s) => s.ui.layers.sunIndicator);
 
 	if (uvMode) return null;
 	if (!visible) return null;
+	if (!sunLayer.visible) return null;
 
 	return (
 		<group position={position} rotation={[0, rotation, 0]}>
 			{/* Arrow body */}
 			<mesh position={[0, 0, 0.5]}>
 				<boxGeometry args={[0.3, 0.05, 1.0]} />
-				<meshStandardMaterial color="#FFA726" />
+				<meshStandardMaterial
+					color="#FFA726"
+					transparent={sunLayer.opacity < 1}
+					opacity={sunLayer.opacity}
+				/>
 			</mesh>
 			{/* Arrow head (triangle via cone) */}
 			<mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
 				<coneGeometry args={[0.4, 0.6, 3]} />
-				<meshStandardMaterial color="#FF9800" />
+				<meshStandardMaterial
+					color="#FF9800"
+					transparent={sunLayer.opacity < 1}
+					opacity={sunLayer.opacity}
+				/>
 			</mesh>
 			{/* Sun info label */}
 			<Html position={[0, 0.5, 1.2]} center>
@@ -75,6 +85,7 @@ export function SunIndicator({ sunData }: SunIndicatorProps) {
 						fontFamily: "monospace",
 						userSelect: "none",
 						pointerEvents: "none",
+						opacity: sunLayer.opacity,
 					}}
 				>
 					{sunData.azimuthDeg} {sunData.altitudeDeg} alt

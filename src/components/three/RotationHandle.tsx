@@ -18,6 +18,7 @@ type RotationHandleProps = {
 	holeX: number;
 	holeZ: number;
 	rotation: number;
+	layerLocked?: boolean;
 };
 
 export function RotationHandle({
@@ -25,6 +26,7 @@ export function RotationHandle({
 	holeX,
 	holeZ,
 	rotation,
+	layerLocked = false,
 }: RotationHandleProps) {
 	const updateHole = useStore((s) => s.updateHole);
 	const [isDragging, setIsDragging] = useState(false);
@@ -36,6 +38,7 @@ export function RotationHandle({
 	const handleZ = Math.cos(rotRad) * RING_RADIUS;
 
 	function handlePointerDown(e: ThreeEvent<PointerEvent>) {
+		if (layerLocked) return;
 		if (viewportInfo && !isEventForThisViewport(e, viewportInfo)) return;
 		e.stopPropagation();
 		setIsDragging(true);

@@ -5,12 +5,12 @@ const LINE_Y = 0.02;
 const LABEL_Y = 0.5;
 
 export function FlowPath() {
-	const showFlowPath = useStore((s) => s.ui.showFlowPath);
+	const flowPathLayer = useStore((s) => s.ui.layers.flowPath);
 	const holes = useStore((s) => s.holes);
 	const holeOrder = useStore((s) => s.holeOrder);
 	const uvMode = useStore((s) => s.ui.uvMode);
 
-	if (!showFlowPath || holeOrder.length < 2) return null;
+	if (!flowPathLayer.visible || holeOrder.length < 2) return null;
 
 	const points: [number, number, number][] = [];
 	for (const id of holeOrder) {
@@ -30,7 +30,7 @@ export function FlowPath() {
 				dashed
 				dashSize={0.3}
 				gapSize={0.15}
-				opacity={0.5}
+				opacity={0.5 * flowPathLayer.opacity}
 				transparent
 			/>
 			{holeOrder.map((id, index) => {
@@ -49,6 +49,8 @@ export function FlowPath() {
 							anchorY="middle"
 							outlineWidth={0.03}
 							outlineColor={uvMode ? "#0A0A1A" : "black"}
+						fillOpacity={flowPathLayer.opacity}
+						outlineOpacity={flowPathLayer.opacity}
 						>
 							{index + 1}
 						</Text>

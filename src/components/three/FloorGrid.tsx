@@ -4,6 +4,9 @@ import { useStore } from "../../store";
 export function FloorGrid() {
 	const { width, length } = useStore((s) => s.hall);
 	const uvMode = useStore((s) => s.ui.uvMode);
+	const gridLayer = useStore((s) => s.ui.layers.grid);
+
+	if (!gridLayer.visible) return null;
 
 	return (
 		<Grid
