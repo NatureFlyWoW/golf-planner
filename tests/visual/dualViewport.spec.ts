@@ -13,6 +13,19 @@ async function waitForCanvasRender(page: Page) {
 	await page.waitForTimeout(2000);
 }
 
+/** Collapse the dual viewport via store (more reliable than DOM interactions with Canvas overlay). */
+async function collapseToLayout(page: Page, layout: "2d-only" | "3d-only") {
+	const side = layout === "2d-only" ? "2d" : "3d";
+	await page.evaluate(
+		(s) => {
+			const store = (window as Record<string, any>).__STORE__;
+			if (store) store.getState().collapseTo(s);
+		},
+		side,
+	);
+	await page.waitForTimeout(500);
+}
+
 test.describe("Dual Viewport Layout", () => {
 	test("dual-pane layout at 1280x720 (50/50 split)", async ({ page }) => {
 		// Default viewport is 1280x720 per playwright.config.ts
@@ -28,9 +41,8 @@ test.describe("Dual Viewport Layout", () => {
 	test("collapsed-to-2D mode", async ({ page }) => {
 		await page.goto("/");
 		await waitForCanvasRender(page);
-		// Double-click the divider — collapses to 2D-only (default active viewport)
-		await page.locator("[data-testid='split-divider']").dblclick();
-		await page.waitForTimeout(500);
+		// Collapse to 2D-only via store
+		await collapseToLayout(page, "2d-only");
 		// Verify 2D pane visible, 3D pane and divider hidden
 		await expect(page.locator("[data-testid='pane-2d']")).toBeVisible();
 		await expect(page.locator("[data-testid='pane-3d']")).not.toBeAttached();
@@ -41,11 +53,8 @@ test.describe("Dual Viewport Layout", () => {
 	test("collapsed-to-3D mode", async ({ page }) => {
 		await page.goto("/");
 		await waitForCanvasRender(page);
-		// Set active viewport to 3D by hovering, then collapse
-		await page.locator("[data-testid='pane-3d']").hover();
-		await page.waitForTimeout(200);
-		await page.locator("[data-testid='split-divider']").dblclick();
-		await page.waitForTimeout(500);
+		// Collapse to 3D-only via store
+		await collapseToLayout(page, "3d-only");
 		// Verify 3D pane visible, 2D pane and divider hidden
 		await expect(page.locator("[data-testid='pane-3d']")).toBeVisible();
 		await expect(page.locator("[data-testid='pane-2d']")).not.toBeAttached();

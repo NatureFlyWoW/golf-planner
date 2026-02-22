@@ -18,11 +18,12 @@ async function waitForCanvasRender(page: Page) {
 	await page.waitForTimeout(2000);
 }
 
-/** Collapse the dual viewport to 3D-only by hovering 3D pane then double-clicking divider. */
+/** Collapse the dual viewport to 3D-only via store. */
 async function collapseTo3DOnly(page: Page) {
-	await page.locator("[data-testid='pane-3d']").hover();
-	await page.waitForTimeout(200);
-	await page.locator("[data-testid='split-divider']").dblclick();
+	await page.evaluate(() => {
+		const store = (window as Record<string, any>).__STORE__;
+		if (store) store.getState().collapseTo("3d");
+	});
 	await page.waitForTimeout(1000);
 }
 
@@ -35,7 +36,7 @@ test.describe("Setup validation", () => {
 
 	test("canvas renders within 5 seconds", async ({ page }) => {
 		await page.goto("/");
-		const canvas = page.locator("canvas");
+		const canvas = page.locator("canvas").first();
 		await expect(canvas).toBeVisible({ timeout: 5000 });
 	});
 });
