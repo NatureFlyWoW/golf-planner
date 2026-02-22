@@ -3,10 +3,14 @@ import { useThree } from "@react-three/fiber";
 import { useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { HOLE_TYPE_MAP } from "../../constants";
+import {
+	isEventForThisViewport,
+	useViewportInfo,
+} from "../../contexts/ViewportContext";
 import { useStore } from "../../store";
 import type { Hole } from "../../types";
-import { checkAnyCollision, checkHallBounds } from "../../utils/collision";
 import { computeTemplateBounds } from "../../utils/chainCompute";
+import { checkAnyCollision, checkHallBounds } from "../../utils/collision";
 import { snapToGrid } from "../../utils/snap";
 import { HoleModel } from "./holes/HoleModel";
 import { MODEL_HEIGHTS, SURFACE_THICKNESS } from "./holes/shared";
@@ -34,6 +38,7 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 	const [isHovered, setIsHovered] = useState(false);
 	const dragStart = useRef<{ x: number; z: number } | null>(null);
 	const pointerStartScreen = useRef<{ x: number; y: number } | null>(null);
+	const viewportInfo = useViewportInfo();
 
 	const template = hole.templateId ? holeTemplates[hole.templateId] : null;
 
@@ -56,12 +61,8 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 
 	function handlePointerDown(e: ThreeEvent<PointerEvent>) {
 		if (tool !== "select" || !isSelected) return;
+		if (viewportInfo && !isEventForThisViewport(e, viewportInfo)) return;
 		e.stopPropagation();
-		e.nativeEvent.target &&
-			"setPointerCapture" in (e.nativeEvent.target as Element) &&
-			(e.nativeEvent.target as Element).setPointerCapture(
-				e.nativeEvent.pointerId,
-			);
 		dragStart.current = { x: hole.position.x, z: hole.position.z };
 		pointerStartScreen.current = {
 			x: e.nativeEvent.clientX,
@@ -72,6 +73,7 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 
 	function handlePointerMove(e: ThreeEvent<PointerEvent>) {
 		if (!dragStart.current || !pointerStartScreen.current) return;
+		if (viewportInfo && !isEventForThisViewport(e, viewportInfo)) return;
 		e.stopPropagation();
 
 		// Check deadzone if not yet dragging
@@ -149,6 +151,7 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 
 	function handlePointerUp(e: ThreeEvent<PointerEvent>) {
 		if (!dragStart.current) return;
+		if (viewportInfo && !isEventForThisViewport(e, viewportInfo)) return;
 		e.stopPropagation();
 		if (isDragging) {
 			useStore.temporal?.getState()?.resume();
@@ -177,6 +180,8 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 			<mesh
 				position={[0, INTERACTION_HEIGHT / 2, 0]}
 				onClick={(e) => {
+					if (viewportInfo && !isEventForThisViewport(e, viewportInfo))
+						return;
 					e.stopPropagation();
 					if (tool === "delete") {
 						removeHole(hole.id);
@@ -187,8 +192,16 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 				onPointerDown={handlePointerDown}
 				onPointerMove={handlePointerMove}
 				onPointerUp={handlePointerUp}
-				onPointerEnter={() => setIsHovered(true)}
-				onPointerLeave={() => setIsHovered(false)}
+				onPointerEnter={(e) => {
+					if (viewportInfo && !isEventForThisViewport(e, viewportInfo))
+						return;
+					setIsHovered(true);
+				}}
+				onPointerLeave={(e) => {
+					if (viewportInfo && !isEventForThisViewport(e, viewportInfo))
+						return;
+					setIsHovered(false);
+				}}
 			>
 				<boxGeometry args={[width, INTERACTION_HEIGHT, length]} />
 				<meshStandardMaterial
@@ -198,6 +211,24 @@ export function MiniGolfHole({ hole, isSelected, onClick }: Props) {
 					depthWrite={false}
 				/>
 			</mesh>
+
+			{/* Drag plane — invisible floor plane that catches pointer moves during drag */}
+			{isDragging && (
+				<mesh
+					rotation={[-Math.PI / 2, 0, 0]}
+					position={[
+						hall.width / 2 - hole.position.x,
+						0.01,
+						hall.length / 2 - hole.position.z,
+					]}
+					onPointerMove={handlePointerMove}
+					onPointerUp={handlePointerUp}
+					visible={false}
+				>
+					<planeGeometry args={[hall.width * 2, hall.length * 2]} />
+					<meshBasicMaterial transparent opacity={0} />
+				</mesh>
+			)}
 
 			{/* Visual model */}
 			<HoleModel

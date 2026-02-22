@@ -8,7 +8,7 @@ import {
 } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import type CameraControlsImpl from "camera-controls";
-import { Suspense, useEffect, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { MOUSE, NoToneMapping, TOUCH } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { useKeyboardControls } from "../../hooks/useKeyboardControls";
@@ -28,6 +28,8 @@ import {
 	shouldEnableSoftShadows,
 } from "../../utils/environmentGating";
 import { isMobile } from "../../utils/isMobile";
+import { ViewportContext } from "../../contexts/ViewportContext";
+import type { ViewportInfo } from "../../contexts/ViewportContext";
 import { canvasPointerEvents } from "../../utils/uvTransitionConfig";
 import { CameraPresets } from "../three/CameraPresets";
 import { PlacementHandler } from "../three/PlacementHandler";
@@ -105,6 +107,35 @@ export function DualViewport({ sunData }: DualViewportProps) {
 	const show2D = viewportLayout !== "3d-only";
 	const show3D = viewportLayout !== "2d-only";
 	const showDivider = viewportLayout === "dual";
+
+	// Track the divider X position for position-based event gating
+	const [paneBoundaryX, setPaneBoundaryX] = useState<number | null>(null);
+
+	useEffect(() => {
+		if (!showDivider) {
+			setPaneBoundaryX(null);
+			return;
+		}
+		const el = pane2DRef.current;
+		if (!el) return;
+		const updateBoundary = () => {
+			const rect = el.getBoundingClientRect();
+			setPaneBoundaryX(rect.right);
+		};
+		updateBoundary();
+		const observer = new ResizeObserver(updateBoundary);
+		observer.observe(el);
+		return () => observer.disconnect();
+	}, [showDivider]);
+
+	const viewport2DInfo: ViewportInfo = useMemo(
+		() => ({ id: "2d", paneBoundaryX }),
+		[paneBoundaryX],
+	);
+	const viewport3DInfo: ViewportInfo = useMemo(
+		() => ({ id: "3d", paneBoundaryX }),
+		[paneBoundaryX],
+	);
 
 	// Camera defaults
 	const defaultTarget: [number, number, number] = useMemo(
@@ -207,34 +238,36 @@ export function DualViewport({ sunData }: DualViewportProps) {
 					onPointerEnter={() => setActiveViewport("2d")}
 				>
 					<View style={{ width: "100%", height: "100%" }}>
-						<OrthographicCamera
-							makeDefault
-							position={[defaultTarget[0], 50, defaultTarget[2]]}
-							zoom={DEFAULT_ORTHO_ZOOM}
-							near={0.1}
-							far={200}
-						/>
-						<OrbitControls
-							ref={controls2DRef}
-							target={defaultTarget}
-							enableRotate={false}
-							enablePan={true}
-							enableZoom={true}
-							minZoom={MIN_ORTHO_ZOOM}
-							maxZoom={MAX_ORTHO_ZOOM}
-							mouseButtons={{
-								LEFT: undefined,
-								MIDDLE: MOUSE.PAN,
-								RIGHT: MOUSE.PAN,
-							}}
-							touches={{
-								ONE: TOUCH.PAN,
-								TWO: TOUCH.DOLLY_PAN,
-							}}
-							makeDefault
-						/>
-						<SharedScene sunData={sunData} />
-						<PlacementHandler />
+						<ViewportContext.Provider value={viewport2DInfo}>
+							<OrthographicCamera
+								makeDefault
+								position={[defaultTarget[0], 50, defaultTarget[2]]}
+								zoom={DEFAULT_ORTHO_ZOOM}
+								near={0.1}
+								far={200}
+							/>
+							<OrbitControls
+								ref={controls2DRef}
+								target={defaultTarget}
+								enableRotate={false}
+								enablePan={true}
+								enableZoom={true}
+								minZoom={MIN_ORTHO_ZOOM}
+								maxZoom={MAX_ORTHO_ZOOM}
+								mouseButtons={{
+									LEFT: undefined,
+									MIDDLE: MOUSE.PAN,
+									RIGHT: MOUSE.PAN,
+								}}
+								touches={{
+									ONE: TOUCH.PAN,
+									TWO: TOUCH.DOLLY_PAN,
+								}}
+								makeDefault
+							/>
+							<SharedScene sunData={sunData} />
+							<PlacementHandler />
+						</ViewportContext.Provider>
 					</View>
 				</div>
 			)}
@@ -261,20 +294,22 @@ export function DualViewport({ sunData }: DualViewportProps) {
 					onPointerEnter={() => setActiveViewport("3d")}
 				>
 					<View style={{ width: "100%", height: "100%" }}>
-						<PerspectiveCamera
-							makeDefault
-							position={initialIsoPosition}
-							fov={PERSPECTIVE_FOV}
-							near={0.1}
-							far={500}
-						/>
-						<CameraControls
-							ref={controls3DRef}
-							makeDefault
-						/>
-						<SharedScene sunData={sunData} />
-						<ThreeDOnlyContent />
-						{!show2D && <PlacementHandler />}
+						<ViewportContext.Provider value={viewport3DInfo}>
+							<PerspectiveCamera
+								makeDefault
+								position={initialIsoPosition}
+								fov={PERSPECTIVE_FOV}
+								near={0.1}
+								far={500}
+							/>
+							<CameraControls
+								ref={controls3DRef}
+								makeDefault
+							/>
+							<SharedScene sunData={sunData} />
+							<ThreeDOnlyContent />
+							{!show2D && <PlacementHandler />}
+						</ViewportContext.Provider>
 					</View>
 					{/* Camera presets overlay (HTML, outside Canvas) */}
 					<CameraPresets cameraControlsRef={controls3DRef} />

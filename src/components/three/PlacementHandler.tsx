@@ -1,6 +1,10 @@
 import type { ThreeEvent } from "@react-three/fiber";
 import { useMemo, useRef, useState } from "react";
 import { HOLE_TYPE_MAP } from "../../constants";
+import {
+	isEventForThisViewport,
+	useViewportInfo,
+} from "../../contexts/ViewportContext";
 import { useStore } from "../../store";
 import type { HoleTemplate } from "../../types/template";
 import { computeTemplateBounds } from "../../utils/chainCompute";
@@ -69,6 +73,7 @@ export function PlacementHandler() {
 
 	const pointerDownScreen = useRef<{ x: number; y: number } | null>(null);
 	const pointerDownWorld = useRef<{ x: number; z: number } | null>(null);
+	const viewportInfo = useViewportInfo();
 
 	const isPlacing = tool === "place" && (placingType != null || placingTemplateId != null);
 
@@ -120,6 +125,7 @@ export function PlacementHandler() {
 
 	function handlePointerMove(e: ThreeEvent<PointerEvent>) {
 		if (!isPlacing) return;
+		if (viewportInfo && !isEventForThisViewport(e, viewportInfo)) return;
 		const pos = computePosition({ x: e.point.x, z: e.point.z });
 		setGhostPos(pos);
 		setGhostValid(checkValidity(pos));
@@ -127,6 +133,7 @@ export function PlacementHandler() {
 
 	function handlePointerDown(e: ThreeEvent<PointerEvent>) {
 		if (!isPlacing || !isMobile) return;
+		if (viewportInfo && !isEventForThisViewport(e, viewportInfo)) return;
 		const pos = computePosition({ x: e.point.x, z: e.point.z });
 		setGhostPos(pos);
 		setGhostValid(checkValidity(pos));
@@ -139,6 +146,7 @@ export function PlacementHandler() {
 
 	function handlePointerUp(e: ThreeEvent<PointerEvent>) {
 		if (!isMobile) return;
+		if (viewportInfo && !isEventForThisViewport(e, viewportInfo)) return;
 
 		if (pointerDownScreen.current && pointerDownWorld.current) {
 			const dx = e.nativeEvent.clientX - pointerDownScreen.current.x;
@@ -161,6 +169,7 @@ export function PlacementHandler() {
 	}
 
 	function handleClick(e: ThreeEvent<MouseEvent>) {
+		if (viewportInfo && !isEventForThisViewport(e, viewportInfo)) return;
 		e.stopPropagation();
 
 		if (isMobile) return;

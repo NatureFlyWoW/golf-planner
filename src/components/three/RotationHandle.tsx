@@ -1,5 +1,9 @@
 import type { ThreeEvent } from "@react-three/fiber";
 import { useRef, useState } from "react";
+import {
+	isEventForThisViewport,
+	useViewportInfo,
+} from "../../contexts/ViewportContext";
 import { useStore } from "../../store";
 import { isMobile } from "../../utils/isMobile";
 
@@ -25,23 +29,23 @@ export function RotationHandle({
 	const updateHole = useStore((s) => s.updateHole);
 	const [isDragging, setIsDragging] = useState(false);
 	const shiftHeld = useRef(false);
+	const viewportInfo = useViewportInfo();
 
 	const rotRad = (rotation * Math.PI) / 180;
 	const handleX = Math.sin(rotRad) * RING_RADIUS;
 	const handleZ = Math.cos(rotRad) * RING_RADIUS;
 
 	function handlePointerDown(e: ThreeEvent<PointerEvent>) {
+		if (viewportInfo && !isEventForThisViewport(e, viewportInfo)) return;
 		e.stopPropagation();
 		setIsDragging(true);
 		shiftHeld.current = e.nativeEvent.shiftKey;
 		useStore.temporal?.getState()?.pause();
-		(e.nativeEvent.target as Element)?.setPointerCapture?.(
-			e.nativeEvent.pointerId,
-		);
 	}
 
 	function handlePointerMove(e: ThreeEvent<PointerEvent>) {
 		if (!isDragging) return;
+		if (viewportInfo && !isEventForThisViewport(e, viewportInfo)) return;
 		e.stopPropagation();
 		shiftHeld.current = e.nativeEvent.shiftKey;
 
@@ -59,6 +63,7 @@ export function RotationHandle({
 
 	function handlePointerUp(e: ThreeEvent<PointerEvent>) {
 		if (!isDragging) return;
+		if (viewportInfo && !isEventForThisViewport(e, viewportInfo)) return;
 		e.stopPropagation();
 		setIsDragging(false);
 		useStore.temporal?.getState()?.resume();
@@ -85,6 +90,19 @@ export function RotationHandle({
 				/>
 				<meshStandardMaterial color={isDragging ? "#FFE082" : "#FF9800"} />
 			</mesh>
+			{/* Drag plane — invisible floor plane for rotation drag continuity */}
+			{isDragging && (
+				<mesh
+					rotation={[-Math.PI / 2, 0, 0]}
+					position={[0, 0, 0]}
+					onPointerMove={handlePointerMove}
+					onPointerUp={handlePointerUp}
+					visible={false}
+				>
+					<planeGeometry args={[20, 20]} />
+					<meshBasicMaterial transparent opacity={0} />
+				</mesh>
+			)}
 		</group>
 	);
 }
