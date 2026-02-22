@@ -24,5 +24,5 @@ export type LayerState = {
 export type LayerDefinition = {
 	id: LayerId;
 	label: string;
-	icon: string; // Lucide icon name
+	icon: string; // Unicode character used as icon
 };

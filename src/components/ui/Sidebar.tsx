@@ -3,11 +3,13 @@ import type { SidebarTab } from "../../types";
 import { BudgetPanel } from "./BudgetPanel";
 import { HoleDetail } from "./HoleDetail";
 import { HoleLibrary } from "./HoleLibrary";
+import { LayerPanel } from "./LayerPanel";
 
 const tabs: { tab: SidebarTab; label: string }[] = [
 	{ tab: "holes", label: "Holes" },
 	{ tab: "detail", label: "Detail" },
 	{ tab: "budget", label: "Budget" },
+	{ tab: "layers", label: "Layers" },
 ];
 
 export function Sidebar() {
@@ -38,6 +40,7 @@ export function Sidebar() {
 				{activeTab === "holes" && <HoleLibrary />}
 				{activeTab === "detail" && <HoleDetail />}
 				{activeTab === "budget" && <BudgetPanel />}
+				{activeTab === "layers" && <LayerPanel />}
 			</div>
 		</div>
 	);
