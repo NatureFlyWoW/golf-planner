@@ -4,12 +4,11 @@ import type { Group } from "three";
 import { useGroupOpacity } from "../../../hooks/useGroupOpacity";
 import { useStore } from "../../../store";
 import {
+	ARCH_WALL_THICKNESS,
 	type WallRect,
 	computeWallSegments,
 	wallSegmentToRect,
 } from "../../../utils/wallGeometry";
-
-const ARCH_WALL_THICKNESS = 0.2;
 const WALLS: Wall[] = ["north", "south", "east", "west"];
 
 const COLORS = {

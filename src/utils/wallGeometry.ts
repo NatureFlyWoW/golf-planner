@@ -1,5 +1,8 @@
 import type { DoorSpec, Wall, WindowSpec } from "../types/hall";
 
+/** Visual wall thickness in 2D rendering (double the data value for architectural visibility) */
+export const ARCH_WALL_THICKNESS = 0.2;
+
 export type WallSegment = {
 	start: number;
 	end: number;
