@@ -31,11 +31,13 @@ import {
 import { isMobile } from "../../utils/isMobile";
 import { ViewportContext } from "../../contexts/ViewportContext";
 import type { ViewportInfo } from "../../contexts/ViewportContext";
+import { useMouseStatusStore } from "../../stores/mouseStatusStore";
 import { canvasPointerEvents } from "../../utils/uvTransitionConfig";
 import { CameraPresets } from "../three/CameraPresets";
 import { PlacementHandler } from "../three/PlacementHandler";
 import { SharedScene } from "../three/SharedScene";
 import { ThreeDOnlyContent } from "../three/ThreeDOnlyContent";
+import { ViewportStatusTracker } from "../three/ViewportStatusTracker";
 import { KeyboardHelp } from "../ui/KeyboardHelp";
 import { MiniMap } from "../ui/MiniMap";
 import { SunControls } from "../ui/SunControls";
@@ -318,6 +320,11 @@ export function DualViewport({ sunData }: DualViewportProps) {
 							: "100%",
 					}}
 					onPointerEnter={() => setActiveViewport("2d")}
+					onPointerLeave={() =>
+						useMouseStatusStore
+							.getState()
+							.setMouseWorldPos(null)
+					}
 				>
 					<View style={{ width: "100%", height: "100%" }}>
 						<ViewportContext.Provider value={viewport2DInfo}>
@@ -349,6 +356,7 @@ export function DualViewport({ sunData }: DualViewportProps) {
 							/>
 							<SharedScene sunData={sunData} />
 							<PlacementHandler />
+							<ViewportStatusTracker />
 						</ViewportContext.Provider>
 					</View>
 					<MiniMap />
