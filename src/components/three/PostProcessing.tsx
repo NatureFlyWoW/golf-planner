@@ -10,6 +10,7 @@ import {
 import { ToneMappingMode } from "postprocessing";
 import { Vector2 } from "three";
 import { useStore } from "../../store";
+import { shouldEnablePostProcessing } from "../../utils/environmentGating";
 import { GODRAYS_EFFECT_CONFIG } from "../../utils/godraysConfig";
 import { isMobile } from "../../utils/isMobile";
 import {
@@ -21,7 +22,12 @@ const chromaticOffset = new Vector2(0.0015, 0.0015);
 
 export default function PostProcessing() {
 	const gpuTier = useStore((s) => s.ui.gpuTier);
+	const viewportLayout = useStore((s) => s.ui.viewportLayout);
 	const godRaysLampRef = useStore((s) => s.ui.godRaysLampRef);
+
+	// PostProcessing (EffectComposer) cannot be scoped to a single View.
+	// Only render in 3d-only mode (fullscreen 3D pane).
+	if (!shouldEnablePostProcessing(viewportLayout)) return null;
 	const showGodRays =
 		gpuTier === "high" && godRaysLampRef?.current != null;
 

@@ -2,52 +2,75 @@ import { describe, expect, it } from "vitest";
 import {
 	deriveFrameloop,
 	shouldEnableFog,
+	shouldEnablePostProcessing,
 	shouldEnableSoftShadows,
 } from "../../src/utils/environmentGating";
 
-describe("shouldEnableFog", () => {
-	it("returns true when uvMode=true AND view='3d'", () => {
-		expect(shouldEnableFog(true, "3d")).toBe(true);
+describe("shouldEnableFog (with viewportLayout)", () => {
+	it('returns false when viewportLayout is "2d-only" regardless of uvMode', () => {
+		expect(shouldEnableFog(true, "2d-only")).toBe(false);
+		expect(shouldEnableFog(false, "2d-only")).toBe(false);
 	});
 
-	it("returns false when uvMode=true AND view='top'", () => {
-		expect(shouldEnableFog(true, "top")).toBe(false);
+	it('returns false when viewportLayout is "dual" (fog is scene-level, shared between Views)', () => {
+		expect(shouldEnableFog(true, "dual")).toBe(false);
+		expect(shouldEnableFog(false, "dual")).toBe(false);
 	});
 
-	it("returns false when uvMode=false AND view='3d'", () => {
-		expect(shouldEnableFog(false, "3d")).toBe(false);
+	it('returns true when uvMode=true AND viewportLayout is "3d-only"', () => {
+		expect(shouldEnableFog(true, "3d-only")).toBe(true);
 	});
 
-	it("returns false when uvMode=false AND view='top'", () => {
-		expect(shouldEnableFog(false, "top")).toBe(false);
+	it('returns false when uvMode=false AND viewportLayout is "3d-only"', () => {
+		expect(shouldEnableFog(false, "3d-only")).toBe(false);
 	});
 });
 
-describe("deriveFrameloop", () => {
-	it("returns 'demand' when uvMode=false", () => {
-		expect(deriveFrameloop(false, "low", false)).toBe("demand");
+describe("deriveFrameloop (with viewportLayout)", () => {
+	it('returns "always" when viewportLayout="dual" (View rendering requires continuous frames)', () => {
+		expect(deriveFrameloop(false, "low", false, "dual")).toBe("always");
+		expect(deriveFrameloop(false, "mid", false, "dual")).toBe("always");
 	});
 
-	it("returns 'demand' when uvMode=true + gpuTier='low'", () => {
-		expect(deriveFrameloop(true, "low", false)).toBe("demand");
+	it('returns "demand" when uvMode=false AND viewportLayout="3d-only"', () => {
+		expect(deriveFrameloop(false, "low", false, "3d-only")).toBe("demand");
 	});
 
-	it("returns 'always' when uvMode=true + gpuTier='mid'", () => {
-		expect(deriveFrameloop(true, "mid", false)).toBe("always");
+	it('returns "demand" when uvMode=true + gpuTier="low" AND viewportLayout="3d-only"', () => {
+		expect(deriveFrameloop(true, "low", false, "3d-only")).toBe("demand");
 	});
 
-	it("returns 'always' when uvMode=true + gpuTier='high'", () => {
-		expect(deriveFrameloop(true, "high", false)).toBe("always");
+	it('returns "always" when uvMode=true + gpuTier="mid" AND viewportLayout="3d-only"', () => {
+		expect(deriveFrameloop(true, "mid", false, "3d-only")).toBe("always");
 	});
 
-	it("returns 'always' when transitioning=true regardless of tier", () => {
-		expect(deriveFrameloop(false, "low", true)).toBe("always");
-		expect(deriveFrameloop(false, "mid", true)).toBe("always");
-		expect(deriveFrameloop(false, "high", true)).toBe("always");
+	it('returns "always" when uvMode=true + gpuTier="high" AND viewportLayout="3d-only"', () => {
+		expect(deriveFrameloop(true, "high", false, "3d-only")).toBe("always");
 	});
 
-	it("returns 'always' when transitioning=true AND uvMode=true", () => {
-		expect(deriveFrameloop(true, "mid", true)).toBe("always");
+	it('returns "always" when transitioning=true regardless of viewportLayout', () => {
+		expect(deriveFrameloop(false, "low", true, "3d-only")).toBe("always");
+		expect(deriveFrameloop(false, "mid", true, "dual")).toBe("always");
+		expect(deriveFrameloop(false, "high", true, "2d-only")).toBe("always");
+	});
+
+	it('returns "demand" when viewportLayout="2d-only" and not transitioning', () => {
+		expect(deriveFrameloop(false, "mid", false, "2d-only")).toBe("demand");
+		expect(deriveFrameloop(true, "high", false, "2d-only")).toBe("demand");
+	});
+});
+
+describe("shouldEnablePostProcessing", () => {
+	it('returns false when viewportLayout is "dual"', () => {
+		expect(shouldEnablePostProcessing("dual")).toBe(false);
+	});
+
+	it('returns true when viewportLayout is "3d-only"', () => {
+		expect(shouldEnablePostProcessing("3d-only")).toBe(true);
+	});
+
+	it('returns false when viewportLayout is "2d-only"', () => {
+		expect(shouldEnablePostProcessing("2d-only")).toBe(false);
 	});
 });
 

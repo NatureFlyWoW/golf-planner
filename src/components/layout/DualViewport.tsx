@@ -202,11 +202,7 @@ export function DualViewport({ sunData }: DualViewportProps) {
 			: gpuTier === "mid"
 				? [1, 1.5]
 				: [1, 1];
-	// View rendering requires frameloop="always" in dual mode
-	const frameloop =
-		viewportLayout === "dual"
-			? "always"
-			: deriveFrameloop(uvMode, gpuTier, transitioning);
+	const frameloop = deriveFrameloop(uvMode, gpuTier, transitioning, viewportLayout);
 	const shadows = getShadowType(gpuTier, isMobile);
 
 	return (

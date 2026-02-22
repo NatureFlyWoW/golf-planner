@@ -1,26 +1,55 @@
-import type { GpuTier, ViewMode } from "../types/ui";
+import type { GpuTier } from "../types/ui";
+import type { ViewportLayout } from "../types/viewport";
 
 /**
- * Fog should only render in UV mode AND 3D perspective view.
- * Exponential fog in orthographic view creates uniform darkening
- * with no atmospheric value.
+ * Fog is scene-level (shared between Views) — cannot be scoped to one View.
+ * Only enable in "3d-only" mode (fullscreen 3D pane) when UV mode is active.
+ * In "dual" mode, fog would bleed into the 2D pane since both Views share one scene.
  */
-export function shouldEnableFog(uvMode: boolean, view: ViewMode): boolean {
-	return uvMode && view === "3d";
+export function shouldEnableFog(
+	uvMode: boolean,
+	viewportLayout: ViewportLayout,
+): boolean {
+	if (viewportLayout !== "3d-only") return false;
+	return uvMode;
 }
 
 /**
  * Derive the Canvas frameloop mode from current state.
- * "always" when UV effects need continuous rendering or during transitions.
+ * "always" when UV effects need continuous rendering, during transitions,
+ * or in dual-pane mode (View rendering requires continuous frames).
  * Low-tier GPUs always use "demand" in UV mode (static effects only).
  */
 export function deriveFrameloop(
 	uvMode: boolean,
 	gpuTier: GpuTier,
 	transitioning: boolean,
+	viewportLayout: ViewportLayout,
 ): "always" | "demand" {
-	const needsAlways = transitioning || (uvMode && gpuTier !== "low");
-	return needsAlways ? "always" : "demand";
+	// Transitioning always needs continuous rendering
+	if (transitioning) return "always";
+
+	// Dual mode: View rendering requires continuous frames
+	if (viewportLayout === "dual") return "always";
+
+	// 2d-only mode: no 3D animations, use demand
+	if (viewportLayout === "2d-only") return "demand";
+
+	// 3d-only mode: UV effects with capable GPU need "always"
+	if (uvMode && gpuTier !== "low") return "always";
+
+	return "demand";
+}
+
+/**
+ * PostProcessing (EffectComposer) cannot be scoped to a single View —
+ * it takes over the entire Canvas rendering pipeline.
+ * Only enable when the 3D pane is fullscreen (no View splitting).
+ */
+export function shouldEnablePostProcessing(
+	viewportLayout: ViewportLayout,
+): boolean {
+	return viewportLayout === "3d-only";
 }
 
 /**
@@ -34,6 +63,9 @@ export function shouldEnableSoftShadows(gpuTier: GpuTier): boolean {
  * Shadow type: mobile gets basic boolean shadows (cheaper),
  * desktop gets "soft" (PCSS) when GPU tier allows it.
  */
-export function getShadowType(gpuTier: GpuTier, mobile: boolean): true | "soft" {
+export function getShadowType(
+	gpuTier: GpuTier,
+	mobile: boolean,
+): true | "soft" {
 	return shouldEnableSoftShadows(gpuTier) && !mobile ? "soft" : true;
 }

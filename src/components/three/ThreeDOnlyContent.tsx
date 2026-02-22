@@ -29,13 +29,11 @@ function FogController({ enabled }: { enabled: boolean }) {
 
 export function ThreeDOnlyContent() {
 	const uvMode = useStore((s) => s.ui.uvMode);
-	const view = useStore((s) => s.ui.view);
 	const gpuTier = useStore((s) => s.ui.gpuTier);
 	const viewportLayout = useStore((s) => s.ui.viewportLayout);
 
 	// Fog is scene-level (shared between Views) — only enable in 3d-only mode
-	const fogEnabled =
-		viewportLayout === "3d-only" && shouldEnableFog(uvMode, view);
+	const fogEnabled = shouldEnableFog(uvMode, viewportLayout);
 
 	return (
 		<>
