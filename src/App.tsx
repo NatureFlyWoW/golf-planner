@@ -35,7 +35,7 @@ export default function App() {
 			<Toolbar />
 			<div className="flex flex-1 overflow-hidden">
 				<Sidebar />
-				<DualViewport />
+				<DualViewport sunData={sunData} />
 			</div>
 			<LocationBar sunData={sunData} />
 			<BottomToolbar />
