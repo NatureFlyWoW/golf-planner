@@ -18,10 +18,8 @@ export function Toolbar() {
 	const setTool = useStore((s) => s.setTool);
 	const snapEnabled = useStore((s) => s.ui.snapEnabled);
 	const toggleSnap = useStore((s) => s.toggleSnap);
-	const showFlowPath = useStore((s) => s.ui.showFlowPath);
-	const toggleFlowPath = useStore((s) => s.toggleFlowPath);
-	const view = useStore((s) => s.ui.view);
-	const setView = useStore((s) => s.setView);
+	const flowPathVisible = useStore((s) => s.ui.layers.flowPath.visible);
+	const toggleLayerVisible = useStore((s) => s.toggleLayerVisible);
 	const toggleUvMode = useStore((s) => s.toggleUvMode);
 	const uvMode = useStore((s) => s.ui.uvMode);
 	const transitioning = useStore((s) => s.ui.transitioning);
@@ -63,7 +61,7 @@ export function Toolbar() {
 	}`;
 
 	const flowBtnClass = `rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-		showFlowPath
+		flowPathVisible
 			? "bg-accent-text text-white"
 			: "bg-plasma text-text-secondary hover:bg-grid-ghost"
 	}`;
@@ -98,21 +96,11 @@ export function Toolbar() {
 
 			<button
 				type="button"
-				onClick={toggleFlowPath}
+				onClick={() => toggleLayerVisible("flowPath")}
 				className={flowBtnClass}
 				title="Toggle player flow path"
 			>
 				Flow
-			</button>
-
-			<button
-				type="button"
-				onClick={() => setView(view === "top" ? "3d" : "top")}
-				className={neutralBtnClass}
-				title="Toggle 2D/3D view"
-				data-testid="view-toggle"
-			>
-				{view === "top" ? "3D" : "2D"}
 			</button>
 
 			<button

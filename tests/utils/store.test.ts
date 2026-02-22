@@ -13,7 +13,6 @@ describe("store", () => {
 				view: "top",
 				sidebarTab: "holes",
 				snapEnabled: false,
-				showFlowPath: true,
 				activePanel: null,
 			},
 		});

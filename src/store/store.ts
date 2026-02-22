@@ -76,7 +76,6 @@ type StoreActions = {
 	setView: (view: UIState["view"]) => void;
 	setSidebarTab: (tab: UIState["sidebarTab"]) => void;
 	toggleSnap: () => void;
-	toggleFlowPath: () => void;
 	setActivePanel: (panel: UIState["activePanel"]) => void;
 	setSunDate: (date: Date | undefined) => void;
 	updateBudget: (id: string, updates: Partial<BudgetCategoryV2>) => void;
@@ -143,7 +142,6 @@ const DEFAULT_UI: UIState = {
 	view: "top",
 	sidebarTab: "holes",
 	snapEnabled: false,
-	showFlowPath: true,
 	activePanel: null,
 	sunDate: undefined,
 	uvMode: false,
@@ -459,15 +457,6 @@ export const useStore = create<Store>()(
 						ui: {
 							...state.ui,
 							snapEnabled: !state.ui.snapEnabled,
-						},
-					}));
-				},
-
-				toggleFlowPath: () => {
-					set((state) => ({
-						ui: {
-							...state.ui,
-							showFlowPath: !state.ui.showFlowPath,
 						},
 					}));
 				},

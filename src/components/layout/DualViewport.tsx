@@ -265,6 +265,7 @@ export function DualViewport({ sunData }: DualViewportProps) {
 							<PlacementHandler />
 						</ViewportContext.Provider>
 					</View>
+					<MiniMap />
 				</div>
 			)}
 
@@ -344,7 +345,6 @@ export function DualViewport({ sunData }: DualViewportProps) {
 			{/* Overlay components */}
 			<SunControls />
 			<KeyboardHelp />
-			<MiniMap />
 		</div>
 	);
 }

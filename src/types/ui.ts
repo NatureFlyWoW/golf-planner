@@ -23,7 +23,6 @@ export type UIState = {
 	view: ViewMode;
 	sidebarTab: SidebarTab;
 	snapEnabled: boolean;
-	showFlowPath: boolean;
 	activePanel: ActivePanel;
 	sunDate: Date | undefined;
 	uvMode: boolean;

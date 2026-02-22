@@ -28,8 +28,8 @@ export function BottomToolbar() {
 	const selectHole = useStore((s) => s.selectHole);
 
 	const snapEnabled = useStore((s) => s.ui.snapEnabled);
-	const showFlowPath = useStore((s) => s.ui.showFlowPath);
-	const hasActiveToggles = snapEnabled || showFlowPath;
+	const flowPathVisible = useStore((s) => s.ui.layers.flowPath.visible);
+	const hasActiveToggles = snapEnabled || flowPathVisible;
 
 	function handleToolTap(tool: Tool) {
 		if (tool === "place") {
@@ -166,8 +166,8 @@ export function BottomToolbar() {
 function OverflowPopover({ onClose }: { onClose: () => void }) {
 	const snapEnabled = useStore((s) => s.ui.snapEnabled);
 	const toggleSnap = useStore((s) => s.toggleSnap);
-	const showFlowPath = useStore((s) => s.ui.showFlowPath);
-	const toggleFlowPath = useStore((s) => s.toggleFlowPath);
+	const flowPathVisible = useStore((s) => s.ui.layers.flowPath.visible);
+	const toggleLayerVisible = useStore((s) => s.toggleLayerVisible);
 	const view = useStore((s) => s.ui.view);
 	const setView = useStore((s) => s.setView);
 	const uvMode = useStore((s) => s.ui.uvMode);
@@ -194,7 +194,7 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 			{/* Popover */}
 			<div className="absolute bottom-16 right-2 z-50 grid grid-cols-2 gap-2 rounded-lg border border-subtle bg-surface-raised p-3 shadow-lg">
 				<ToggleBtn label="Snap" active={snapEnabled} onTap={toggleSnap} />
-				<ToggleBtn label="Flow" active={showFlowPath} onTap={toggleFlowPath} />
+				<ToggleBtn label="Flow" active={flowPathVisible} onTap={() => toggleLayerVisible("flowPath")} />
 				<ToggleBtn
 					label={view === "top" ? "3D" : "2D"}
 					active={false}
