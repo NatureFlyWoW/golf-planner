@@ -12,7 +12,7 @@
 - **Branch**: master
 - **Tests**: 639 passing, 0 failing (59 test files)
 - **Build**: clean (`tsc -b && vite build`)
-- **Remote sync**: needs push after final commit
+- **Remote sync**: pushed to origin (dd1056a)
 
 ## What Split 06a Delivered
 - Architectural floor plan in 2D pane: thick walls (filled+outlined), door swing arcs, window break-lines

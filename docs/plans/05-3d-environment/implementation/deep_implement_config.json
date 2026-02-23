@@ -1,0 +1,30 @@
+{
+  "plugin_root": "/home/ben/.claude/plugins/cache/piercelamb-plugins/deep-implement/0.2.0",
+  "sections_dir": "/mnt/c/Users/Caus/Golf_Plan/golf-planner/docs/plans/05-3d-environment/sections",
+  "target_dir": "/mnt/c/Users/Caus/Golf_Plan/golf-planner",
+  "state_dir": "/mnt/c/Users/Caus/Golf_Plan/golf-planner/docs/plans/05-3d-environment/implementation",
+  "git_root": "/mnt/c/Users/Caus/Golf_Plan/golf-planner",
+  "commit_style": "conventional",
+  "test_command": "uv run pytest",
+  "sections": [
+    "section-01-walkthrough-state",
+    "section-02-walkthrough-camera",
+    "section-03-walkthrough-collision",
+    "section-04-walkthrough-ui",
+    "section-05-ground-plane",
+    "section-06-hall-exterior",
+    "section-07-sky-fog",
+    "section-08-camera-enhancements",
+    "section-09-performance-polish"
+  ],
+  "sections_state": {},
+  "pre_commit": {
+    "present": false,
+    "type": "none",
+    "config_file": null,
+    "native_hook": null,
+    "may_modify_files": false,
+    "detected_formatters": []
+  },
+  "created_at": "2026-02-23T03:35:08.259630+00:00"
+}
