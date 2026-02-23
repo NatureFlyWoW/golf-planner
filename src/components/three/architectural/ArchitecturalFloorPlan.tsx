@@ -1,4 +1,5 @@
 import { useViewportId } from "../../../hooks/useViewportId";
+import { ArchitecturalGrid2D } from "./ArchitecturalGrid2D";
 import { ArchitecturalOpenings2D } from "./ArchitecturalOpenings2D";
 import { ArchitecturalWalls2D } from "./ArchitecturalWalls2D";
 
@@ -13,9 +14,9 @@ export function ArchitecturalFloorPlan() {
 
 	return (
 		<group name="architectural-floor-plan">
+			<ArchitecturalGrid2D />
 			<ArchitecturalWalls2D />
 			<ArchitecturalOpenings2D />
-			{/* Section 06: ArchitecturalGrid2D */}
 			{/* Section 07: HoleFelt2D overlays */}
 		</group>
 	);
