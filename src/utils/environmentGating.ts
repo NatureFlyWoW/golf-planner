@@ -83,3 +83,46 @@ export function getShadowType(
 export function shouldShowGroundTexture(gpuTier: GpuTier): boolean {
 	return gpuTier === "mid" || gpuTier === "high";
 }
+
+/**
+ * Whether to render the drei <Sky> component.
+ * False on low GPU tier (too expensive) and in UV mode (dark void instead).
+ */
+export function shouldShowSky(uvMode: boolean, gpuTier: GpuTier): boolean {
+	if (uvMode) return false;
+	return gpuTier === "mid" || gpuTier === "high";
+}
+
+/**
+ * Normal-mode fog gating.
+ * Only enabled in 3d-only layout, not UV mode, and only when env layer visible.
+ * In dual mode fog bleeds into the 2D pane since both Views share one scene.
+ */
+export function shouldEnableNormalFog(
+	viewportLayout: ViewportLayout,
+	uvMode: boolean,
+	envLayerVisible: boolean,
+): boolean {
+	if (viewportLayout !== "3d-only") return false;
+	if (uvMode) return false;
+	if (!envLayerVisible) return false;
+	return true;
+}
+
+/**
+ * Convert sun altitude (radians above horizon) and azimuth (radians, suncalc convention)
+ * to a Three.js-compatible sunPosition Vector3 tuple.
+ * suncalc azimuth: 0=south, PI/2=west. Scene: X+=east, Z+=south.
+ * X is negated to match getSunDirection() convention in useSunPosition.ts.
+ */
+export function sunAltAzToVector3(
+	altitude: number,
+	azimuth: number,
+): [number, number, number] {
+	const cosAlt = Math.cos(altitude);
+	return [
+		-cosAlt * Math.sin(azimuth), // x: east-west (negated to match scene convention)
+		Math.sin(altitude), // y: elevation
+		cosAlt * Math.cos(azimuth), // z: south-north
+	];
+}

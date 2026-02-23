@@ -312,6 +312,30 @@ After implementing, verify:
 
 ---
 
+## Implementation Deviations
+
+### sunAltAzToVector3 X-axis negated
+Plan formula had `x = cosAlt * Math.sin(azimuth)` but existing codebase convention (`getSunDirection()`, `SharedScene.tsx` directional light) uses `x = -Math.sin(azimuth)`. X component negated to match: `x = -cosAlt * Math.sin(azimuth)`. Three additional directional tests added with non-zero azimuth to validate.
+
+### scene.background gated by viewportLayout
+Plan rendered `<color attach="background">` unconditionally. Code review found `scene.background` is scene-global and bleeds into 2D pane in dual-viewport mode. Fixed by only rendering when `viewportLayout === "3d-only"`, matching the existing fog constraint.
+
+### SkyEnvironment reads viewportLayout (not in original plan)
+Added `viewportLayout` selector to `SkyEnvironment` to support the background gating fix above.
+
+### Files created
+- `src/components/three/environment/SkyEnvironment.tsx`
+- `tests/utils/skyEnvironment.test.ts` (16 tests)
+
+### Files modified
+- `src/utils/environmentGating.ts` (added shouldShowSky, shouldEnableNormalFog, sunAltAzToVector3)
+- `src/components/three/ThreeDOnlyContent.tsx` (mounted SkyEnvironment, added normal fog path)
+- `src/components/three/environment/index.ts` (barrel export)
+
+### Test count
+- 16 new tests in skyEnvironment.test.ts
+- 769 total tests passing (67 files)
+
 ## Known Limitations (Explicitly Deferred)
 
 - **Dynamic time-of-day sky colors**: Sky is static; no animated sun movement through the sky
