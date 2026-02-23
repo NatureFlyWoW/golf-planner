@@ -379,6 +379,36 @@ Files to **modify** in section 09:
 
 Note: `tests/store/walkthrough.test.ts` was created in Section 01. Section 09 only adds the lifecycle integration `describe` block to it.
 
+## Implementation Deviations
+
+### D1: Collision integration handles template holes
+
+**Plan called for:** Simple OBB from `HOLE_TYPE_MAP[hole.type]`.
+
+**Actually implemented:** `buildHoleOBBs()` helper checks `hole.templateId` and uses `computeTemplateBounds()` for template holes, matching the existing `buildOBBMap` pattern in `PlacementHandler.tsx`. This prevents incorrect collision bounds for custom template-based holes.
+
+### D2: OBBs and door zones cached on mount instead of per-frame
+
+**Plan called for:** Building OBBs inside the `useFrame` callback.
+
+**Actually implemented:** OBBs computed once on mount via `useEffect` and stored in `holeOBBsRef`. Door zones also cached in `doorZonesRef`. This eliminates per-frame GC pressure since holes don't move during walkthrough.
+
+### D3: ENTER_DURATION hoisted to module level
+
+The 0.5s enter duration constant was hoisted outside the component function to avoid re-creation on every render.
+
+### D4: Some planned test additions were already covered
+
+Many cross-check tests specified by the plan (shouldShowSky, shouldEnableNormalFog, shouldShowGroundTexture, viewportLayers 6-count, camera presets 7-count) were already implemented in sections 05-08. Section 09 added the remaining cross-check tests and the `deriveFrameloop` lifecycle integration test.
+
+### D5: Exit transition animation deferred
+
+As recommended in the plan: enter transition (0.5s lerp) implemented, exit transition deferred (rAF restore is sufficient for MVP).
+
+### D6: Test count
+
+**Plan said:** "639+ tests." **Actual:** 785 tests (68 files) — significant test additions across sections 01-09.
+
 ## Edge Case Checklist
 
 Before marking section 09 complete, verify each of the following manually or through existing test coverage:

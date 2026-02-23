@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
 	deriveFrameloop,
 	shouldEnableFog,
+	shouldEnableNormalFog,
 	shouldEnablePostProcessing,
 	shouldEnableSoftShadows,
 	shouldShowGroundTexture,
+	shouldShowSky,
 } from "../../src/utils/environmentGating";
 
 describe("shouldEnableFog (with viewportLayout)", () => {
@@ -160,5 +162,40 @@ describe("shouldShowGroundTexture", () => {
 
 	it('returns true for "high" GPU tier', () => {
 		expect(shouldShowGroundTexture("high")).toBe(true);
+	});
+});
+
+describe("shouldShowSky (section 09 cross-check)", () => {
+	it("returns true for normal mode + mid/high GPU", () => {
+		expect(shouldShowSky(false, "mid")).toBe(true);
+		expect(shouldShowSky(false, "high")).toBe(true);
+	});
+
+	it("returns false in UV mode regardless of tier", () => {
+		expect(shouldShowSky(true, "mid")).toBe(false);
+		expect(shouldShowSky(true, "high")).toBe(false);
+		expect(shouldShowSky(true, "low")).toBe(false);
+	});
+
+	it("returns false for low tier in normal mode", () => {
+		expect(shouldShowSky(false, "low")).toBe(false);
+	});
+});
+
+describe("shouldEnableNormalFog (section 09 cross-check)", () => {
+	it('returns true for ("3d-only", uvMode=false, envVisible=true)', () => {
+		expect(shouldEnableNormalFog("3d-only", false, true)).toBe(true);
+	});
+
+	it('returns false in "dual" layout (fog bleeds into 2D pane)', () => {
+		expect(shouldEnableNormalFog("dual", false, true)).toBe(false);
+	});
+
+	it("returns false in UV mode (UV mode uses its own fogExp2)", () => {
+		expect(shouldEnableNormalFog("3d-only", true, true)).toBe(false);
+	});
+
+	it("returns false when environment layer hidden", () => {
+		expect(shouldEnableNormalFog("3d-only", false, false)).toBe(false);
 	});
 });

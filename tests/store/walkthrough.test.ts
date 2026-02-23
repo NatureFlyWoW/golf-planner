@@ -8,6 +8,7 @@ vi.mock("../../src/utils/isMobile", () => ({
 }));
 
 import { useStore } from "../../src/store/store";
+import { deriveFrameloop } from "../../src/utils/environmentGating";
 
 beforeEach(() => {
 	useStore.setState((state) => ({
@@ -158,6 +159,77 @@ describe("exitWalkthrough", () => {
 		useStore.getState().exitWalkthrough();
 		flushRAF();
 		expect(useStore.getState().ui.viewportLayout).toBe("2d-only");
+	});
+});
+
+describe("Walkthrough lifecycle integration (section 09)", () => {
+	it("enterWalkthrough from 3d-only layout stays 3d-only", () => {
+		useStore.setState((state) => ({
+			ui: { ...state.ui, viewportLayout: "3d-only" },
+		}));
+		useStore.getState().enterWalkthrough();
+		expect(useStore.getState().ui.viewportLayout).toBe("3d-only");
+		expect(useStore.getState().ui.walkthroughMode).toBe(true);
+		expect(useStore.getState().ui.previousViewportLayout).toBe("3d-only");
+	});
+
+	it("exitWalkthrough from stored 3d-only restores 3d-only", () => {
+		const rafCallbacks: Array<() => void> = [];
+		vi.stubGlobal("requestAnimationFrame", (cb: () => void) => {
+			rafCallbacks.push(cb);
+			return rafCallbacks.length;
+		});
+
+		useStore.setState((state) => ({
+			ui: { ...state.ui, viewportLayout: "3d-only" },
+		}));
+		useStore.getState().enterWalkthrough();
+		useStore.getState().exitWalkthrough();
+		for (const cb of rafCallbacks) cb();
+		expect(useStore.getState().ui.viewportLayout).toBe("3d-only");
+		expect(useStore.getState().ui.walkthroughMode).toBe(false);
+
+		vi.unstubAllGlobals();
+	});
+
+	it("deriveFrameloop returns 'always' during walkthrough, 'demand' after exit", () => {
+		const rafCallbacks: Array<() => void> = [];
+		vi.stubGlobal("requestAnimationFrame", (cb: () => void) => {
+			rafCallbacks.push(cb);
+			return rafCallbacks.length;
+		});
+
+		useStore.setState((state) => ({
+			ui: { ...state.ui, viewportLayout: "3d-only" },
+		}));
+		useStore.getState().enterWalkthrough();
+
+		const stateInWT = useStore.getState().ui;
+		expect(
+			deriveFrameloop(
+				false,
+				"low",
+				false,
+				stateInWT.viewportLayout,
+				stateInWT.walkthroughMode,
+			),
+		).toBe("always");
+
+		useStore.getState().exitWalkthrough();
+		for (const cb of rafCallbacks) cb();
+
+		const stateAfter = useStore.getState().ui;
+		expect(
+			deriveFrameloop(
+				false,
+				"low",
+				false,
+				stateAfter.viewportLayout,
+				stateAfter.walkthroughMode,
+			),
+		).toBe("demand");
+
+		vi.unstubAllGlobals();
 	});
 });
 

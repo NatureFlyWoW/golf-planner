@@ -1,7 +1,10 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
-import { Euler } from "three";
+import { Euler, MathUtils } from "three";
+import { HOLE_TYPE_MAP } from "../../../constants/holeTypes";
 import { useStore } from "../../../store";
+import { computeTemplateBounds } from "../../../utils/chainCompute";
+import type { OBBInput } from "../../../utils/collision";
 import {
 	EYE_HEIGHT,
 	LOOK_SENSITIVITY,
@@ -10,6 +13,7 @@ import {
 	getWalkthroughSpawnPoint,
 } from "../../../utils/walkthroughCamera";
 import type { KeyState } from "../../../utils/walkthroughCamera";
+import { checkWalkthroughCollision } from "../../../utils/walkthroughCollision";
 
 type WalkthroughControllerProps = {
 	targetRef: React.RefObject<HTMLDivElement | null>;
@@ -25,6 +29,43 @@ const KEY_MAP: Record<string, keyof Omit<KeyState, "shift">> = {
 	d: "right",
 	arrowright: "right",
 };
+
+/** Duration of the enter transition lerp (seconds). */
+const ENTER_DURATION = 0.5;
+
+/**
+ * Build OBB inputs for all placed holes, handling both legacy types and templates.
+ */
+function buildHoleOBBs(): OBBInput[] {
+	const { holes, holeOrder, holeTemplates } = useStore.getState();
+	const obbs: OBBInput[] = [];
+	for (const id of holeOrder) {
+		const hole = holes[id];
+		if (!hole) continue;
+
+		let w: number;
+		let l: number;
+
+		if (hole.templateId && holeTemplates[hole.templateId]) {
+			const bounds = computeTemplateBounds(holeTemplates[hole.templateId]);
+			w = bounds.width;
+			l = bounds.length;
+		} else {
+			const typeDef = HOLE_TYPE_MAP[hole.type];
+			if (!typeDef) continue;
+			w = typeDef.dimensions.width;
+			l = typeDef.dimensions.length;
+		}
+
+		obbs.push({
+			pos: { x: hole.position.x, z: hole.position.z },
+			rot: hole.rotation,
+			w,
+			l,
+		});
+	}
+	return obbs;
+}
 
 export function WalkthroughController({
 	targetRef,
@@ -42,6 +83,15 @@ export function WalkthroughController({
 	});
 	const isDraggingRef = useRef(false);
 	const lastPointerRef = useRef({ x: 0, y: 0 });
+
+	// Enter transition state (lerp from saved position to spawn)
+	const enterElapsedRef = useRef(0);
+	const enterStartRef = useRef({ x: 0, y: 0, z: 0 });
+	const enterTargetRef = useRef({ x: 0, y: 0, z: 0 });
+	const enteringRef = useRef(true);
+
+	// Cached collision data (computed once on mount, static during walkthrough)
+	const holeOBBsRef = useRef<OBBInput[]>([]);
 
 	// Save camera state before walkthrough, restore on unmount
 	const savedCameraRef = useRef<{
@@ -66,9 +116,21 @@ export function WalkthroughController({
 			qw: camera.quaternion.w,
 		};
 
-		// Teleport camera to spawn point
+		// Cache collision data (holes don't move during walkthrough)
+		holeOBBsRef.current = buildHoleOBBs();
+
+		// Set up enter transition
 		const spawn = getWalkthroughSpawnPoint(hall);
-		camera.position.set(spawn.x, spawn.y, spawn.z);
+		enterStartRef.current = {
+			x: camera.position.x,
+			y: camera.position.y,
+			z: camera.position.z,
+		};
+		enterTargetRef.current = { x: spawn.x, y: spawn.y, z: spawn.z };
+		enterElapsedRef.current = 0;
+		enteringRef.current = true;
+
+		// Set facing direction immediately (no rotation lerp — prevents nausea)
 		eulerRef.current.set(0, 0, 0, "YXZ");
 		camera.quaternion.setFromEuler(eulerRef.current);
 
@@ -169,16 +231,52 @@ export function WalkthroughController({
 
 	// Per-frame movement
 	useFrame((_state, delta) => {
+		// Enter transition: lerp camera from saved position to spawn
+		if (enteringRef.current) {
+			enterElapsedRef.current += delta;
+			const t = Math.min(enterElapsedRef.current / ENTER_DURATION, 1);
+			const eased = MathUtils.smoothstep(t, 0, 1);
+
+			camera.position.x = MathUtils.lerp(
+				enterStartRef.current.x,
+				enterTargetRef.current.x,
+				eased,
+			);
+			camera.position.y = MathUtils.lerp(
+				enterStartRef.current.y,
+				enterTargetRef.current.y,
+				eased,
+			);
+			camera.position.z = MathUtils.lerp(
+				enterStartRef.current.z,
+				enterTargetRef.current.z,
+				eased,
+			);
+			camera.quaternion.setFromEuler(eulerRef.current);
+
+			if (t >= 1) {
+				enteringRef.current = false;
+			}
+			return; // No WASD movement during transition
+		}
+
 		camera.quaternion.setFromEuler(eulerRef.current);
 
-		// TODO: Section 03 — wrap with checkWalkthroughCollision
 		const mv = computeMovementVector(
 			keyStateRef.current,
 			eulerRef.current.y,
 			delta,
 		);
-		camera.position.x += mv.x;
-		camera.position.z += mv.z;
+		const desiredX = camera.position.x + mv.x;
+		const desiredZ = camera.position.z + mv.z;
+
+		const resolved = checkWalkthroughCollision(
+			{ x: desiredX, z: desiredZ },
+			holeOBBsRef.current,
+			hall,
+		);
+		camera.position.x = resolved.x;
+		camera.position.z = resolved.z;
 		camera.position.y = EYE_HEIGHT;
 	});
 
