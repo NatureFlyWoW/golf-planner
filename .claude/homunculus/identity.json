@@ -1,33 +1,44 @@
 {
   "version": "2.0.0",
   "project": {
-    "name": "Golf Forge",
-    "description": "Indoor blacklight mini golf hall layout planner for a 200m² BORGA steel hall. React 19 + R3F + Zustand. Personal planning tool evolving toward professional-grade architectural quality.",
-    "born": "2026-02-22T21:55:00Z"
+    "name": "Golf Planner",
+    "description": "Indoor blacklight mini golf hall layout planner for a 200m² BORGA steel hall in Gramastetten, Austria. React 19 + TypeScript + Vite + R3F + Zustand.",
+    "born": "2026-02-21T12:00:00Z"
   },
   "creator": {
-    "level": "technical"
+    "level": "semi-technical"
   },
   "journey": {
     "milestones": [
-      {
-        "date": "2026-02-22",
-        "event": "Born with 3.8MB of pre-birth observations. Split 01 (dual viewport + layers) complete. Visual First reorder approved."
-      }
+      "Phase 1-10A complete",
+      "229 tests passing",
+      "Full app: 3D hall, hole builder, budget tracker, PWA",
+      "Phases 1-12 complete, 495 tests",
+      "Homunculus bootstrapped: 25 instincts from 17 sessions",
+      "First evolution: environment-setup + working-with-ben skills",
+      "Homunculus v2.1: anti-instincts, contradiction-triggered evolution, /homunculus:review command",
+      "Second evolution: code-investigation + project-navigation skills (4 domains resolved)"
     ],
-    "sessionCount": 19,
-    "lastSession": "2026-02-23T01:38:22Z"
+    "sessionCount": 46,
+    "lastSession": "2026-02-23T11:24:26Z"
   },
   "homunculus": {
-    "evolved": [],
-    "awakened": "2026-02-22T21:55:00Z"
+    "evolved": [
+      "environment-setup",
+      "working-with-ben",
+      "review",
+      "code-investigation",
+      "project-navigation"
+    ],
+    "awakened": "2026-02-21T12:00:00Z"
   },
   "instincts": {
-    "personal": 0,
+    "personal": 33,
     "inherited": 0
   },
   "evolution": {
-    "ready": []
+    "ready": [],
+    "reasons": {}
   },
-  "lastAnalysis": null
+  "lastAnalysis": "2026-02-23T12:00:00Z"
 }
