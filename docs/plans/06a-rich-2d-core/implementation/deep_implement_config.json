@@ -1,0 +1,72 @@
+{
+  "plugin_root": "/home/ben/.claude/plugins/cache/piercelamb-plugins/deep-implement/0.2.0",
+  "sections_dir": "/mnt/c/Users/Caus/Golf_Plan/docs/plans/06a-rich-2d-core/sections",
+  "target_dir": "/mnt/c/Users/Caus/Golf_Plan/golf-planner",
+  "state_dir": "/mnt/c/Users/Caus/Golf_Plan/docs/plans/06a-rich-2d-core/implementation",
+  "git_root": "/mnt/c/Users/Caus/Golf_Plan/golf-planner",
+  "commit_style": "conventional",
+  "test_command": "uv run pytest",
+  "sections": [
+    "section-01-rendering-spike",
+    "section-02-viewport-aware-scene",
+    "section-03-architectural-walls",
+    "section-04-door-window-symbols",
+    "section-05-status-bar",
+    "section-06-grid-refinement",
+    "section-07-textured-holes",
+    "section-08-lod-system",
+    "section-09-title-block",
+    "section-10-integration-polish"
+  ],
+  "sections_state": {
+    "section-01-rendering-spike": {
+      "status": "complete",
+      "commit_hash": "75549d7"
+    },
+    "section-02-viewport-aware-scene": {
+      "status": "complete",
+      "commit_hash": "fbb2e72"
+    },
+    "section-03-architectural-walls": {
+      "status": "complete",
+      "commit_hash": "6bdbcf3"
+    },
+    "section-04-door-window-symbols": {
+      "status": "complete",
+      "commit_hash": "d06969b"
+    },
+    "section-05-status-bar": {
+      "status": "complete",
+      "commit_hash": "02ea07f"
+    },
+    "section-06-grid-refinement": {
+      "status": "complete",
+      "commit_hash": "32a8dee"
+    },
+    "section-07-textured-holes": {
+      "status": "complete",
+      "commit_hash": "1394b01"
+    },
+    "section-08-lod-system": {
+      "status": "complete",
+      "commit_hash": "c44076a"
+    },
+    "section-09-title-block": {
+      "status": "complete",
+      "commit_hash": "2fd1b24"
+    },
+    "section-10-integration-polish": {
+      "status": "complete",
+      "commit_hash": "b86d667"
+    }
+  },
+  "pre_commit": {
+    "present": false,
+    "type": "none",
+    "config_file": null,
+    "native_hook": null,
+    "may_modify_files": false,
+    "detected_formatters": []
+  },
+  "created_at": "2026-02-22T21:52:07.464208+00:00"
+}
