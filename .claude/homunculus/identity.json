@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "project": {
+    "name": "Golf Forge",
+    "description": "Indoor blacklight mini golf hall layout planner for a 200m² BORGA steel hall. React 19 + R3F + Zustand. Personal planning tool evolving toward professional-grade architectural quality.",
+    "born": "2026-02-22T21:55:00Z"
+  },
+  "creator": {
+    "level": "technical"
+  },
+  "journey": {
+    "milestones": [
+      {
+        "date": "2026-02-22",
+        "event": "Born with 3.8MB of pre-birth observations. Split 01 (dual viewport + layers) complete. Visual First reorder approved."
+      }
+    ],
+    "sessionCount": 19,
+    "lastSession": "2026-02-23T01:38:22Z"
+  },
+  "homunculus": {
+    "evolved": [],
+    "awakened": "2026-02-22T21:55:00Z"
+  },
+  "instincts": {
+    "personal": 0,
+    "inherited": 0
+  },
+  "evolution": {
+    "ready": []
+  },
+  "lastAnalysis": null
+}
