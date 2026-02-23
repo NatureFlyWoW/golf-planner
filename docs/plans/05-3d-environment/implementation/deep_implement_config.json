@@ -17,7 +17,44 @@
     "section-08-camera-enhancements",
     "section-09-performance-polish"
   ],
-  "sections_state": {},
+  "sections_state": {
+    "section-01-walkthrough-state": {
+      "status": "complete",
+      "commit_hash": "1d2510d"
+    },
+    "section-02-walkthrough-camera": {
+      "status": "complete",
+      "commit_hash": "408491c"
+    },
+    "section-03-walkthrough-collision": {
+      "status": "complete",
+      "commit_hash": "d0f5746"
+    },
+    "section-04-walkthrough-ui": {
+      "status": "complete",
+      "commit_hash": "258cbc6"
+    },
+    "section-05-ground-plane": {
+      "status": "complete",
+      "commit_hash": "00aeb4d"
+    },
+    "section-06-hall-exterior": {
+      "status": "complete",
+      "commit_hash": "ca7e04a"
+    },
+    "section-07-sky-fog": {
+      "status": "complete",
+      "commit_hash": "c8d82f5"
+    },
+    "section-08-camera-enhancements": {
+      "status": "complete",
+      "commit_hash": "72b56f2"
+    },
+    "section-09-performance-polish": {
+      "status": "complete",
+      "commit_hash": "6ed45a1"
+    }
+  },
   "pre_commit": {
     "present": false,
     "type": "none",
