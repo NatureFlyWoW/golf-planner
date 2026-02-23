@@ -16,6 +16,22 @@ export function shouldHandleKey(activeElementTag: string): boolean {
 	return !BLOCKED_TAGS.has(activeElementTag);
 }
 
+const WALKTHROUGH_ALWAYS_ACTIVE = new Set(["z", "Z", "g", "G"]);
+
+/**
+ * Returns true if a key event should be suppressed because walkthrough
+ * mode is active and the key belongs to camera/viewport controls.
+ * Undo (z/Z) and snap toggle (g/G) remain active at all times.
+ */
+export function shouldSuppressForWalkthrough(
+	key: string,
+	walkthroughMode: boolean,
+): boolean {
+	if (!walkthroughMode) return false;
+	if (WALKTHROUGH_ALWAYS_ACTIVE.has(key)) return false;
+	return true;
+}
+
 /** Compute bounding box for all placed holes, with 2m padding. Falls back to hall bounds. */
 function getHolesBoundingBox() {
 	const { holes, hall } = useStore.getState();
@@ -113,7 +129,30 @@ export function useKeyboardControls({
 				return;
 			}
 
+			// Escape key exits walkthrough (only consume when active)
+			if (e.key === "Escape") {
+				const { walkthroughMode } = useStore.getState().ui;
+				if (walkthroughMode) {
+					useStore.getState().exitWalkthrough();
+					return;
+				}
+			}
+
+			// F key exits walkthrough (must run before suppression guard)
+			if ((e.key === "f" || e.key === "F") && useStore.getState().ui.walkthroughMode) {
+				useStore.getState().exitWalkthrough();
+				return;
+			}
+
 			const viewport = resolveViewport();
+
+			// During walkthrough, suppress all camera/viewport shortcuts.
+			// WalkthroughController handles its own WASD via window.addEventListener.
+			const { walkthroughMode } = useStore.getState().ui;
+			if (shouldSuppressForWalkthrough(e.key, walkthroughMode)) {
+				e.stopPropagation();
+				return;
+			}
 
 			// Camera preset keys (1-6) — 3D only
 			if (e.key in PRESET_KEYS && viewport === "3d") {
@@ -263,19 +302,12 @@ export function useKeyboardControls({
 					}
 					case "f":
 					case "F": {
-						const { centerX, centerZ, rangeX, rangeZ } = getHolesBoundingBox();
-						const extent = Math.max(rangeX, rangeZ);
-						const distance = extent * 1.5;
-
-						ctrl3D.setLookAt(
-							centerX + distance * 0.5,
-							distance * 0.6,
-							centerZ + distance * 0.5,
-							centerX,
-							0,
-							centerZ,
-							true,
-						);
+						const uiState = useStore.getState().ui;
+						if (uiState.walkthroughMode) {
+							useStore.getState().exitWalkthrough();
+						} else {
+							useStore.getState().enterWalkthrough();
+						}
 						break;
 					}
 				}

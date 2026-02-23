@@ -494,3 +494,20 @@ const walkthroughMode = useStore((s) => s.ui.walkthroughMode);
 8. The Walk button is not visible on mobile.
 9. The 2D viewport F key still zooms to fit all holes (unchanged).
 10. All 639+ existing tests continue to pass.
+---
+
+## Implementation Deviations
+
+1. **No `WalkthroughContext.ts` or `ThreeDOnlyContent.tsx` changes**: Plan specified creating a context and mounting WalkthroughController in ThreeDOnlyContent. Section 02 already mounted WalkthroughController directly in DualViewport with `targetRef={pane3DRef}` prop — cleaner than context-based approach.
+
+2. **F key exit before suppression guard**: Code review found that `shouldSuppressForWalkthrough` blocked F key during walkthrough, preventing F-to-exit. Fixed by adding F key exit check before the suppression guard.
+
+3. **Escape only consumed when walkthrough active**: Plan had Escape returning unconditionally. Fixed to only consume when `walkthroughMode` is true, allowing future Escape handlers.
+
+4. **Hoisted Set to module scope**: `shouldSuppressForWalkthrough` allocated a new `Set` per call. Hoisted to module-level `WALKTHROUGH_ALWAYS_ACTIVE` constant.
+
+5. **No `walkthroughOverlay.test.ts`**: Plan marked this as optional. Skipped since project convention is pure-function tests only, not React component rendering tests.
+
+6. **No mobile-path overlay mount**: Plan recommended mounting overlay in mobile code path for defense. Skipped since walkthrough is a no-op on mobile.
+
+7. **Test count**: 11 tests for `shouldSuppressForWalkthrough` pure function. F/Escape decision tests skipped (require React hook rendering, not pure-function testable).

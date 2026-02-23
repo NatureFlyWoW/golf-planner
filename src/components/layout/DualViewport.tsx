@@ -33,7 +33,7 @@ import { ViewportContext } from "../../contexts/ViewportContext";
 import type { ViewportInfo } from "../../contexts/ViewportContext";
 import { useMouseStatusStore } from "../../stores/mouseStatusStore";
 import { canvasPointerEvents } from "../../utils/uvTransitionConfig";
-import { WalkthroughController } from "../three/environment";
+import { WalkthroughController, WalkthroughOverlay } from "../three/environment";
 import { CameraPresets } from "../three/CameraPresets";
 import { PlacementHandler } from "../three/PlacementHandler";
 import { SharedScene } from "../three/SharedScene";
@@ -411,6 +411,8 @@ export function DualViewport({ sunData }: DualViewportProps) {
 					</View>
 					{/* Camera presets overlay (HTML, outside Canvas) */}
 					<CameraPresets cameraControlsRef={controls3DRef} />
+					{/* Walkthrough overlay (HTML, outside Canvas) */}
+					<WalkthroughOverlay />
 				</div>
 			)}
 

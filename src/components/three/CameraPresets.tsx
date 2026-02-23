@@ -19,6 +19,9 @@ const PRESET_BUTTONS = [
 
 export function CameraPresets({ cameraControlsRef }: CameraPresetsProps) {
 	const hall = useStore((s) => s.hall);
+	const walkthroughMode = useStore((s) => s.ui.walkthroughMode);
+	const enterWalkthrough = useStore((s) => s.enterWalkthrough);
+	const exitWalkthrough = useStore((s) => s.exitWalkthrough);
 
 	// Hide camera preset buttons on mobile — no dedicated 3D pane
 	if (isMobile) return null;
@@ -56,6 +59,22 @@ export function CameraPresets({ cameraControlsRef }: CameraPresetsProps) {
 					<span>{btn.label}</span>
 				</button>
 			))}
+			{/* Walkthrough toggle — desktop only */}
+			<hr className="border-white/20 my-1" />
+			<button
+				type="button"
+				onClick={walkthroughMode ? exitWalkthrough : enterWalkthrough}
+				className={`flex items-center gap-1 rounded px-2 py-1 text-xs transition-colors ${
+					walkthroughMode
+						? "bg-indigo-600/80 text-white hover:bg-indigo-600"
+						: "bg-black/60 text-white/80 hover:bg-black/80 hover:text-white"
+				}`}
+				title="Walkthrough mode (F)"
+				data-testid="walkthrough-btn"
+			>
+				<span className="w-3 text-white/50">F</span>
+				<span>{walkthroughMode ? "Exit Walk" : "Walk"}</span>
+			</button>
 		</div>
 	);
 }
