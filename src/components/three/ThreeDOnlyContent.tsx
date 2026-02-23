@@ -8,11 +8,21 @@ import {
 import { useThree } from "@react-three/fiber";
 import { useEffect } from "react";
 import { UV_LAMP_POSITIONS } from "../../constants/uvLamps";
+import { useSunPosition } from "../../hooks/useSunPosition";
 import { useStore } from "../../store";
-import { shouldEnableFog } from "../../utils/environmentGating";
+import {
+	shouldEnableFog,
+	shouldEnableNormalFog,
+} from "../../utils/environmentGating";
 import { shouldShowGodRays } from "../../utils/godraysConfig";
 import { shouldShowSparkles } from "../../utils/postprocessingConfig";
+import { GroundPlane } from "./environment/GroundPlane";
+import { HallFoundation } from "./environment/HallFoundation";
+import { HallRoof } from "./environment/HallRoof";
+import { HallWallsExterior } from "./environment/HallWallsExterior";
+import { SkyEnvironment } from "./environment/SkyEnvironment";
 import { GodRaysSource } from "./GodRaysSource";
+import { GroundClamp } from "./GroundClamp";
 import { ScreenshotCapture } from "./ScreenshotCapture";
 import { UVEffects } from "./UVEffects";
 import { UVLamps } from "./UVLamps";
@@ -31,14 +41,32 @@ export function ThreeDOnlyContent() {
 	const uvMode = useStore((s) => s.ui.uvMode);
 	const gpuTier = useStore((s) => s.ui.gpuTier);
 	const viewportLayout = useStore((s) => s.ui.viewportLayout);
+	const envLayerVisible = useStore(
+		(s) => s.ui.layers.environment?.visible ?? true,
+	);
+	const sunDate = useStore((s) => s.ui.sunDate);
+	const sunData = useSunPosition(sunDate);
 
 	// Fog is scene-level (shared between Views) — only enable in 3d-only mode
-	const fogEnabled = shouldEnableFog(uvMode, viewportLayout);
+	const uvFogEnabled = shouldEnableFog(uvMode, viewportLayout);
+	const normalFogEnabled = shouldEnableNormalFog(
+		viewportLayout,
+		uvMode,
+		envLayerVisible,
+	);
 
 	return (
 		<>
-			{fogEnabled && <fogExp2 attach="fog" args={["#07071A", 0.04]} />}
-			<FogController enabled={fogEnabled} />
+			<GroundPlane />
+			<HallRoof />
+			<HallFoundation />
+			<HallWallsExterior />
+			<SkyEnvironment sunData={sunData} />
+			{normalFogEnabled && (
+				<fog attach="fog" args={["#b0c4d8", 25, 55]} />
+			)}
+			{uvFogEnabled && <fogExp2 attach="fog" args={["#07071A", 0.04]} />}
+			<FogController enabled={uvFogEnabled || normalFogEnabled} />
 
 			<Environment
 				preset="night"
@@ -71,6 +99,7 @@ export function ThreeDOnlyContent() {
 				/>
 			)}
 			<UVEffects />
+			<GroundClamp />
 			<ScreenshotCapture />
 
 			<PerformanceMonitor />

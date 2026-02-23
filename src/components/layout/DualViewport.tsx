@@ -33,6 +33,7 @@ import { ViewportContext } from "../../contexts/ViewportContext";
 import type { ViewportInfo } from "../../contexts/ViewportContext";
 import { useMouseStatusStore } from "../../stores/mouseStatusStore";
 import { canvasPointerEvents } from "../../utils/uvTransitionConfig";
+import { WalkthroughController, WalkthroughOverlay } from "../three/environment";
 import { CameraPresets } from "../three/CameraPresets";
 import { PlacementHandler } from "../three/PlacementHandler";
 import { SharedScene } from "../three/SharedScene";
@@ -208,11 +209,13 @@ export function DualViewport({ sunData }: DualViewportProps) {
 			: gpuTier === "mid"
 				? [1, 1.5]
 				: [1, 1];
+	const walkthroughMode = useStore((s) => s.ui.walkthroughMode);
 	const frameloop = deriveFrameloop(
 		uvMode,
 		gpuTier,
 		transitioning,
 		viewportLayout,
+		walkthroughMode,
 	);
 	const shadows = getShadowType(gpuTier, isMobile);
 
@@ -393,7 +396,14 @@ export function DualViewport({ sunData }: DualViewportProps) {
 								near={0.1}
 								far={500}
 							/>
-							<CameraControls ref={controls3DRef} makeDefault />
+							<CameraControls
+								ref={controls3DRef}
+								makeDefault
+								enabled={!walkthroughMode}
+							/>
+							{walkthroughMode && (
+								<WalkthroughController targetRef={pane3DRef} />
+							)}
 							<SharedScene sunData={sunData} />
 							<ThreeDOnlyContent />
 							{!show2D && <PlacementHandler />}
@@ -401,6 +411,8 @@ export function DualViewport({ sunData }: DualViewportProps) {
 					</View>
 					{/* Camera presets overlay (HTML, outside Canvas) */}
 					<CameraPresets cameraControlsRef={controls3DRef} />
+					{/* Walkthrough overlay (HTML, outside Canvas) */}
+					<WalkthroughOverlay />
 				</div>
 			)}
 

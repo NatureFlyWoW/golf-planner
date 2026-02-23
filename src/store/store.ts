@@ -31,6 +31,7 @@ import type {
 } from "../types";
 import type { HoleTemplate } from "../types/template";
 import { uncertaintyFromTier } from "../utils/financial";
+import { isMobile } from "../utils/isMobile";
 import {
 	migrateBudgetCategories,
 	migrateBudgetConfig,
@@ -107,6 +108,9 @@ type StoreActions = {
 	toggleLayerVisible: (layerId: LayerId) => void;
 	toggleLayerLocked: (layerId: LayerId) => void;
 	resetLayers: () => void;
+	// Walkthrough actions
+	enterWalkthrough: () => void;
+	exitWalkthrough: () => void;
 } & BuilderActions;
 
 export type Store = StoreState & StoreActions;
@@ -133,6 +137,7 @@ export const DEFAULT_LAYERS: Record<LayerId, LayerState> = {
 	grid: { visible: true, opacity: 1, locked: false },
 	walls: { visible: true, opacity: 1, locked: false },
 	sunIndicator: { visible: true, opacity: 1, locked: false },
+	environment: { visible: true, opacity: 1, locked: false },
 };
 
 const DEFAULT_UI: UIState = {
@@ -152,6 +157,8 @@ const DEFAULT_UI: UIState = {
 	activeViewport: null,
 	splitRatio: 0.5,
 	layers: { ...DEFAULT_LAYERS },
+	walkthroughMode: false,
+	previousViewportLayout: null,
 };
 
 function migrateToV4(state: PersistedSlice): void {
@@ -678,6 +685,34 @@ export const useStore = create<Store>()(
 					set((state) => ({
 						ui: { ...state.ui, layers: { ...DEFAULT_LAYERS } },
 					})),
+				enterWalkthrough: () => {
+					if (isMobile) return;
+					if (get().ui.walkthroughMode) return;
+					set((state) => ({
+						ui: {
+							...state.ui,
+							walkthroughMode: true,
+							previousViewportLayout: state.ui.viewportLayout,
+							viewportLayout: "3d-only",
+						},
+					}));
+				},
+				exitWalkthrough: () => {
+					if (!get().ui.walkthroughMode) return;
+					const { previousViewportLayout } = get().ui;
+					set((state) => ({
+						ui: { ...state.ui, walkthroughMode: false },
+					}));
+					requestAnimationFrame(() => {
+						set((state) => ({
+							ui: {
+								...state.ui,
+								viewportLayout: previousViewportLayout ?? "dual",
+								previousViewportLayout: null,
+							},
+						}));
+					});
+				},
 			}),
 			{
 				name: "golf-planner-state",
