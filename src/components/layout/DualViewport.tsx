@@ -33,6 +33,7 @@ import { ViewportContext } from "../../contexts/ViewportContext";
 import type { ViewportInfo } from "../../contexts/ViewportContext";
 import { useMouseStatusStore } from "../../stores/mouseStatusStore";
 import { canvasPointerEvents } from "../../utils/uvTransitionConfig";
+import { WalkthroughController } from "../three/environment";
 import { CameraPresets } from "../three/CameraPresets";
 import { PlacementHandler } from "../three/PlacementHandler";
 import { SharedScene } from "../three/SharedScene";
@@ -395,7 +396,14 @@ export function DualViewport({ sunData }: DualViewportProps) {
 								near={0.1}
 								far={500}
 							/>
-							<CameraControls ref={controls3DRef} makeDefault />
+							<CameraControls
+								ref={controls3DRef}
+								makeDefault
+								enabled={!walkthroughMode}
+							/>
+							{walkthroughMode && (
+								<WalkthroughController targetRef={pane3DRef} />
+							)}
 							<SharedScene sunData={sunData} />
 							<ThreeDOnlyContent />
 							{!show2D && <PlacementHandler />}

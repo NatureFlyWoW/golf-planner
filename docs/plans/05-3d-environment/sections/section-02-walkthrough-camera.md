@@ -250,10 +250,25 @@ Create the directory `/mnt/c/Users/Caus/Golf_Plan/golf-planner/src/components/th
 
 ## File Summary
 
-Files to create:
-- `/mnt/c/Users/Caus/Golf_Plan/golf-planner/src/utils/walkthroughCamera.ts` — pure math utilities
-- `/mnt/c/Users/Caus/Golf_Plan/golf-planner/src/components/three/environment/WalkthroughController.tsx` — R3F component
-- `/mnt/c/Users/Caus/Golf_Plan/golf-planner/tests/utils/walkthroughCamera.test.ts` — test file
+Files created:
+- `src/utils/walkthroughCamera.ts` — pure math utilities
+- `src/components/three/environment/WalkthroughController.tsx` — R3F component
+- `src/components/three/environment/index.ts` — barrel export (added via code review)
+- `tests/utils/walkthroughCamera.test.ts` — 20 tests
 
-Files to modify:
-- `/mnt/c/Users/Caus/Golf_Plan/golf-planner/src/components/layout/DualViewport.tsx` — mount controller, add pane ref, update `deriveFrameloop` call, disable CameraControls during walkthrough
+Files modified:
+- `src/components/layout/DualViewport.tsx` — mount controller, update `deriveFrameloop` call, disable CameraControls during walkthrough; import via barrel export
+
+---
+
+## Implementation Deviations
+
+1. **Camera restore on unmount**: Plan suggested `requestAnimationFrame` + `CameraControls.setLookAt`. Actual implementation saves raw position + quaternion at mount time and restores directly on unmount, without rAF deferral — simpler and avoids CameraControls dependency since we don't need smooth animation on restore.
+
+2. **Barrel export added**: Code review identified missing `index.ts` in environment directory. Created and updated DualViewport import to use it.
+
+3. **Key/drag state reset on unmount**: Not in original plan. Added to keyboard useEffect cleanup to prevent stale WASD state if keys were held when exiting walkthrough.
+
+4. **3 additional tests**: Code review identified gaps — added zero-input test, non-zero yaw rotation test, and fallback spawn point test (no PVC door). Total: 17 → 20 tests.
+
+5. **Unused imports removed**: `Vector3` and `HALL` were imported but never used in WalkthroughController.tsx.
