@@ -22,7 +22,9 @@ export function HoleLibrary() {
 
 	return (
 		<div className="flex flex-col gap-2">
-			<p className="text-xs font-medium text-text-secondary uppercase">Hole Types</p>
+			<p className="text-xs font-medium text-text-secondary uppercase">
+				Hole Types
+			</p>
 			{HOLE_TYPES.map((ht) => (
 				<button
 					key={ht.type}

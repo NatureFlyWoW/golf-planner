@@ -93,7 +93,9 @@ test.describe("Dark Theme UI", () => {
 		await page.goto("/");
 		await waitForCanvasRender(page);
 		// Click Budget tab
-		const budgetTab = page.locator("[data-testid='sidebar'] button", { hasText: "Budget" });
+		const budgetTab = page.locator("[data-testid='sidebar'] button", {
+			hasText: "Budget",
+		});
 		await budgetTab.click();
 		await page.waitForTimeout(500);
 		const sidebar = page.locator("[data-testid='sidebar']");
@@ -105,6 +107,37 @@ test.describe("Dark Theme UI", () => {
 		await waitForCanvasRender(page);
 		const toolbar = page.locator("[data-testid='toolbar']");
 		await expect(toolbar).toHaveScreenshot("toolbar.png");
+	});
+});
+
+test.describe("Architectural Floor Plan (Split 06a)", () => {
+	test("full 2D architectural floor plan at default zoom", async ({ page }) => {
+		await page.goto("/");
+		await waitForCanvasRender(page);
+		await expect(page).toHaveScreenshot("architectural-2d-default.png");
+	});
+
+	test("2D pane with collapsed 3D shows full-width floor plan", async ({
+		page,
+	}) => {
+		await page.goto("/");
+		await waitForCanvasRender(page);
+		await page.evaluate(() => {
+			const store = (window as Record<string, any>).__STORE__;
+			if (store) store.getState().collapseTo("2d");
+		});
+		await page.waitForTimeout(1000);
+		await expect(page).toHaveScreenshot("architectural-2d-fullwidth.png");
+	});
+
+	test("UV mode shows appropriate colors for architectural elements", async ({
+		page,
+	}) => {
+		await page.goto("/");
+		await waitForCanvasRender(page);
+		await page.locator("[data-testid='uv-toggle']").click();
+		await page.waitForTimeout(3000);
+		await expect(page).toHaveScreenshot("architectural-2d-uv-mode.png");
 	});
 });
 

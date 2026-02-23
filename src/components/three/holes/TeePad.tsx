@@ -19,5 +19,11 @@ export function TeePad({ position, material }: TeePadProps) {
 
 	const [px, , pz] = position;
 
-	return <mesh geometry={geom} material={material} position={[px, SURFACE_THICKNESS + 0.0015, pz]} />;
+	return (
+		<mesh
+			geometry={geom}
+			material={material}
+			position={[px, SURFACE_THICKNESS + 0.0015, pz]}
+		/>
+	);
 }

@@ -24,8 +24,8 @@ export function selectCourseCost(state: Store): number {
 	const materialMultiplier =
 		buildMode === "professional"
 			? 1.0
-			: MATERIAL_PROFILE_MULTIPLIERS[state.budgetConfig.materialProfile] ??
-				1.0;
+			: (MATERIAL_PROFILE_MULTIPLIERS[state.budgetConfig.materialProfile] ??
+				1.0);
 
 	const raw = state.holeOrder.reduce(
 		(sum, id) => sum + (costMap[state.holes[id]?.type] ?? DEFAULT_HOLE_COST),
@@ -55,8 +55,8 @@ export function selectCourseBreakdown(state: Store): CourseBreakdownItem[] {
 	const materialMultiplier =
 		buildMode === "professional"
 			? 1.0
-			: MATERIAL_PROFILE_MULTIPLIERS[state.budgetConfig.materialProfile] ??
-				1.0;
+			: (MATERIAL_PROFILE_MULTIPLIERS[state.budgetConfig.materialProfile] ??
+				1.0);
 
 	const counts: Record<string, number> = {};
 	for (const id of state.holeOrder) {

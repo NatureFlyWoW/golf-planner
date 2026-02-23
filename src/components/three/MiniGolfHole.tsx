@@ -193,8 +193,7 @@ export function MiniGolfHole({
 				position={[0, INTERACTION_HEIGHT / 2, 0]}
 				onClick={(e) => {
 					if (layerLocked) return;
-					if (viewportInfo && !isEventForThisViewport(e, viewportInfo))
-						return;
+					if (viewportInfo && !isEventForThisViewport(e, viewportInfo)) return;
 					e.stopPropagation();
 					if (tool === "delete") {
 						removeHole(hole.id);
@@ -207,14 +206,12 @@ export function MiniGolfHole({
 				onPointerUp={handlePointerUp}
 				onPointerEnter={(e) => {
 					if (layerLocked) return;
-					if (viewportInfo && !isEventForThisViewport(e, viewportInfo))
-						return;
+					if (viewportInfo && !isEventForThisViewport(e, viewportInfo)) return;
 					setIsHovered(true);
 				}}
 				onPointerLeave={(e) => {
 					if (layerLocked) return;
-					if (viewportInfo && !isEventForThisViewport(e, viewportInfo))
-						return;
+					if (viewportInfo && !isEventForThisViewport(e, viewportInfo)) return;
 					setIsHovered(false);
 				}}
 			>

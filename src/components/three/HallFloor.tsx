@@ -46,10 +46,7 @@ export function getFloorUVRepeat(
 	hallWidth: number,
 	hallLength: number,
 ): [number, number] {
-	return [
-		hallWidth / CONCRETE_TILE_SIZE,
-		hallLength / CONCRETE_TILE_SIZE,
-	];
+	return [hallWidth / CONCRETE_TILE_SIZE, hallLength / CONCRETE_TILE_SIZE];
 }
 
 // --- Components ---

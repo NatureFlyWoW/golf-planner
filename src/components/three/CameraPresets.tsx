@@ -23,7 +23,9 @@ export function CameraPresets({ cameraControlsRef }: CameraPresetsProps) {
 	// Hide camera preset buttons on mobile — no dedicated 3D pane
 	if (isMobile) return null;
 
-	function handlePresetClick(presetKey: (typeof PRESET_BUTTONS)[number]["key"]) {
+	function handlePresetClick(
+		presetKey: (typeof PRESET_BUTTONS)[number]["key"],
+	) {
 		const ctrl = cameraControlsRef.current;
 		if (!ctrl) return;
 

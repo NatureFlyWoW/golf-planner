@@ -25,7 +25,9 @@ export function HoleDetail() {
 	const orderIndex = holeOrder.indexOf(selectedId);
 
 	const swatchColor = template ? template.color : (definition?.color ?? "#999");
-	const headerLabel = template ? template.name : (definition?.label ?? hole.type);
+	const headerLabel = template
+		? template.name
+		: (definition?.label ?? hole.type);
 
 	let dimensionLabel: string;
 	if (template) {
@@ -122,10 +124,14 @@ export function HoleDetail() {
 			{template ? (
 				<div className="flex flex-col gap-1 rounded border border-subtle bg-surface-raised p-2">
 					<div className="text-xs text-text-secondary">
-						Template: <span className="font-medium text-primary">{template.name}</span>
+						Template:{" "}
+						<span className="font-medium text-primary">{template.name}</span>
 					</div>
 					<div className="text-xs text-text-secondary">
-						Segments: <span className="font-medium text-primary">{template.segments.length}</span>
+						Segments:{" "}
+						<span className="font-medium text-primary">
+							{template.segments.length}
+						</span>
 					</div>
 					<button
 						type="button"

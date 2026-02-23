@@ -17,7 +17,10 @@ export function Sidebar() {
 	const setSidebarTab = useStore((s) => s.setSidebarTab);
 
 	return (
-		<div className="hidden h-full w-64 flex-col border-r border-subtle bg-surface-raised md:flex" data-testid="sidebar">
+		<div
+			className="hidden h-full w-64 flex-col border-r border-subtle bg-surface-raised md:flex"
+			data-testid="sidebar"
+		>
 			<div className="flex border-b border-subtle">
 				{tabs.map(({ tab, label }) => (
 					<button

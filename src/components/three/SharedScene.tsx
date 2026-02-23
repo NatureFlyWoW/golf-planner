@@ -6,6 +6,7 @@ import { FlowPath } from "./FlowPath";
 import { Hall } from "./Hall";
 import { PlacedHoles } from "./PlacedHoles";
 import { SunIndicator } from "./SunIndicator";
+import { ArchitecturalFloorPlan } from "./architectural/ArchitecturalFloorPlan";
 
 type SharedSceneProps = {
 	sunData: SunData;
@@ -31,14 +32,10 @@ export function SharedScene({ sunData }: SharedSceneProps) {
 					position={
 						sunData
 							? [
-									-Math.sin(sunData.azimuth) *
-										Math.cos(sunData.altitude) *
-										30 +
+									-Math.sin(sunData.azimuth) * Math.cos(sunData.altitude) * 30 +
 										5,
 									Math.sin(sunData.altitude) * 30,
-									Math.cos(sunData.azimuth) *
-										Math.cos(sunData.altitude) *
-										30 +
+									Math.cos(sunData.azimuth) * Math.cos(sunData.altitude) * 30 +
 										10,
 								]
 							: [10, 20, 5]
@@ -59,6 +56,7 @@ export function SharedScene({ sunData }: SharedSceneProps) {
 			<PlacedHoles />
 			<FlowPath />
 			<FloorGrid />
+			<ArchitecturalFloorPlan />
 			<SunIndicator sunData={sunData} />
 		</>
 	);

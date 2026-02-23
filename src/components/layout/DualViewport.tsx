@@ -8,7 +8,7 @@ import {
 } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import type CameraControlsImpl from "camera-controls";
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { type RefObject, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { MOUSE, NoToneMapping, TOUCH } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { useIsMobileViewport } from "../../hooks/useIsMobileViewport";
@@ -31,14 +31,17 @@ import {
 import { isMobile } from "../../utils/isMobile";
 import { ViewportContext } from "../../contexts/ViewportContext";
 import type { ViewportInfo } from "../../contexts/ViewportContext";
+import { useMouseStatusStore } from "../../stores/mouseStatusStore";
 import { canvasPointerEvents } from "../../utils/uvTransitionConfig";
 import { CameraPresets } from "../three/CameraPresets";
 import { PlacementHandler } from "../three/PlacementHandler";
 import { SharedScene } from "../three/SharedScene";
 import { ThreeDOnlyContent } from "../three/ThreeDOnlyContent";
+import { ViewportStatusTracker } from "../three/ViewportStatusTracker";
 import { KeyboardHelp } from "../ui/KeyboardHelp";
 import { MiniMap } from "../ui/MiniMap";
 import { SunControls } from "../ui/SunControls";
+import { TitleBlock2D } from "../ui/TitleBlock2D";
 import { SplitDivider } from "./SplitDivider";
 
 type DualViewportProps = {
@@ -205,7 +208,12 @@ export function DualViewport({ sunData }: DualViewportProps) {
 			: gpuTier === "mid"
 				? [1, 1.5]
 				: [1, 1];
-	const frameloop = deriveFrameloop(uvMode, gpuTier, transitioning, viewportLayout);
+	const frameloop = deriveFrameloop(
+		uvMode,
+		gpuTier,
+		transitioning,
+		viewportLayout,
+	);
 	const shadows = getShadowType(gpuTier, isMobile);
 
 	// Mobile: single-pane fallback — no View components, camera driven by ui.view
@@ -215,8 +223,7 @@ export function DualViewport({ sunData }: DualViewportProps) {
 				ref={containerRef}
 				className="relative flex-1 overflow-hidden"
 				style={{
-					cursor:
-						tool === "delete" ? "crosshair" : "default",
+					cursor: tool === "delete" ? "crosshair" : "default",
 					touchAction: "none",
 					pointerEvents: canvasPointerEvents(transitioning),
 				}}
@@ -271,10 +278,7 @@ export function DualViewport({ sunData }: DualViewportProps) {
 									near={0.1}
 									far={500}
 								/>
-								<CameraControls
-									ref={controls3DRef}
-									makeDefault
-								/>
+								<CameraControls ref={controls3DRef} makeDefault />
 								<SharedScene sunData={sunData} />
 								<ThreeDOnlyContent />
 								<PlacementHandler />
@@ -313,11 +317,12 @@ export function DualViewport({ sunData }: DualViewportProps) {
 					data-testid="pane-2d"
 					className="relative h-full overflow-hidden"
 					style={{
-						width: showDivider
-							? `calc(${splitRatio * 100}% - 6px)`
-							: "100%",
+						width: showDivider ? `calc(${splitRatio * 100}% - 6px)` : "100%",
 					}}
 					onPointerEnter={() => setActiveViewport("2d")}
+					onPointerLeave={() =>
+						useMouseStatusStore.getState().setMouseWorldPos(null)
+					}
 				>
 					<View style={{ width: "100%", height: "100%" }}>
 						<ViewportContext.Provider value={viewport2DInfo}>
@@ -349,9 +354,11 @@ export function DualViewport({ sunData }: DualViewportProps) {
 							/>
 							<SharedScene sunData={sunData} />
 							<PlacementHandler />
+							<ViewportStatusTracker />
 						</ViewportContext.Provider>
 					</View>
 					<MiniMap />
+					<TitleBlock2D />
 				</div>
 			)}
 
@@ -386,10 +393,7 @@ export function DualViewport({ sunData }: DualViewportProps) {
 								near={0.1}
 								far={500}
 							/>
-							<CameraControls
-								ref={controls3DRef}
-								makeDefault
-							/>
+							<CameraControls ref={controls3DRef} makeDefault />
 							<SharedScene sunData={sunData} />
 							<ThreeDOnlyContent />
 							{!show2D && <PlacementHandler />}
@@ -411,7 +415,7 @@ export function DualViewport({ sunData }: DualViewportProps) {
 					powerPreference: "high-performance",
 					toneMapping: NoToneMapping,
 				}}
-				eventSource={containerRef}
+				eventSource={containerRef as RefObject<HTMLElement>}
 				style={{
 					position: "absolute",
 					top: 0,

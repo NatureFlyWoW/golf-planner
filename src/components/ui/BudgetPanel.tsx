@@ -460,7 +460,9 @@ export function BudgetPanel() {
 												</select>
 											</label>
 											<label className="flex flex-col gap-0.5">
-												<span className="text-[10px] text-text-muted">Notes</span>
+												<span className="text-[10px] text-text-muted">
+													Notes
+												</span>
 												<textarea
 													value={cat.notes}
 													onChange={(e) =>

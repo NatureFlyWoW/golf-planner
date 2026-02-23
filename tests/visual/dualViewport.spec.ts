@@ -16,13 +16,10 @@ async function waitForCanvasRender(page: Page) {
 /** Collapse the dual viewport via store (more reliable than DOM interactions with Canvas overlay). */
 async function collapseToLayout(page: Page, layout: "2d-only" | "3d-only") {
 	const side = layout === "2d-only" ? "2d" : "3d";
-	await page.evaluate(
-		(s) => {
-			const store = (window as Record<string, any>).__STORE__;
-			if (store) store.getState().collapseTo(s);
-		},
-		side,
-	);
+	await page.evaluate((s) => {
+		const store = (window as Record<string, any>).__STORE__;
+		if (store) store.getState().collapseTo(s);
+	}, side);
 	await page.waitForTimeout(500);
 }
 
@@ -46,7 +43,9 @@ test.describe("Dual Viewport Layout", () => {
 		// Verify 2D pane visible, 3D pane and divider hidden
 		await expect(page.locator("[data-testid='pane-2d']")).toBeVisible();
 		await expect(page.locator("[data-testid='pane-3d']")).not.toBeAttached();
-		await expect(page.locator("[data-testid='split-divider']")).not.toBeAttached();
+		await expect(
+			page.locator("[data-testid='split-divider']"),
+		).not.toBeAttached();
 		await expect(page).toHaveScreenshot("collapsed-2d-only.png");
 	});
 
@@ -58,7 +57,9 @@ test.describe("Dual Viewport Layout", () => {
 		// Verify 3D pane visible, 2D pane and divider hidden
 		await expect(page.locator("[data-testid='pane-3d']")).toBeVisible();
 		await expect(page.locator("[data-testid='pane-2d']")).not.toBeAttached();
-		await expect(page.locator("[data-testid='split-divider']")).not.toBeAttached();
+		await expect(
+			page.locator("[data-testid='split-divider']"),
+		).not.toBeAttached();
 		await expect(page).toHaveScreenshot("collapsed-3d-only.png");
 	});
 });
@@ -99,7 +100,9 @@ test.describe("Mobile Fallback", () => {
 		await page.goto("/");
 		await waitForCanvasRender(page);
 		// Verify no dual-viewport structure on mobile
-		await expect(page.locator("[data-testid='dual-viewport']")).not.toBeAttached();
+		await expect(
+			page.locator("[data-testid='dual-viewport']"),
+		).not.toBeAttached();
 		await expect(page).toHaveScreenshot("mobile-single-pane.png");
 	});
 });

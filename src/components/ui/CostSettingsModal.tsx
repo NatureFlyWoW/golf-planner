@@ -104,18 +104,13 @@ export function CostSettingsModal({ onClose }: Props) {
 							value={materialProfile}
 							onChange={(e) =>
 								setBudgetConfig({
-									materialProfile: e.target
-										.value as MaterialProfile,
+									materialProfile: e.target.value as MaterialProfile,
 								})
 							}
 							className="rounded border border-subtle px-2 py-1 text-xs"
 						>
-							<option value="budget_diy">
-								Budget DIY (0.65x)
-							</option>
-							<option value="standard_diy">
-								Standard DIY (1.0x)
-							</option>
+							<option value="budget_diy">Budget DIY (0.65x)</option>
+							<option value="standard_diy">Standard DIY (1.0x)</option>
 							<option value="semi_pro">Semi-Pro (1.8x)</option>
 						</select>
 					</div>

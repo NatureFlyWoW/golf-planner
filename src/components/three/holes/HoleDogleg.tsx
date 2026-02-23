@@ -8,7 +8,13 @@ import { useMaterials } from "./useMaterials";
 const LANE_WIDTH = 0.6;
 const OFFSET = 0.15;
 
-export function HoleDogleg({ width, length }: { width: number; length: number }) {
+export function HoleDogleg({
+	width,
+	length,
+}: {
+	width: number;
+	length: number;
+}) {
 	const { felt, bumper, tee, cup } = useMaterials();
 	const halfW = width / 2;
 	const halfL = length / 2;
@@ -50,8 +56,16 @@ export function HoleDogleg({ width, length }: { width: number; length: number })
 			</mesh>
 
 			{/* Outer bumpers */}
-			<BumperRail length={length} position={[-halfW + BT / 2, ST, -halfL]} material={bumper} />
-			<BumperRail length={length} position={[halfW - BT / 2, ST, -halfL]} material={bumper} />
+			<BumperRail
+				length={length}
+				position={[-halfW + BT / 2, ST, -halfL]}
+				material={bumper}
+			/>
+			<BumperRail
+				length={length}
+				position={[halfW - BT / 2, ST, -halfL]}
+				material={bumper}
+			/>
 			{/* End bumpers */}
 			<BumperRail
 				length={width}
@@ -69,13 +83,21 @@ export function HoleDogleg({ width, length }: { width: number; length: number })
 			{/* Guide bumpers at bends */}
 			<BumperRail
 				length={guideBumperLen}
-				position={[OFFSET + LANE_WIDTH / 2 + BT / 2, ST, zBend1 - guideBumperLen / 2]}
+				position={[
+					OFFSET + LANE_WIDTH / 2 + BT / 2,
+					ST,
+					zBend1 - guideBumperLen / 2,
+				]}
 				height={guideBumperH}
 				material={bumper}
 			/>
 			<BumperRail
 				length={guideBumperLen}
-				position={[-OFFSET - LANE_WIDTH / 2 - BT / 2, ST, zBend2 - guideBumperLen / 2]}
+				position={[
+					-OFFSET - LANE_WIDTH / 2 - BT / 2,
+					ST,
+					zBend2 - guideBumperLen / 2,
+				]}
 				height={guideBumperH}
 				material={bumper}
 			/>

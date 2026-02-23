@@ -198,12 +198,12 @@ describe("createSegmentGeometries", () => {
 		] as const;
 		for (const specId of specs) {
 			const geom = createSegmentGeometries(specId, 0.6);
-			expect(
-				geom.bumperLeft.getAttribute("position").count,
-			).toBeGreaterThan(24);
-			expect(
-				geom.bumperRight.getAttribute("position").count,
-			).toBeGreaterThan(24);
+			expect(geom.bumperLeft.getAttribute("position").count).toBeGreaterThan(
+				24,
+			);
+			expect(geom.bumperRight.getAttribute("position").count).toBeGreaterThan(
+				24,
+			);
 		}
 	});
 

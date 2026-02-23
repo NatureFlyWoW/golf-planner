@@ -64,7 +64,7 @@ describe("v5 → v6 migration: holeTemplates and builderDraft fields", () => {
 		// Edge case: someone manually stored holeTemplates at version 5.
 		// The migration guard checks !("holeTemplates" in p), so it must not overwrite.
 		const existingTemplates = {
-			"t2": { id: "t2", name: "Existing", segments: [] },
+			t2: { id: "t2", name: "Existing", segments: [] },
 		};
 		const stateWithTemplates = {
 			...makeV5State(),
@@ -79,7 +79,7 @@ describe("v5 → v6 migration: holeTemplates and builderDraft fields", () => {
 
 	it("preserves holes after migration", () => {
 		const holes = {
-			"h1": {
+			h1: {
 				id: "h1",
 				type: "straight",
 				position: { x: 5, z: 3 },
@@ -96,7 +96,7 @@ describe("v5 → v6 migration: holeTemplates and builderDraft fields", () => {
 	it("preserves holeOrder after migration", () => {
 		const v5 = makeV5State({
 			holes: {
-				"h1": {
+				h1: {
 					id: "h1",
 					type: "straight",
 					position: { x: 1, z: 2 },
@@ -192,7 +192,7 @@ describe("full migration chain v3 → v6", () => {
 
 	it("preserves holes through full v3 → v6 chain", () => {
 		const holes = {
-			"h1": {
+			h1: {
 				id: "h1",
 				type: "curve",
 				position: { x: 3, z: 1 },
@@ -238,7 +238,7 @@ describe("v6 → v7 migration: gpuTierOverride field", () => {
 
 	it("preserves holeTemplates after v6 → v7 migration", () => {
 		const templates = {
-			"t1": { id: "t1", name: "Loop", segments: [] },
+			t1: { id: "t1", name: "Loop", segments: [] },
 		};
 		const v6 = makeV6State({ holeTemplates: templates });
 		const result = migratePersistedState(v6, 6) as Record<string, unknown>;
@@ -300,7 +300,7 @@ describe("v7 → v8 migration", () => {
 
 	it("preserves all v7 fields alongside new uvTransitionEnabled", () => {
 		const existingTemplates = {
-			"t1": { id: "t1", name: "T", segments: [] },
+			t1: { id: "t1", name: "T", segments: [] },
 		};
 		const v7 = {
 			...makeV6State(),

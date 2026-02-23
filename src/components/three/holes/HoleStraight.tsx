@@ -33,7 +33,11 @@ export function HoleStraight({ width, length }: Props) {
 			/>
 			<BumperRail
 				length={laneW}
-				position={[-laneW / 2, SURFACE_THICKNESS, -halfL + BUMPER_THICKNESS / 2]}
+				position={[
+					-laneW / 2,
+					SURFACE_THICKNESS,
+					-halfL + BUMPER_THICKNESS / 2,
+				]}
 				rotation={[0, -Math.PI / 2, 0]}
 				material={bumper}
 			/>

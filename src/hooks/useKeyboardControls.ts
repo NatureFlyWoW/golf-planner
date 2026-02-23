@@ -155,8 +155,7 @@ export function useKeyboardControls({
 					}
 					case "f":
 					case "F": {
-						const { centerX, centerZ, rangeX, rangeZ } =
-							getHolesBoundingBox();
+						const { centerX, centerZ, rangeX, rangeZ } = getHolesBoundingBox();
 
 						ctrl2D.target.set(centerX, 0, centerZ);
 						camera.position.set(centerX, 50, centerZ);
@@ -264,8 +263,7 @@ export function useKeyboardControls({
 					}
 					case "f":
 					case "F": {
-						const { centerX, centerZ, rangeX, rangeZ } =
-							getHolesBoundingBox();
+						const { centerX, centerZ, rangeX, rangeZ } = getHolesBoundingBox();
 						const extent = Math.max(rangeX, rangeZ);
 						const distance = extent * 1.5;
 

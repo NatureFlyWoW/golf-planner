@@ -18,7 +18,10 @@ function readTsxFiles(dir: string): { file: string; content: string }[] {
 		}));
 }
 
-function countMatches(files: { file: string; content: string }[], pattern: RegExp): string[] {
+function countMatches(
+	files: { file: string; content: string }[],
+	pattern: RegExp,
+): string[] {
 	const matches: string[] = [];
 	for (const { file, content } of files) {
 		const m = content.match(pattern);
@@ -39,28 +42,41 @@ describe("Dark Theme Conversion", () => {
 
 	it("no remaining bg-gray-50 or bg-gray-100 in UI/builder components", () => {
 		const matches = countMatches(allComponentFiles, /bg-gray-(?:50|100)\b/g);
-		expect(matches, `Found bg-gray-50/100 in: ${matches.join(", ")}`).toHaveLength(0);
+		expect(
+			matches,
+			`Found bg-gray-50/100 in: ${matches.join(", ")}`,
+		).toHaveLength(0);
 	});
 
 	it("no remaining bg-gray-200 backgrounds in UI components", () => {
 		const matches = countMatches(uiFiles, /bg-gray-200/g);
-		expect(matches, `Found bg-gray-200 in: ${matches.join(", ")}`).toHaveLength(0);
+		expect(matches, `Found bg-gray-200 in: ${matches.join(", ")}`).toHaveLength(
+			0,
+		);
 	});
 
 	it("no remaining text-gray-900/800/700 in UI components", () => {
 		const matches = countMatches(uiFiles, /text-gray-(?:900|800|700)\b/g);
-		expect(matches, `Found dark-on-light text in: ${matches.join(", ")}`).toHaveLength(0);
+		expect(
+			matches,
+			`Found dark-on-light text in: ${matches.join(", ")}`,
+		).toHaveLength(0);
 	});
 
 	it("no remaining border-gray-200 in UI components", () => {
 		const matches = countMatches(uiFiles, /border-gray-200/g);
-		expect(matches, `Found border-gray-200 in: ${matches.join(", ")}`).toHaveLength(0);
+		expect(
+			matches,
+			`Found border-gray-200 in: ${matches.join(", ")}`,
+		).toHaveLength(0);
 	});
 
 	it("no remaining uvMode ternaries in UI components", () => {
 		const uiAndToolbar = uiFiles;
 		const matches = countMatches(uiAndToolbar, /uvMode\s*\?/g);
-		expect(matches, `Found uvMode ? in UI: ${matches.join(", ")}`).toHaveLength(0);
+		expect(matches, `Found uvMode ? in UI: ${matches.join(", ")}`).toHaveLength(
+			0,
+		);
 	});
 
 	it("3D component files are allowed to have uvMode ternaries", () => {

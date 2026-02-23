@@ -194,13 +194,23 @@ function OverflowPopover({ onClose }: { onClose: () => void }) {
 			{/* Popover */}
 			<div className="absolute bottom-16 right-2 z-50 grid grid-cols-2 gap-2 rounded-lg border border-subtle bg-surface-raised p-3 shadow-lg">
 				<ToggleBtn label="Snap" active={snapEnabled} onTap={toggleSnap} />
-				<ToggleBtn label="Flow" active={flowPathVisible} onTap={() => toggleLayerVisible("flowPath")} />
+				<ToggleBtn
+					label="Flow"
+					active={flowPathVisible}
+					onTap={() => toggleLayerVisible("flowPath")}
+				/>
 				<ToggleBtn
 					label={view === "top" ? "3D" : "2D"}
 					active={false}
 					onTap={() => setView(view === "top" ? "3d" : "top")}
 				/>
-				<ToggleBtn label="UV" active={uvMode} onTap={toggleUvMode} disabled={transitioning} className={uvMode && !transitioning ? "uv-button-pulse" : ""} />
+				<ToggleBtn
+					label="UV"
+					active={uvMode}
+					onTap={toggleUvMode}
+					disabled={transitioning}
+					className={uvMode && !transitioning ? "uv-button-pulse" : ""}
+				/>
 				<ToggleBtn
 					label="Sun"
 					active={false}
@@ -285,9 +295,7 @@ function ToggleBtn({
 			onClick={onTap}
 			disabled={disabled}
 			className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-				active
-					? "bg-accent-text text-white"
-					: "bg-plasma text-text-secondary"
+				active ? "bg-accent-text text-white" : "bg-plasma text-text-secondary"
 			}${disabled ? " opacity-50" : ""}${extraClass ? ` ${extraClass}` : ""}`}
 		>
 			{label}

@@ -149,7 +149,9 @@ export function useTexturedMaterials(): MaterialSet {
  */
 export function TexturedMaterialsProvider({
 	children,
-}: { children: ReactNode }) {
+}: {
+	children: ReactNode;
+}) {
 	const materials = useTexturedMaterials();
 	return (
 		<TexturedMaterialsContext.Provider value={materials}>

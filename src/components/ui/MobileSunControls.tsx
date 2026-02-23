@@ -41,7 +41,9 @@ export function MobileSunControls() {
 				<div className="flex flex-col gap-4">
 					{/* Presets */}
 					<div className="flex flex-col gap-1.5">
-						<span className="text-sm font-medium text-text-secondary">Presets</span>
+						<span className="text-sm font-medium text-text-secondary">
+							Presets
+						</span>
 						<div className="flex gap-2">
 							{SUN_PRESETS.map(({ label, date }) => (
 								<button
@@ -80,7 +82,9 @@ export function MobileSunControls() {
 					{showCustom && (
 						<div className="flex flex-col gap-3">
 							<label className="flex flex-col gap-1.5">
-								<span className="text-sm font-medium text-text-secondary">Date</span>
+								<span className="text-sm font-medium text-text-secondary">
+									Date
+								</span>
 								<input
 									type="date"
 									defaultValue="2026-06-21"
@@ -97,7 +101,9 @@ export function MobileSunControls() {
 								/>
 							</label>
 							<label className="flex flex-col gap-1.5">
-								<span className="text-sm font-medium text-text-secondary">Time</span>
+								<span className="text-sm font-medium text-text-secondary">
+									Time
+								</span>
 								<input
 									type="time"
 									defaultValue="12:00"

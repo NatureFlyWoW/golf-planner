@@ -28,8 +28,7 @@ export default function PostProcessing() {
 	// PostProcessing (EffectComposer) cannot be scoped to a single View.
 	// Only render in 3d-only mode (fullscreen 3D pane).
 	if (!shouldEnablePostProcessing(viewportLayout)) return null;
-	const showGodRays =
-		gpuTier === "high" && godRaysLampRef?.current != null;
+	const showGodRays = gpuTier === "high" && godRaysLampRef?.current != null;
 
 	if (gpuTier === "high") {
 		return (

@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect } from "react";
 import { DualViewport } from "./components/layout/DualViewport";
 import { BottomToolbar } from "./components/ui/BottomToolbar";
 import { HoleDrawer } from "./components/ui/HoleDrawer";
-import { LocationBar } from "./components/ui/LocationBar";
+import { StatusBar } from "./components/ui/StatusBar";
 import { MobileBudgetPanel } from "./components/ui/MobileBudgetPanel";
 import { MobileLayerPanel } from "./components/ui/MobileLayerPanel";
 import { MobileDetailPanel } from "./components/ui/MobileDetailPanel";
@@ -38,7 +38,7 @@ export default function App() {
 				<Sidebar />
 				<DualViewport sunData={sunData} />
 			</div>
-			<LocationBar sunData={sunData} />
+			<StatusBar sunData={sunData} />
 			<BottomToolbar />
 			<HoleDrawer />
 			<MobileDetailPanel />

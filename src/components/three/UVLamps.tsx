@@ -21,7 +21,11 @@ const fixtureMaterial = new THREE.MeshStandardMaterial({
 });
 
 const LAMP_ROTATION: [number, number, number] = [-Math.PI / 2, 0, 0];
-const FIXTURE_ARGS: [number, number, number] = [UV_LAMP_WIDTH, 0.05, UV_LAMP_HEIGHT];
+const FIXTURE_ARGS: [number, number, number] = [
+	UV_LAMP_WIDTH,
+	0.05,
+	UV_LAMP_HEIGHT,
+];
 
 export function UVLamps() {
 	const view = useStore((s) => s.ui.view);

@@ -49,8 +49,8 @@ export function FlowPath() {
 							anchorY="middle"
 							outlineWidth={0.03}
 							outlineColor={uvMode ? "#0A0A1A" : "black"}
-						fillOpacity={flowPathLayer.opacity}
-						outlineOpacity={flowPathLayer.opacity}
+							fillOpacity={flowPathLayer.opacity}
+							outlineOpacity={flowPathLayer.opacity}
 						>
 							{index + 1}
 						</Text>

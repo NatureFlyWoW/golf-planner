@@ -348,7 +348,7 @@ export const useStore = create<Store>()(
 				ui: DEFAULT_UI,
 				captureScreenshot: null,
 				gpuTierOverride: "auto" as GpuTierOverride,
-			uvTransitionEnabled: true,
+				uvTransitionEnabled: true,
 				...BUILDER_INITIAL_STATE,
 				...createBuilderActions(set, get),
 

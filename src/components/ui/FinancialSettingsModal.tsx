@@ -133,7 +133,9 @@ export function FinancialSettingsModal({ onClose }: Props) {
 									}`}
 								>
 									<span className="text-xs font-medium">{opt.label}</span>
-									<span className="text-[10px] text-text-muted">{opt.desc}</span>
+									<span className="text-[10px] text-text-muted">
+										{opt.desc}
+									</span>
 								</button>
 							))}
 						</div>
@@ -157,7 +159,9 @@ export function FinancialSettingsModal({ onClose }: Props) {
 									}`}
 								>
 									<span className="text-xs font-medium">{opt.label}</span>
-									<span className="text-[10px] text-text-muted">{opt.desc}</span>
+									<span className="text-[10px] text-text-muted">
+										{opt.desc}
+									</span>
 								</button>
 							))}
 						</div>
@@ -217,9 +221,7 @@ export function FinancialSettingsModal({ onClose }: Props) {
 											: "bg-surface text-text-secondary hover:bg-plasma"
 									}`}
 								>
-									{opt.value === "auto"
-										? `Auto (${gpuTier})`
-										: opt.label}
+									{opt.value === "auto" ? `Auto (${gpuTier})` : opt.label}
 								</button>
 							))}
 						</div>
@@ -234,9 +236,7 @@ export function FinancialSettingsModal({ onClose }: Props) {
 							<input
 								type="checkbox"
 								checked={uvTransitionEnabled}
-								onChange={(e) =>
-									setUvTransitionEnabled(e.target.checked)
-								}
+								onChange={(e) => setUvTransitionEnabled(e.target.checked)}
 								className="h-4 w-4 rounded border-subtle"
 							/>
 							<span className="text-xs font-medium text-primary">
