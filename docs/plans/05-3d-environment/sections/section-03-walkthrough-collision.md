@@ -296,13 +296,24 @@ All rotation values in `OBBInput` are **degrees**, consistent with the existing 
 
 ## Verification Checklist
 
-After implementation, confirm:
+- [x] `getDoorZones(HALL)` returns exactly 2 zones matching PVC and sectional door specs
+- [x] Camera at (5, 10) with no holes: `checkWalkthroughCollision` returns `{x:5, z:10}` unchanged
+- [x] Camera at (0.1, 10): returns `{x:0.4, z:10}` (clamped to CAMERA_RADIUS)
+- [x] Camera at (8.1, 20.5): NOT clamped (PVC door zone)
+- [x] Camera at (5.0, 20.5): clamped to `{x:5.0, z:19.6}` (no door at x=5.0)
+- [x] All 24 test cases pass via `npm run test`
+- [x] `npx tsc --noEmit` passes with no errors
 
-- [ ] `getDoorZones(HALL)` returns exactly 2 zones matching PVC and sectional door specs
-- [ ] `getWalkthroughSpawnPoint(HALL)` returns `{ x: 8.1, y: 1.7, z: ~19.0 }`
-- [ ] Camera at (5, 10) with no holes: `checkWalkthroughCollision` returns `{x:5, z:10}` unchanged
-- [ ] Camera at (0.1, 10): returns `{x:0.4, z:10}` (clamped to CAMERA_RADIUS)
-- [ ] Camera at (8.1, 20.5): NOT clamped (PVC door zone)
-- [ ] Camera at (5.0, 20.5): clamped to `{x:5.0, z:19.6}` (no door at x=5.0)
-- [ ] All test cases in `tests/utils/walkthroughCollision.test.ts` pass via `npm run test`
-- [ ] `npx tsc --noEmit` passes with no errors
+---
+
+## Implementation Deviations
+
+1. **Removed `currentPos` parameter**: Plan specified `checkWalkthroughCollision(currentPos, desiredPos, ...)` but `currentPos` was never used. Simplified to 3 params: `(desiredPos, holeOBBs, hall)`.
+
+2. **Added wall re-clamping after hole push-out**: Code review identified that holes near walls could eject camera through wall. Added Step 3 wall re-clamp after hole resolution loop.
+
+3. **`getWalkthroughSpawnPoint` not duplicated**: Plan specified this function here, but it already exists in `walkthroughCamera.ts` from section 02. Not duplicated.
+
+4. **Outside-hall check requires door zone**: Initial implementation allowed free movement when z > hall.length + CAMERA_RADIUS regardless of x position. Fixed to require camera x to be in a door zone before allowing free roam outside.
+
+5. **Removed unused `halfExtents` array**: Dead code from an earlier approach was cleaned up.
