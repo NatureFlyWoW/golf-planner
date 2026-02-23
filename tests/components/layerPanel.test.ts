@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { LAYER_DEFINITIONS } from "../../src/constants/layers";
 
 describe("LAYER_DEFINITIONS", () => {
-	it("contains exactly 5 entries", () => {
-		expect(LAYER_DEFINITIONS).toHaveLength(5);
+	it("contains exactly 6 entries", () => {
+		expect(LAYER_DEFINITIONS).toHaveLength(6);
 	});
 
 	it("includes all expected layer IDs", () => {

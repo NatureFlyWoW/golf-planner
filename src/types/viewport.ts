@@ -8,7 +8,13 @@ export type CameraPreset =
 	| "right"
 	| "isometric";
 
-export type LayerId = "holes" | "flowPath" | "grid" | "walls" | "sunIndicator";
+export type LayerId =
+	| "holes"
+	| "flowPath"
+	| "grid"
+	| "walls"
+	| "sunIndicator"
+	| "environment";
 
 export type LayerState = {
 	visible: boolean;

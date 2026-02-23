@@ -429,3 +429,14 @@ Look at how `FloorGrid.tsx`, `SunIndicator.tsx`, or `FlowPath.tsx` handle viewpo
 12. Mount `<GroundPlane />` in `ThreeDOnlyContent.tsx`
 13. Run `npm run test` — all tests pass including regressions
 14. Run `npx tsc --noEmit` — no TypeScript errors
+
+---
+
+## Implementation Deviations
+
+1. **useMemo → useEffect for texture configuration**: Plan showed texture wrapping in a loop after `useTexture`. Implementation initially used `useMemo` (pure hook), changed to `useEffect` (side-effect hook) per code review — `useMemo` should not mutate external objects.
+2. **Added tex.needsUpdate = true**: Plan specified this but initial implementation missed it. Added per code review to ensure GPU re-upload of cached textures with new wrapping mode.
+3. **Removed receiveShadow from FlatGround**: Plan's FlatGround used `meshBasicMaterial` which ignores lighting/shadows entirely. `receiveShadow` was a no-op — removed for accuracy.
+4. **Placeholder textures generated via PIL**: Plan specified downloading CC0 textures from Poly Haven/ambientCG. Implementation generated 512x512 procedural textures (noisy gray for color, flat normal map, high roughness) — these are temporary placeholders to be replaced with real CC0 textures later.
+5. **Also updated tests/components/layerPanel.test.ts**: Pre-existing test asserted "exactly 5 entries" in LAYER_DEFINITIONS. Updated to 6.
+6. **22 new tests added**: 8 in layers.test.ts, 10 in groundPlane.test.ts, 3 in environment.test.ts (shouldShowGroundTexture), 1 updated in viewportLayers.test.ts. Total: 737 passing.

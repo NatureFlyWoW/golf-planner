@@ -4,6 +4,7 @@ import {
 	shouldEnableFog,
 	shouldEnablePostProcessing,
 	shouldEnableSoftShadows,
+	shouldShowGroundTexture,
 } from "../../src/utils/environmentGating";
 
 describe("shouldEnableFog (with viewportLayout)", () => {
@@ -145,5 +146,19 @@ describe("shouldEnableSoftShadows", () => {
 
 	it("returns false for low tier", () => {
 		expect(shouldEnableSoftShadows("low")).toBe(false);
+	});
+});
+
+describe("shouldShowGroundTexture", () => {
+	it('returns false for "low" GPU tier', () => {
+		expect(shouldShowGroundTexture("low")).toBe(false);
+	});
+
+	it('returns true for "mid" GPU tier', () => {
+		expect(shouldShowGroundTexture("mid")).toBe(true);
+	});
+
+	it('returns true for "high" GPU tier', () => {
+		expect(shouldShowGroundTexture("high")).toBe(true);
 	});
 });

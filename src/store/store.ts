@@ -137,6 +137,7 @@ export const DEFAULT_LAYERS: Record<LayerId, LayerState> = {
 	grid: { visible: true, opacity: 1, locked: false },
 	walls: { visible: true, opacity: 1, locked: false },
 	sunIndicator: { visible: true, opacity: 1, locked: false },
+	environment: { visible: true, opacity: 1, locked: false },
 };
 
 const DEFAULT_UI: UIState = {

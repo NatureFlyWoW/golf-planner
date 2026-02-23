@@ -73,3 +73,13 @@ export function getShadowType(
 ): true | "soft" {
 	return shouldEnableSoftShadows(gpuTier) && !mobile ? "soft" : true;
 }
+
+/**
+ * Ground texture: only load on mid+ GPU tiers.
+ * Low tier uses flat gray meshBasicMaterial (no texture maps).
+ * Mid tier: color map only.
+ * High tier: color + normal + roughness maps.
+ */
+export function shouldShowGroundTexture(gpuTier: GpuTier): boolean {
+	return gpuTier === "mid" || gpuTier === "high";
+}

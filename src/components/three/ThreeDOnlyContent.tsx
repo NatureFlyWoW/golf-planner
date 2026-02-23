@@ -12,6 +12,7 @@ import { useStore } from "../../store";
 import { shouldEnableFog } from "../../utils/environmentGating";
 import { shouldShowGodRays } from "../../utils/godraysConfig";
 import { shouldShowSparkles } from "../../utils/postprocessingConfig";
+import { GroundPlane } from "./environment/GroundPlane";
 import { GodRaysSource } from "./GodRaysSource";
 import { ScreenshotCapture } from "./ScreenshotCapture";
 import { UVEffects } from "./UVEffects";
@@ -37,6 +38,7 @@ export function ThreeDOnlyContent() {
 
 	return (
 		<>
+			<GroundPlane />
 			{fogEnabled && <fogExp2 attach="fog" args={["#07071A", 0.04]} />}
 			<FogController enabled={fogEnabled} />
 

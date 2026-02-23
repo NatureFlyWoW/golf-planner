@@ -10,4 +10,5 @@ export const LAYER_DEFINITIONS: LayerDefinition[] = [
 	{ id: "grid", label: "Grid", icon: "\u2317" },
 	{ id: "walls", label: "Walls", icon: "\u25A1" },
 	{ id: "sunIndicator", label: "Sun", icon: "\u2600" },
+	{ id: "environment", label: "Environment", icon: "E" },
 ];

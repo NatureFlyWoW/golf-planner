@@ -14,6 +14,7 @@ beforeEach(() => {
 				grid: { visible: true, opacity: 1, locked: false },
 				walls: { visible: true, opacity: 1, locked: false },
 				sunIndicator: { visible: true, opacity: 1, locked: false },
+				environment: { visible: true, opacity: 1, locked: false },
 			},
 		},
 	});
@@ -32,14 +33,15 @@ describe("Default State", () => {
 		expect(useStore.getState().ui.activeViewport).toBeNull();
 	});
 
-	it("all 5 layers present", () => {
+	it("all 6 layers present", () => {
 		const layers = useStore.getState().ui.layers;
-		expect(Object.keys(layers)).toHaveLength(5);
+		expect(Object.keys(layers)).toHaveLength(6);
 		expect(layers).toHaveProperty("holes");
 		expect(layers).toHaveProperty("flowPath");
 		expect(layers).toHaveProperty("grid");
 		expect(layers).toHaveProperty("walls");
 		expect(layers).toHaveProperty("sunIndicator");
+		expect(layers).toHaveProperty("environment");
 	});
 
 	it("all layers default visible=true, opacity=1, locked=false", () => {
