@@ -41,6 +41,7 @@ import { ViewportStatusTracker } from "../three/ViewportStatusTracker";
 import { KeyboardHelp } from "../ui/KeyboardHelp";
 import { MiniMap } from "../ui/MiniMap";
 import { SunControls } from "../ui/SunControls";
+import { TitleBlock2D } from "../ui/TitleBlock2D";
 import { SplitDivider } from "./SplitDivider";
 
 type DualViewportProps = {
@@ -360,6 +361,7 @@ export function DualViewport({ sunData }: DualViewportProps) {
 						</ViewportContext.Provider>
 					</View>
 					<MiniMap />
+					<TitleBlock2D />
 				</div>
 			)}
 
