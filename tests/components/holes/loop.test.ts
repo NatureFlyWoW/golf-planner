@@ -16,7 +16,11 @@ function createLoopCurve(): THREE.CatmullRomCurve3 {
 	for (let i = 0; i <= segments; i++) {
 		const t = (i / segments) * Math.PI;
 		points.push(
-			new THREE.Vector3(0, LOOP_RADIUS * Math.sin(t), -LOOP_RADIUS * Math.cos(t)),
+			new THREE.Vector3(
+				0,
+				LOOP_RADIUS * Math.sin(t),
+				-LOOP_RADIUS * Math.cos(t),
+			),
 		);
 	}
 	return new THREE.CatmullRomCurve3(points);

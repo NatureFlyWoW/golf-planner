@@ -53,26 +53,20 @@ export function ScreenshotCapture() {
 			for (let y = 0; y < height; y++) {
 				const srcRow = (height - y - 1) * width * 4;
 				const dstRow = y * width * 4;
-				imageData.data.set(
-					buffer.subarray(srcRow, srcRow + width * 4),
-					dstRow,
-				);
+				imageData.data.set(buffer.subarray(srcRow, srcRow + width * 4), dstRow);
 			}
 			ctx.putImageData(imageData, 0, 0);
 
-			canvas.toBlob(
-				(blob) => {
-					if (blob) {
-						const url = URL.createObjectURL(blob);
-						const a = document.createElement("a");
-						a.href = url;
-						a.download = `golf-plan-${Date.now()}.png`;
-						a.click();
-						URL.revokeObjectURL(url);
-					}
-				},
-				"image/png",
-			);
+			canvas.toBlob((blob) => {
+				if (blob) {
+					const url = URL.createObjectURL(blob);
+					const a = document.createElement("a");
+					a.href = url;
+					a.download = `golf-plan-${Date.now()}.png`;
+					a.click();
+					URL.revokeObjectURL(url);
+				}
+			}, "image/png");
 
 			// Clean up render target
 			renderTarget.dispose();

@@ -32,9 +32,7 @@ export function useZoomLOD(): React.RefObject<LODLevel> {
 
 	useFrame(({ camera }) => {
 		if ("zoom" in camera) {
-			lodRef.current = computeLODLevel(
-				(camera as { zoom: number }).zoom,
-			);
+			lodRef.current = computeLODLevel((camera as { zoom: number }).zoom);
 		}
 	});
 

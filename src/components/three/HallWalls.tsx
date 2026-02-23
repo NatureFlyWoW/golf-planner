@@ -195,9 +195,7 @@ type HallWallsOuterProps = {
 };
 
 export function HallWalls({ layerOpacity = 1 }: HallWallsOuterProps) {
-	const { width, length, wallHeight, wallThickness } = useStore(
-		(s) => s.hall,
-	);
+	const { width, length, wallHeight, wallThickness } = useStore((s) => s.hall);
 	const uvMode = useStore((s) => s.ui.uvMode);
 	const gpuTier = useStore((s) => s.ui.gpuTier);
 	const groupRef = useRef<THREE.Group>(null);

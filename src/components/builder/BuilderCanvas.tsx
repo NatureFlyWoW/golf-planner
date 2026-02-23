@@ -53,7 +53,10 @@ function SegmentMesh({
 	// Compute a bounding box that spans the full segment length for the
 	// selection outline. We use the absolute exit coordinates so that
 	// curved segments still get a reasonable (approximate) highlight.
-	const selectionWidth = Math.max(Math.abs(cupLocalX) + feltWidth, feltWidth + 0.06);
+	const selectionWidth = Math.max(
+		Math.abs(cupLocalX) + feltWidth,
+		feltWidth + 0.06,
+	);
 	const selectionDepth = Math.max(Math.abs(cupLocalZ), spec.length) + 0.06;
 	const selectionCenterZ = cupLocalZ / 2;
 

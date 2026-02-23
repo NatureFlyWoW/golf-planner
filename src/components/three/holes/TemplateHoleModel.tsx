@@ -52,9 +52,7 @@ function SegmentMesh({
 			<mesh geometry={geometries.felt} material={materials.felt} />
 			<mesh geometry={geometries.bumperLeft} material={materials.bumper} />
 			<mesh geometry={geometries.bumperRight} material={materials.bumper} />
-			{isFirst && (
-				<TeePad position={[0, 0, 0]} material={materials.tee} />
-			)}
+			{isFirst && <TeePad position={[0, 0, 0]} material={materials.tee} />}
 			{isLast && (
 				<Cup
 					position={[spec.exitPoint.x, 0, spec.exitPoint.z]}

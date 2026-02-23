@@ -30,8 +30,7 @@ export function UVTransition() {
 			if (elapsed < FLICKER_END) {
 				// Phase 1: Flicker — sine-based opacity oscillation
 				const t = elapsed / FLICKER_END;
-				const flicker =
-					Math.sin(t * Math.PI * 6) * 0.3 + t * 0.5;
+				const flicker = Math.sin(t * Math.PI * 6) * 0.3 + t * 0.5;
 				el.style.opacity = String(Math.max(0, Math.min(0.7, flicker)));
 			} else if (elapsed < DARKNESS_END) {
 				// Phase 2: Darkness — ramp to near-black

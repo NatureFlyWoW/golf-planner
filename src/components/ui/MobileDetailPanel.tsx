@@ -23,7 +23,9 @@ export function MobileDetailPanel() {
 	const orderIndex = holeOrder.indexOf(selectedId);
 
 	const swatchColor = template ? template.color : (definition?.color ?? "#999");
-	const headerLabel = template ? template.name : (definition?.label ?? hole.type);
+	const headerLabel = template
+		? template.name
+		: (definition?.label ?? hole.type);
 
 	let dimensionLabel: string;
 	if (template) {
@@ -80,7 +82,9 @@ export function MobileDetailPanel() {
 				<div className="flex flex-col gap-5">
 					{/* Name */}
 					<label className="flex flex-col gap-1.5">
-						<span className="text-sm font-medium text-text-secondary">Name</span>
+						<span className="text-sm font-medium text-text-secondary">
+							Name
+						</span>
 						<input
 							type="text"
 							value={hole.name}
@@ -108,7 +112,9 @@ export function MobileDetailPanel() {
 
 					{/* Rotation — large preset buttons as primary */}
 					<div className="flex flex-col gap-1.5">
-						<span className="text-sm font-medium text-text-secondary">Rotation</span>
+						<span className="text-sm font-medium text-text-secondary">
+							Rotation
+						</span>
 						<div className="flex gap-2">
 							{[0, 90, 180, 270].map((r) => (
 								<button
@@ -148,7 +154,9 @@ export function MobileDetailPanel() {
 
 					{/* Dimensions (read-only) */}
 					{dimensionLabel ? (
-						<div className="text-sm text-text-muted">Size: {dimensionLabel}</div>
+						<div className="text-sm text-text-muted">
+							Size: {dimensionLabel}
+						</div>
 					) : null}
 
 					{/* Template info */}
@@ -156,7 +164,9 @@ export function MobileDetailPanel() {
 						<div className="flex flex-col gap-2 rounded-lg border border-subtle bg-surface-raised p-3">
 							<div className="text-sm text-text-secondary">
 								Template:{" "}
-								<span className="font-medium text-primary">{template.name}</span>
+								<span className="font-medium text-primary">
+									{template.name}
+								</span>
 							</div>
 							<div className="text-sm text-text-secondary">
 								Segments:{" "}

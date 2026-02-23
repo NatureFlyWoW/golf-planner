@@ -14,8 +14,7 @@ export function useIsMobileViewport(): boolean {
 
 	useEffect(() => {
 		const mql = window.matchMedia(MOBILE_QUERY);
-		const handler = (e: MediaQueryListEvent) =>
-			setIsMobileViewport(!e.matches);
+		const handler = (e: MediaQueryListEvent) => setIsMobileViewport(!e.matches);
 		mql.addEventListener("change", handler);
 		return () => mql.removeEventListener("change", handler);
 	}, []);

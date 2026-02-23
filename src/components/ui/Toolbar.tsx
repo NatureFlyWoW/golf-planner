@@ -1,9 +1,6 @@
 import { useStore } from "../../store";
 import type { Tool } from "../../types";
-import {
-	downloadSVG,
-	generateFloorPlanSVG,
-} from "../../utils/floorPlanExport";
+import { downloadSVG, generateFloorPlanSVG } from "../../utils/floorPlanExport";
 import { ExportButton } from "./ExportButton";
 import { SaveManager } from "./SaveManager";
 
@@ -39,7 +36,8 @@ export function Toolbar() {
 		downloadSVG(svg);
 	}
 
-	const barClass = "hidden items-center gap-1 border-b border-subtle bg-surface-raised px-3 py-2 md:flex";
+	const barClass =
+		"hidden items-center gap-1 border-b border-subtle bg-surface-raised px-3 py-2 md:flex";
 
 	const btnClass = (active: boolean) =>
 		`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
@@ -48,9 +46,11 @@ export function Toolbar() {
 				: "bg-plasma text-text-secondary hover:bg-grid-ghost"
 		}`;
 
-	const neutralBtnClass = "rounded bg-plasma px-3 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:bg-grid-ghost";
+	const neutralBtnClass =
+		"rounded bg-plasma px-3 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:bg-grid-ghost";
 
-	const smallBtnClass = "rounded bg-plasma px-2 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:bg-grid-ghost";
+	const smallBtnClass =
+		"rounded bg-plasma px-2 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:bg-grid-ghost";
 
 	const dividerClass = "mx-2 h-6 w-px bg-grid-ghost";
 
@@ -68,7 +68,12 @@ export function Toolbar() {
 
 	return (
 		<div className={barClass} data-testid="toolbar">
-			<span className="font-display text-sm font-bold tracking-wider text-accent-text" style={{ textShadow: "0 0 8px #9D00FF, 0 0 16px #9D00FF40" }}>GOLF FORGE</span>
+			<span
+				className="font-display text-sm font-bold tracking-wider text-accent-text"
+				style={{ textShadow: "0 0 8px #9D00FF, 0 0 16px #9D00FF40" }}
+			>
+				GOLF FORGE
+			</span>
 			<div className="mx-2 h-6 w-px bg-grid-ghost" />
 
 			{tools.map(({ tool, label, icon }) => (

@@ -59,9 +59,9 @@ describe("GodRays source positions", () => {
 
 describe("GodRays ref wiring via getEffectsForTier", () => {
 	it("excludes godRays when hasGodRaysRef=false", () => {
-		expect(
-			getEffectsForTier("high", { hasGodRaysRef: false }),
-		).not.toContain("godRays");
+		expect(getEffectsForTier("high", { hasGodRaysRef: false })).not.toContain(
+			"godRays",
+		);
 	});
 
 	it("includes godRays when hasGodRaysRef=true on high tier", () => {
@@ -71,9 +71,9 @@ describe("GodRays ref wiring via getEffectsForTier", () => {
 	});
 
 	it("excludes godRays on mid tier even with hasGodRaysRef=true", () => {
-		expect(
-			getEffectsForTier("mid", { hasGodRaysRef: true }),
-		).not.toContain("godRays");
+		expect(getEffectsForTier("mid", { hasGodRaysRef: true })).not.toContain(
+			"godRays",
+		);
 	});
 });
 

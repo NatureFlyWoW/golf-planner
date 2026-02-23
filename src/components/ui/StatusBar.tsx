@@ -17,10 +17,8 @@ export function StatusBar({ sunData }: StatusBarProps) {
 
 	const has2D = viewportLayout !== "3d-only";
 	const scale = has2D ? computeScale(currentZoom) : "--";
-	const xDisplay =
-		has2D && mouseWorldPos ? mouseWorldPos.x.toFixed(2) : "--";
-	const zDisplay =
-		has2D && mouseWorldPos ? mouseWorldPos.z.toFixed(2) : "--";
+	const xDisplay = has2D && mouseWorldPos ? mouseWorldPos.x.toFixed(2) : "--";
+	const zDisplay = has2D && mouseWorldPos ? mouseWorldPos.z.toFixed(2) : "--";
 
 	return (
 		<div className="hidden border-t border-subtle bg-surface text-text-secondary md:block">
@@ -29,9 +27,7 @@ export function StatusBar({ sunData }: StatusBarProps) {
 				onClick={() => setExpanded(!expanded)}
 				className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs hover:bg-plasma transition-colors"
 			>
-				<span className="font-medium text-primary">
-					{LOCATION.address}
-				</span>
+				<span className="font-medium text-primary">{LOCATION.address}</span>
 				<span className="text-text-secondary">·</span>
 				<span>{LOCATION.elevation}m</span>
 				<span className="text-text-secondary">·</span>
@@ -60,9 +56,7 @@ export function StatusBar({ sunData }: StatusBarProps) {
 					<span>Scale: {scale}</span>
 				</span>
 
-				<span className="text-text-secondary">
-					{expanded ? "▾" : "▸"}
-				</span>
+				<span className="text-text-secondary">{expanded ? "▾" : "▸"}</span>
 			</button>
 			{expanded && (
 				<div className="grid grid-cols-2 gap-x-4 gap-y-1 border-t border-subtle px-3 py-2 text-xs md:grid-cols-4">
@@ -75,17 +69,13 @@ export function StatusBar({ sunData }: StatusBarProps) {
 						<span>{LOCATION.region}</span>
 					</div>
 					<div>
-						<span className="text-text-secondary">
-							Coordinates:{" "}
-						</span>
+						<span className="text-text-secondary">Coordinates: </span>
 						<span>
 							{LOCATION.lat}°N, {LOCATION.lng}°E
 						</span>
 					</div>
 					<div>
-						<span className="text-text-secondary">
-							Elevation:{" "}
-						</span>
+						<span className="text-text-secondary">Elevation: </span>
 						<span>{LOCATION.elevation}m above sea level</span>
 					</div>
 					{sunData && (
@@ -93,9 +83,7 @@ export function StatusBar({ sunData }: StatusBarProps) {
 							<span className="text-text-secondary">Sun: </span>
 							<span
 								className={
-									sunData.isDay
-										? "text-amber-400"
-										: "text-text-secondary"
+									sunData.isDay ? "text-amber-400" : "text-text-secondary"
 								}
 							>
 								{sunData.isDay

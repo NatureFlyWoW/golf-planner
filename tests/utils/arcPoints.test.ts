@@ -23,20 +23,12 @@ describe("computeDoorArc", () => {
 	};
 
 	it("returns approximately 25 points for a quarter-circle (24 segments + 1)", () => {
-		const { arcPoints } = computeDoorArc(
-			sectionalDoor,
-			hallWidth,
-			hallLength,
-		);
+		const { arcPoints } = computeDoorArc(sectionalDoor, hallWidth, hallLength);
 		expect(arcPoints).toHaveLength(25);
 	});
 
 	it("first point is at door edge position (along wall)", () => {
-		const { arcPoints } = computeDoorArc(
-			sectionalDoor,
-			hallWidth,
-			hallLength,
-		);
+		const { arcPoints } = computeDoorArc(sectionalDoor, hallWidth, hallLength);
 		// Sectional door: hinge at X=3.25, arc starts at door edge X=6.75, Z=20
 		expect(arcPoints[0][0]).toBeCloseTo(6.75); // X = offset + width
 		expect(arcPoints[0][1]).toBeCloseTo(0.02); // Y
@@ -44,11 +36,7 @@ describe("computeDoorArc", () => {
 	});
 
 	it("last point is at perpendicular swing endpoint", () => {
-		const { arcPoints } = computeDoorArc(
-			sectionalDoor,
-			hallWidth,
-			hallLength,
-		);
+		const { arcPoints } = computeDoorArc(sectionalDoor, hallWidth, hallLength);
 		const last = arcPoints[arcPoints.length - 1];
 		// Sectional door swings outward (+Z): end at X=3.25, Z=20+3.5=23.5
 		expect(last[0]).toBeCloseTo(3.25);
@@ -57,11 +45,7 @@ describe("computeDoorArc", () => {
 	});
 
 	it("all points are at radius distance from hinge", () => {
-		const { arcPoints } = computeDoorArc(
-			sectionalDoor,
-			hallWidth,
-			hallLength,
-		);
+		const { arcPoints } = computeDoorArc(sectionalDoor, hallWidth, hallLength);
 		const hingeX = 3.25;
 		const hingeZ = 20.0;
 		const radius = 3.5;
@@ -74,11 +58,7 @@ describe("computeDoorArc", () => {
 	});
 
 	it("panel line goes from hinge to door edge", () => {
-		const { panelLine } = computeDoorArc(
-			sectionalDoor,
-			hallWidth,
-			hallLength,
-		);
+		const { panelLine } = computeDoorArc(sectionalDoor, hallWidth, hallLength);
 		expect(panelLine[0][0]).toBeCloseTo(3.25); // hinge X
 		expect(panelLine[0][2]).toBeCloseTo(20.0); // hinge Z
 		expect(panelLine[1][0]).toBeCloseTo(6.75); // edge X
@@ -86,11 +66,7 @@ describe("computeDoorArc", () => {
 	});
 
 	it("for inward-opening door (PVC), arc swings into the hall", () => {
-		const { arcPoints } = computeDoorArc(
-			pvcDoor,
-			hallWidth,
-			hallLength,
-		);
+		const { arcPoints } = computeDoorArc(pvcDoor, hallWidth, hallLength);
 		// PVC on south wall: inward means Z < hallLength
 		for (const pt of arcPoints) {
 			expect(pt[2]).toBeLessThanOrEqual(hallLength + 0.001);
@@ -98,11 +74,7 @@ describe("computeDoorArc", () => {
 	});
 
 	it("for outward-opening door (sectional), arc swings away from hall", () => {
-		const { arcPoints } = computeDoorArc(
-			sectionalDoor,
-			hallWidth,
-			hallLength,
-		);
+		const { arcPoints } = computeDoorArc(sectionalDoor, hallWidth, hallLength);
 		// Sectional on south wall: outward means Z >= hallLength
 		for (const pt of arcPoints) {
 			expect(pt[2]).toBeGreaterThanOrEqual(hallLength - 0.001);
@@ -186,9 +158,7 @@ describe("computeWindowLines", () => {
 		// Tick at Z=2.0: from inner face (9.8) to outer face (10.0)
 		expect(breakTicks[0][0][2]).toBeCloseTo(2.0);
 		expect(breakTicks[0][1][2]).toBeCloseTo(2.0);
-		expect(Math.min(breakTicks[0][0][0], breakTicks[0][1][0])).toBeCloseTo(
-			9.8,
-		);
+		expect(Math.min(breakTicks[0][0][0], breakTicks[0][1][0])).toBeCloseTo(9.8);
 		expect(Math.max(breakTicks[0][0][0], breakTicks[0][1][0])).toBeCloseTo(
 			10.0,
 		);

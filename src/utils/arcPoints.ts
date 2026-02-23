@@ -94,11 +94,7 @@ export function computeDoorArc(
 
 	const panelLine: [Point3, Point3] = [
 		[...hinge],
-		[
-			hinge[0] + radius * alongX,
-			Y,
-			hinge[2] + radius * alongZ,
-		],
+		[hinge[0] + radius * alongX, Y, hinge[2] + radius * alongZ],
 	];
 
 	return { arcPoints, panelLine };

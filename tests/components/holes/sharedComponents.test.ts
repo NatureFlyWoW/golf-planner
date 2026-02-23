@@ -25,9 +25,17 @@ describe("BumperRail shared component geometry", () => {
 		const long = createBumperGeometry(profile, 2.0);
 		short.computeBoundingBox();
 		long.computeBoundingBox();
-		const shortBB = short.boundingBox as { max: { z: number }; min: { z: number } };
-		const longBB = long.boundingBox as { max: { z: number }; min: { z: number } };
-		expect(longBB.max.z - longBB.min.z).toBeGreaterThan(shortBB.max.z - shortBB.min.z);
+		const shortBB = short.boundingBox as {
+			max: { z: number };
+			min: { z: number };
+		};
+		const longBB = long.boundingBox as {
+			max: { z: number };
+			min: { z: number };
+		};
+		expect(longBB.max.z - longBB.min.z).toBeGreaterThan(
+			shortBB.max.z - shortBB.min.z,
+		);
 	});
 
 	it("height matches BUMPER_HEIGHT (0.08)", () => {

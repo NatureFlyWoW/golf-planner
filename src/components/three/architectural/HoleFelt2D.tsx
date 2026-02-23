@@ -77,10 +77,7 @@ export function HoleFelt2D({ hole, width, length, color }: HoleFelt2DProps) {
 
 	const lod = useZoomLodFallback();
 
-	const feltMaterial = useMemo(
-		() => createFeltMaterial(fill),
-		[fill],
-	);
+	const feltMaterial = useMemo(() => createFeltMaterial(fill), [fill]);
 
 	const solidMaterial = useMemo(
 		() => new THREE.MeshBasicMaterial({ color: fill }),

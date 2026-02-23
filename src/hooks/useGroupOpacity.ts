@@ -6,7 +6,10 @@ import type { Group, Material, Mesh } from "three";
  * Stores original values and restores them on cleanup or when opacity returns to 1.
  */
 
-const originals = new WeakMap<Material, { transparent: boolean; opacity: number }>();
+const originals = new WeakMap<
+	Material,
+	{ transparent: boolean; opacity: number }
+>();
 
 function storeOriginal(mat: Material) {
 	if (!originals.has(mat)) {

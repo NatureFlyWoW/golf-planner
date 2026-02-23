@@ -32,9 +32,7 @@ export function SplitDivider({
 				{/* Visual bar */}
 				<div
 					className={`absolute inset-0 transition-colors ${
-						isDragging
-							? "bg-accent"
-							: "bg-border group-hover:bg-accent/70"
+						isDragging ? "bg-accent" : "bg-border group-hover:bg-accent/70"
 					}`}
 				/>
 				{/* Chevrons on hover (hidden when dragging) */}

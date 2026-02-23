@@ -24,11 +24,20 @@ export function Cup({ position, material, showFlag = true }: CupProps) {
 	const flagClothGeom = useMemo(() => new THREE.PlaneGeometry(0.03, 0.02), []);
 
 	const flagPinMat = useMemo(
-		() => new THREE.MeshStandardMaterial({ color: "#E0E0E0", metalness: 0.8, roughness: 0.2 }),
+		() =>
+			new THREE.MeshStandardMaterial({
+				color: "#E0E0E0",
+				metalness: 0.8,
+				roughness: 0.2,
+			}),
 		[],
 	);
 	const flagClothMat = useMemo(
-		() => new THREE.MeshStandardMaterial({ color: FLAG_COLOR, side: THREE.DoubleSide }),
+		() =>
+			new THREE.MeshStandardMaterial({
+				color: FLAG_COLOR,
+				side: THREE.DoubleSide,
+			}),
 		[],
 	);
 

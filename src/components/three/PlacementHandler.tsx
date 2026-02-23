@@ -75,7 +75,8 @@ export function PlacementHandler() {
 	const pointerDownWorld = useRef<{ x: number; z: number } | null>(null);
 	const viewportInfo = useViewportInfo();
 
-	const isPlacing = tool === "place" && (placingType != null || placingTemplateId != null);
+	const isPlacing =
+		tool === "place" && (placingType != null || placingTemplateId != null);
 
 	// Derive dimensions for placement boundary clamping and collision
 	const placingDimensions = useMemo(() => {
@@ -202,15 +203,17 @@ export function PlacementHandler() {
 				<planeGeometry args={[hall.width, hall.length]} />
 				<meshBasicMaterial transparent opacity={0} />
 			</mesh>
-			{isPlacing && ghostPos && (placingType != null || placingTemplateId != null) && (
-				<GhostHole
-					type={placingType ?? "straight"}
-					position={ghostPos}
-					rotation={0}
-					isValid={ghostValid}
-					templateId={placingTemplateId ?? undefined}
-				/>
-			)}
+			{isPlacing &&
+				ghostPos &&
+				(placingType != null || placingTemplateId != null) && (
+					<GhostHole
+						type={placingType ?? "straight"}
+						position={ghostPos}
+						rotation={0}
+						isValid={ghostValid}
+						templateId={placingTemplateId ?? undefined}
+					/>
+				)}
 		</>
 	);
 }

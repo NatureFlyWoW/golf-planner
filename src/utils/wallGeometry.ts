@@ -16,9 +16,7 @@ export type WallRect = {
 type Gap = { start: number; end: number };
 
 function getWallLength(wallSide: Wall, hallWidth: number, hallLength: number) {
-	return wallSide === "north" || wallSide === "south"
-		? hallWidth
-		: hallLength;
+	return wallSide === "north" || wallSide === "south" ? hallWidth : hallLength;
 }
 
 function mergeGaps(gaps: Gap[]): Gap[] {

@@ -65,14 +65,12 @@ export function ArchitecturalGrid2D() {
 	});
 
 	const { camera } = useThree();
-	const currentZoom =
-		"zoom" in camera ? (camera as { zoom: number }).zoom : 40;
+	const currentZoom = "zoom" in camera ? (camera as { zoom: number }).zoom : 40;
 	// eslint-disable-next-line react-hooks/exhaustive-deps -- zoomBand triggers recalc
 	const spacing = useMemo(() => computeGridSpacing(currentZoom), [zoomBand]);
 
 	const majorPoints = useMemo(
-		() =>
-			computeGridLineSegments(hallWidth, hallLength, spacing.majorSpacing),
+		() => computeGridLineSegments(hallWidth, hallLength, spacing.majorSpacing),
 		[hallWidth, hallLength, spacing.majorSpacing],
 	);
 

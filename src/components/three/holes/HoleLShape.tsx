@@ -34,7 +34,11 @@ export function HoleLShape({ width, length }: Props) {
 			</mesh>
 
 			{/* Right wall — full length */}
-			<BumperRail length={length} position={[halfW - BT / 2, ST, -halfL]} material={bumper} />
+			<BumperRail
+				length={length}
+				position={[halfW - BT / 2, ST, -halfL]}
+				material={bumper}
+			/>
 			{/* Bottom wall — entry lane at -Z */}
 			<BumperRail
 				length={LANE_WIDTH}

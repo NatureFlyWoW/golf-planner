@@ -7,8 +7,6 @@ import { Hall } from "./Hall";
 import { PlacedHoles } from "./PlacedHoles";
 import { SunIndicator } from "./SunIndicator";
 import { ArchitecturalFloorPlan } from "./architectural/ArchitecturalFloorPlan";
-// Temporary spike — remove in Section 10
-import { RenderingSpike } from "./architectural/RenderingSpike";
 
 type SharedSceneProps = {
 	sunData: SunData;
@@ -34,14 +32,10 @@ export function SharedScene({ sunData }: SharedSceneProps) {
 					position={
 						sunData
 							? [
-									-Math.sin(sunData.azimuth) *
-										Math.cos(sunData.altitude) *
-										30 +
+									-Math.sin(sunData.azimuth) * Math.cos(sunData.altitude) * 30 +
 										5,
 									Math.sin(sunData.altitude) * 30,
-									Math.cos(sunData.azimuth) *
-										Math.cos(sunData.altitude) *
-										30 +
+									Math.cos(sunData.azimuth) * Math.cos(sunData.altitude) * 30 +
 										10,
 								]
 							: [10, 20, 5]
@@ -64,8 +58,6 @@ export function SharedScene({ sunData }: SharedSceneProps) {
 			<FloorGrid />
 			<ArchitecturalFloorPlan />
 			<SunIndicator sunData={sunData} />
-			{/* Temporary spike — remove in Section 10 */}
-			<RenderingSpike />
 		</>
 	);
 }

@@ -13,13 +13,10 @@ async function waitForCanvasRender(page: Page) {
 /** Collapse to 2D-only mode for clear felt overlay visibility. */
 async function collapseToLayout(page: Page, layout: "2d-only" | "3d-only") {
 	const side = layout === "2d-only" ? "2d" : "3d";
-	await page.evaluate(
-		(s) => {
-			const store = (window as Record<string, any>).__STORE__;
-			if (store) store.getState().collapseTo(s);
-		},
-		side,
-	);
+	await page.evaluate((s) => {
+		const store = (window as Record<string, any>).__STORE__;
+		if (store) store.getState().collapseTo(s);
+	}, side);
 	await page.waitForTimeout(500);
 }
 

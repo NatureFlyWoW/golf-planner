@@ -208,7 +208,12 @@ export function DualViewport({ sunData }: DualViewportProps) {
 			: gpuTier === "mid"
 				? [1, 1.5]
 				: [1, 1];
-	const frameloop = deriveFrameloop(uvMode, gpuTier, transitioning, viewportLayout);
+	const frameloop = deriveFrameloop(
+		uvMode,
+		gpuTier,
+		transitioning,
+		viewportLayout,
+	);
 	const shadows = getShadowType(gpuTier, isMobile);
 
 	// Mobile: single-pane fallback — no View components, camera driven by ui.view
@@ -218,8 +223,7 @@ export function DualViewport({ sunData }: DualViewportProps) {
 				ref={containerRef}
 				className="relative flex-1 overflow-hidden"
 				style={{
-					cursor:
-						tool === "delete" ? "crosshair" : "default",
+					cursor: tool === "delete" ? "crosshair" : "default",
 					touchAction: "none",
 					pointerEvents: canvasPointerEvents(transitioning),
 				}}
@@ -274,10 +278,7 @@ export function DualViewport({ sunData }: DualViewportProps) {
 									near={0.1}
 									far={500}
 								/>
-								<CameraControls
-									ref={controls3DRef}
-									makeDefault
-								/>
+								<CameraControls ref={controls3DRef} makeDefault />
 								<SharedScene sunData={sunData} />
 								<ThreeDOnlyContent />
 								<PlacementHandler />
@@ -316,15 +317,11 @@ export function DualViewport({ sunData }: DualViewportProps) {
 					data-testid="pane-2d"
 					className="relative h-full overflow-hidden"
 					style={{
-						width: showDivider
-							? `calc(${splitRatio * 100}% - 6px)`
-							: "100%",
+						width: showDivider ? `calc(${splitRatio * 100}% - 6px)` : "100%",
 					}}
 					onPointerEnter={() => setActiveViewport("2d")}
 					onPointerLeave={() =>
-						useMouseStatusStore
-							.getState()
-							.setMouseWorldPos(null)
+						useMouseStatusStore.getState().setMouseWorldPos(null)
 					}
 				>
 					<View style={{ width: "100%", height: "100%" }}>
@@ -396,10 +393,7 @@ export function DualViewport({ sunData }: DualViewportProps) {
 								near={0.1}
 								far={500}
 							/>
-							<CameraControls
-								ref={controls3DRef}
-								makeDefault
-							/>
+							<CameraControls ref={controls3DRef} makeDefault />
 							<SharedScene sunData={sunData} />
 							<ThreeDOnlyContent />
 							{!show2D && <PlacementHandler />}

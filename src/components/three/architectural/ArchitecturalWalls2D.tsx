@@ -16,9 +16,7 @@ const COLORS = {
 	uv: { fill: "#1A1A2E", outline: "#2A2A5E" },
 } as const;
 
-function rectToOutlineSegments(
-	rect: WallRect,
-): [number, number, number][] {
+function rectToOutlineSegments(rect: WallRect): [number, number, number][] {
 	const [cx, cy, cz] = rect.position;
 	const [w, d] = rect.size;
 	const hw = w / 2;
@@ -37,7 +35,9 @@ const noRaycast = () => {};
 
 export function ArchitecturalWalls2D({
 	outlineOnly = false,
-}: { outlineOnly?: boolean }) {
+}: {
+	outlineOnly?: boolean;
+}) {
 	const groupRef = useRef<Group>(null);
 	const { width, length, doors, windows } = useStore((s) => s.hall);
 	const uvMode = useStore((s) => s.ui.uvMode);

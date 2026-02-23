@@ -1,9 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Title Block 2D", () => {
-	test("title block is visible in bottom-left of 2D pane", async ({
-		page,
-	}) => {
+	test("title block is visible in bottom-left of 2D pane", async ({ page }) => {
 		await page.goto("/");
 		await page.waitForSelector('[data-testid="pane-2d"]');
 		const titleBlock = page.getByTestId("title-block-2d");

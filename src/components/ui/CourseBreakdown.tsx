@@ -122,7 +122,9 @@ export function CourseBreakdown({ onOpenSettings }: Props) {
 						<span className="font-medium text-primary">
 							Course total ({holeCount} holes)
 						</span>
-						<span className="font-mono font-semibold text-neon-amber">{formatEur(courseCost)}</span>
+						<span className="font-mono font-semibold text-neon-amber">
+							{formatEur(courseCost)}
+						</span>
 					</div>
 
 					{manualOverride && (

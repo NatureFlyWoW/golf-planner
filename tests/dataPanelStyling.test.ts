@@ -66,22 +66,20 @@ describe("High-Contrast Data Panels", () => {
 	});
 
 	describe("no light-only classes remain", () => {
-		it.each(DATA_PANEL_FILES)(
-			"%s has no bg-gray-50 or bg-gray-100 classes",
-			(filePath) => {
-				const src = readSrc(filePath);
-				expect(src).not.toMatch(/bg-gray-(?:50|100)\b/);
-			},
-		);
+		it.each(
+			DATA_PANEL_FILES,
+		)("%s has no bg-gray-50 or bg-gray-100 classes", (filePath) => {
+			const src = readSrc(filePath);
+			expect(src).not.toMatch(/bg-gray-(?:50|100)\b/);
+		});
 	});
 
 	describe("contrast safety", () => {
-		it.each(DATA_PANEL_FILES)(
-			"%s does not use text-neon-violet for readable body text",
-			(filePath) => {
-				const src = readSrc(filePath);
-				expect(src).not.toMatch(/text-neon-violet/);
-			},
-		);
+		it.each(
+			DATA_PANEL_FILES,
+		)("%s does not use text-neon-violet for readable body text", (filePath) => {
+			const src = readSrc(filePath);
+			expect(src).not.toMatch(/text-neon-violet/);
+		});
 	});
 });
