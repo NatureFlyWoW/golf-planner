@@ -15,6 +15,7 @@ const PRESET_BUTTONS = [
 	{ key: "left", label: "Left", shortcut: "4" },
 	{ key: "right", label: "Right", shortcut: "5" },
 	{ key: "isometric", label: "Iso", shortcut: "6" },
+	{ key: "overview", label: "Overview", shortcut: "7" },
 ] as const;
 
 export function CameraPresets({ cameraControlsRef }: CameraPresetsProps) {

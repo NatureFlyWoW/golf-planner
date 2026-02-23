@@ -6,7 +6,8 @@ export type CameraPreset =
 	| "back"
 	| "left"
 	| "right"
-	| "isometric";
+	| "isometric"
+	| "overview";
 
 export type LayerId =
 	| "holes"

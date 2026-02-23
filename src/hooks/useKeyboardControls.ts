@@ -80,6 +80,7 @@ const PRESET_KEYS: Record<string, number> = {
 	"4": 3,
 	"5": 4,
 	"6": 5,
+	"7": 6,
 };
 const PRESET_NAMES = [
 	"top",
@@ -88,6 +89,7 @@ const PRESET_NAMES = [
 	"left",
 	"right",
 	"isometric",
+	"overview",
 ] as const;
 
 /**
@@ -154,7 +156,7 @@ export function useKeyboardControls({
 				return;
 			}
 
-			// Camera preset keys (1-6) — 3D only
+			// Camera preset keys (1-7) — 3D only
 			if (e.key in PRESET_KEYS && viewport === "3d") {
 				const ctrl3D = controls3DRef.current;
 				if (!ctrl3D) return;

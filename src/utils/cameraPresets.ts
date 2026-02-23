@@ -47,5 +47,9 @@ export function getCameraPresets(
 			position: [cx + dist * 0.7, dist * 0.8, cz + dist * 0.7],
 			target: [...target],
 		},
+		overview: {
+			position: [cx + dist * 1.4, dist * 1.0, cz + dist * 1.4],
+			target: [...target],
+		},
 	};
 }

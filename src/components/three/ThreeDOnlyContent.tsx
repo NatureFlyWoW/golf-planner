@@ -22,6 +22,7 @@ import { HallRoof } from "./environment/HallRoof";
 import { HallWallsExterior } from "./environment/HallWallsExterior";
 import { SkyEnvironment } from "./environment/SkyEnvironment";
 import { GodRaysSource } from "./GodRaysSource";
+import { GroundClamp } from "./GroundClamp";
 import { ScreenshotCapture } from "./ScreenshotCapture";
 import { UVEffects } from "./UVEffects";
 import { UVLamps } from "./UVLamps";
@@ -98,6 +99,7 @@ export function ThreeDOnlyContent() {
 				/>
 			)}
 			<UVEffects />
+			<GroundClamp />
 			<ScreenshotCapture />
 
 			<PerformanceMonitor />

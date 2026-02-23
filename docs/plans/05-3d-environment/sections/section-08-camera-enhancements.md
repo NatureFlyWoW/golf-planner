@@ -211,6 +211,28 @@ it("does NOT clamp during walkthrough mode", () => {
 
 ---
 
+## Implementation Deviations
+
+### D1: GroundClamp uses maxPolarAngle instead of useFrame Y-clamp
+
+**Plan called for:** `useFrame` hook that clamps `camera.position.y >= 0.5` per frame.
+
+**Actually implemented:** `useEffect` that sets `controls.maxPolarAngle = Math.PI / 2 - 0.05` on CameraControls.
+
+**Reason:** Code review (M1) found that CameraControls maintains internal spherical coordinate state and writes to `camera.position` each frame. Direct `camera.position.y` mutation in `useFrame` causes jitter and gets overwritten. Using CameraControls' built-in constraint is the correct approach.
+
+**The pure utility `groundClamp.ts` (`clampCameraY`) was still created** and tested (3 tests) as planned, but is no longer called by the component. Retained for potential future use.
+
+### D2: groundClamp.test.ts created (was marked optional in plan)
+
+The plan marked `tests/utils/groundClamp.test.ts` as optional ("only if utility is extracted"). The utility was extracted, so 3 tests were added.
+
+### D3: Test count
+
+**Plan said:** "All 639+ existing tests still pass." **Actual:** 775 tests (68 files) — many tests added by sections 01-07.
+
+---
+
 ## Acceptance Criteria
 
 1. Pressing `7` in the 3D viewport triggers the overview camera preset (shows building exterior from outside).
