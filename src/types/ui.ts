@@ -33,4 +33,6 @@ export type UIState = {
 	activeViewport: "2d" | "3d" | null;
 	splitRatio: number; // 0.0-1.0, only used in "dual" mode
 	layers: Record<LayerId, LayerState>;
+	walkthroughMode: boolean;
+	previousViewportLayout: ViewportLayout | null;
 };

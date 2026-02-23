@@ -208,11 +208,13 @@ export function DualViewport({ sunData }: DualViewportProps) {
 			: gpuTier === "mid"
 				? [1, 1.5]
 				: [1, 1];
+	const walkthroughMode = useStore((s) => s.ui.walkthroughMode);
 	const frameloop = deriveFrameloop(
 		uvMode,
 		gpuTier,
 		transitioning,
 		viewportLayout,
+		walkthroughMode,
 	);
 	const shadows = getShadowType(gpuTier, isMobile);
 

@@ -28,35 +28,95 @@ describe("shouldEnableFog (with viewportLayout)", () => {
 
 describe("deriveFrameloop (with viewportLayout)", () => {
 	it('returns "always" when viewportLayout="dual" (View rendering requires continuous frames)', () => {
-		expect(deriveFrameloop(false, "low", false, "dual")).toBe("always");
-		expect(deriveFrameloop(false, "mid", false, "dual")).toBe("always");
+		expect(deriveFrameloop(false, "low", false, "dual", false)).toBe(
+			"always",
+		);
+		expect(deriveFrameloop(false, "mid", false, "dual", false)).toBe(
+			"always",
+		);
 	});
 
 	it('returns "demand" when uvMode=false AND viewportLayout="3d-only"', () => {
-		expect(deriveFrameloop(false, "low", false, "3d-only")).toBe("demand");
+		expect(deriveFrameloop(false, "low", false, "3d-only", false)).toBe(
+			"demand",
+		);
 	});
 
 	it('returns "demand" when uvMode=true + gpuTier="low" AND viewportLayout="3d-only"', () => {
-		expect(deriveFrameloop(true, "low", false, "3d-only")).toBe("demand");
+		expect(deriveFrameloop(true, "low", false, "3d-only", false)).toBe(
+			"demand",
+		);
 	});
 
 	it('returns "always" when uvMode=true + gpuTier="mid" AND viewportLayout="3d-only"', () => {
-		expect(deriveFrameloop(true, "mid", false, "3d-only")).toBe("always");
+		expect(deriveFrameloop(true, "mid", false, "3d-only", false)).toBe(
+			"always",
+		);
 	});
 
 	it('returns "always" when uvMode=true + gpuTier="high" AND viewportLayout="3d-only"', () => {
-		expect(deriveFrameloop(true, "high", false, "3d-only")).toBe("always");
+		expect(deriveFrameloop(true, "high", false, "3d-only", false)).toBe(
+			"always",
+		);
 	});
 
 	it('returns "always" when transitioning=true regardless of viewportLayout', () => {
-		expect(deriveFrameloop(false, "low", true, "3d-only")).toBe("always");
-		expect(deriveFrameloop(false, "mid", true, "dual")).toBe("always");
-		expect(deriveFrameloop(false, "high", true, "2d-only")).toBe("always");
+		expect(deriveFrameloop(false, "low", true, "3d-only", false)).toBe(
+			"always",
+		);
+		expect(deriveFrameloop(false, "mid", true, "dual", false)).toBe(
+			"always",
+		);
+		expect(deriveFrameloop(false, "high", true, "2d-only", false)).toBe(
+			"always",
+		);
 	});
 
 	it('returns "demand" when viewportLayout="2d-only" and not transitioning', () => {
-		expect(deriveFrameloop(false, "mid", false, "2d-only")).toBe("demand");
-		expect(deriveFrameloop(true, "high", false, "2d-only")).toBe("demand");
+		expect(deriveFrameloop(false, "mid", false, "2d-only", false)).toBe(
+			"demand",
+		);
+		expect(deriveFrameloop(true, "high", false, "2d-only", false)).toBe(
+			"demand",
+		);
+	});
+});
+
+describe("deriveFrameloop with walkthroughMode", () => {
+	it('returns "always" when walkthroughMode=true, regardless of other params', () => {
+		expect(deriveFrameloop(false, "low", false, "3d-only", true)).toBe(
+			"always",
+		);
+	});
+
+	it('walkthroughMode=true + uvMode=false + gpuTier="low" + viewportLayout="3d-only" → "always"', () => {
+		expect(deriveFrameloop(false, "low", false, "3d-only", true)).toBe(
+			"always",
+		);
+	});
+
+	it('walkthroughMode=true + uvMode=true + gpuTier="high" + viewportLayout="3d-only" → "always"', () => {
+		expect(deriveFrameloop(true, "high", false, "3d-only", true)).toBe(
+			"always",
+		);
+	});
+
+	it('walkthroughMode=true + transitioning=false + viewportLayout="2d-only" → "always"', () => {
+		expect(deriveFrameloop(false, "mid", false, "2d-only", true)).toBe(
+			"always",
+		);
+	});
+
+	it('walkthroughMode=false preserves existing behavior: dual → "always"', () => {
+		expect(deriveFrameloop(false, "mid", false, "dual", false)).toBe(
+			"always",
+		);
+	});
+
+	it('walkthroughMode=false preserves existing behavior: 3d-only + low GPU → "demand"', () => {
+		expect(deriveFrameloop(false, "low", false, "3d-only", false)).toBe(
+			"demand",
+		);
 	});
 });
 

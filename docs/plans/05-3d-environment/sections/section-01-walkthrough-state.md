@@ -229,5 +229,16 @@ describe("deriveFrameloop with walkthroughMode", () => {
 ## Edge Cases to Handle
 
 - `exitWalkthrough()` called when `previousViewportLayout` is null (store was mutated externally): fall back to `"dual"`
-- `enterWalkthrough()` called when already in walkthrough mode: the action is idempotent (it will overwrite `previousViewportLayout` with `"3d-only"` and keep `walkthroughMode: true`) — this is acceptable; no early-return needed for already-active walkthrough
-- TypeScript: `requestAnimationFrame` is available in browser environments but not in Node test environments. In Vitest with jsdom environment (`@vitest-environment jsdom`), `requestAnimationFrame` is polyfilled. Use `vi.useFakeTimers()` at the test level to control when rAF callbacks fire.
+- `enterWalkthrough()` called when already in walkthrough mode: **UPDATED** — added `if (get().ui.walkthroughMode) return;` guard to prevent double-enter from overwriting `previousViewportLayout` with `"3d-only"`. This was added during code review to prevent a latent bug where double-tapping F would lose the original layout.
+- `exitWalkthrough()` called when not in walkthrough mode: **UPDATED** — added `if (!get().ui.walkthroughMode) return;` guard to prevent spurious calls from clobbering `viewportLayout` via the rAF null-fallback. Added during code review.
+- TypeScript: `requestAnimationFrame` is not available in the default Vitest environment (no jsdom). Tests use `vi.stubGlobal("requestAnimationFrame", ...)` with a manual callback queue and `flushRAF()` helper instead of `vi.useFakeTimers()`.
+
+## Implementation Notes (Post-Implementation)
+
+**Tests**: 15 tests total (5 enter + 1 mobile guard + 1 idempotency guard + 6 exit + 2 persistence). 660 total project tests pass.
+
+**Deviations from plan:**
+1. Added idempotency guard to `enterWalkthrough()` (code review fix)
+2. Added guard to `exitWalkthrough()` for spurious calls (code review fix)
+3. Used `vi.stubGlobal("requestAnimationFrame")` instead of `vi.useFakeTimers()` for rAF testing (rAF not available in default vitest env; stubGlobal is more targeted)
+4. Used `vi.hoisted()` with getter-based mock for `isMobile` (required because `isMobile` is a module-level const captured at import time)

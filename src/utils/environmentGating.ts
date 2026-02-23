@@ -25,7 +25,11 @@ export function deriveFrameloop(
 	gpuTier: GpuTier,
 	transitioning: boolean,
 	viewportLayout: ViewportLayout,
+	walkthroughMode: boolean,
 ): "always" | "demand" {
+	// Walkthrough always needs continuous rendering (FPS camera)
+	if (walkthroughMode) return "always";
+
 	// Transitioning always needs continuous rendering
 	if (transitioning) return "always";
 
