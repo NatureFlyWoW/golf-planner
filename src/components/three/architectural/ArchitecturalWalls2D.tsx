@@ -3,6 +3,7 @@ import { useMemo, useRef } from "react";
 import type { Group } from "three";
 import { useGroupOpacity } from "../../../hooks/useGroupOpacity";
 import { useStore } from "../../../store";
+import type { Wall } from "../../../types/hall";
 import {
 	ARCH_WALL_THICKNESS,
 	type WallRect,

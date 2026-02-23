@@ -8,7 +8,7 @@ import {
 } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import type CameraControlsImpl from "camera-controls";
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { type RefObject, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { MOUSE, NoToneMapping, TOUCH } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { useIsMobileViewport } from "../../hooks/useIsMobileViewport";
@@ -415,7 +415,7 @@ export function DualViewport({ sunData }: DualViewportProps) {
 					powerPreference: "high-performance",
 					toneMapping: NoToneMapping,
 				}}
-				eventSource={containerRef}
+				eventSource={containerRef as RefObject<HTMLElement>}
 				style={{
 					position: "absolute",
 					top: 0,

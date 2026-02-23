@@ -2,6 +2,7 @@ import { Line, Text } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useMemo, useRef, useState } from "react";
 import type { Group } from "three";
+import { HALL } from "../../../constants/hall";
 import { useGroupOpacity } from "../../../hooks/useGroupOpacity";
 import { useStore } from "../../../store";
 import {
@@ -30,8 +31,8 @@ export function ArchitecturalGrid2D() {
 	const labelsRef = useRef<Group>(null);
 	const gridLayer = useStore((s) => s.ui.layers.grid);
 	const uvMode = useStore((s) => s.ui.uvMode);
-	const hallWidth = useStore((s) => s.hallWidth);
-	const hallLength = useStore((s) => s.hallLength);
+	const hallWidth = HALL.width;
+	const hallLength = HALL.length;
 
 	useGroupOpacity(groupRef, gridLayer.opacity);
 
