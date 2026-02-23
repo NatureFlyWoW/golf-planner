@@ -2,6 +2,7 @@ import { useViewportId } from "../../../hooks/useViewportId";
 import { ArchitecturalGrid2D } from "./ArchitecturalGrid2D";
 import { ArchitecturalOpenings2D } from "./ArchitecturalOpenings2D";
 import { ArchitecturalWalls2D } from "./ArchitecturalWalls2D";
+import { HoleFeltOverlays } from "./HoleFeltOverlays";
 
 /**
  * Container for all 2D architectural floor plan elements.
@@ -17,7 +18,7 @@ export function ArchitecturalFloorPlan() {
 			<ArchitecturalGrid2D />
 			<ArchitecturalWalls2D />
 			<ArchitecturalOpenings2D />
-			{/* Section 07: HoleFelt2D overlays */}
+			<HoleFeltOverlays />
 		</group>
 	);
 }
