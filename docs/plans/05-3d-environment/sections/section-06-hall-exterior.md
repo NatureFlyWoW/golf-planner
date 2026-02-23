@@ -336,6 +336,39 @@ Do NOT add environment components to the 2D viewport path — `ThreeDOnlyContent
 
 Roof and exterior wall textures reuse the existing steel texture set already in `public/textures/steel/`. No new texture downloads are needed for this section. (New textures — asphalt — are section-05's responsibility.)
 
+## Implementation Deviations
+
+### Roof geometry: BufferGeometry instead of PlaneGeometry
+The plan suggested using `PlaneGeometry` rotated to match slope angle. Code review found that `PlaneGeometry` lies in XY plane and rotating around Z just spins within XY — slopes would render as vertical walls, not inclined roof surfaces. **Rewritten** to use custom `BufferGeometry` with explicit vertex positions via a `buildQuadGeometry(a, b, c, d)` helper that creates 2 triangles from 4 corner points. This avoids rotation math entirely.
+
+### Gable winding order corrected
+The plan's vertex order for the north gable `(0, wallHeight, 0) → (width, wallHeight, 0) → (ridge)` produces a +Z normal. North gable should face -Z (outward). **Fixed** by reversing to `(w, eaveY, 0) → (0, eaveY, 0) → (ridgeX, ridgeY, 0)` — CCW when viewed from -Z.
+
+### Module-level material singletons
+- `HallFoundation.tsx`: Plan showed inline `<meshStandardMaterial>` JSX per strip (4 instances per render). Changed to module-level `foundationMaterial` singleton.
+- `HallWallsExterior.tsx`: `FlatExteriorWalls` uses module-level `flatExteriorMaterial` (meshBasicMaterial + BackSide) instead of inline JSX.
+- `HallRoof.tsx`: `FlatHallRoof` uses `meshBasicMaterial` (plan specified meshStandardMaterial for low tier).
+
+### Texture disposal tracked
+Both `TexturedHallRoof` and `TexturedExteriorWalls` track all cloned textures in an array and dispose them in `useEffect` cleanup, since `Material.dispose()` does NOT dispose attached textures.
+
+### Geometry disposal added
+`useRoofGeometries()` hook returns memoized geometries; both `FlatHallRoof` and `TexturedHallRoof` dispose all 4 geometries (westSlope, eastSlope, northGable, southGable) in `useEffect` cleanup.
+
+### Files created
+- `src/components/three/environment/HallRoof.tsx` (getRoofGeometryParams, buildQuadGeometry, useRoofGeometries, FlatHallRoof, TexturedHallRoof, HallRoof)
+- `src/components/three/environment/HallFoundation.tsx` (getFoundationStrips, HallFoundation)
+- `src/components/three/environment/HallWallsExterior.tsx` (shouldLoadExteriorTextures, FlatExteriorWalls, TexturedExteriorWalls, HallWallsExterior)
+- `tests/components/three/hallExterior.test.ts` (16 tests)
+
+### Files modified
+- `src/components/three/environment/index.ts` (added barrel exports)
+- `src/components/three/ThreeDOnlyContent.tsx` (mounted HallRoof, HallFoundation, HallWallsExterior)
+
+### Test count
+- 16 new tests in hallExterior.test.ts
+- 753 total tests passing (66 files)
+
 ## Acceptance Criteria
 
 - `tests/components/three/hallExterior.test.ts` passes (all roof geometry, foundation, and gating tests)

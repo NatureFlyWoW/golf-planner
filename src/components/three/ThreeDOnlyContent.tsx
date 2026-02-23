@@ -13,6 +13,9 @@ import { shouldEnableFog } from "../../utils/environmentGating";
 import { shouldShowGodRays } from "../../utils/godraysConfig";
 import { shouldShowSparkles } from "../../utils/postprocessingConfig";
 import { GroundPlane } from "./environment/GroundPlane";
+import { HallFoundation } from "./environment/HallFoundation";
+import { HallRoof } from "./environment/HallRoof";
+import { HallWallsExterior } from "./environment/HallWallsExterior";
 import { GodRaysSource } from "./GodRaysSource";
 import { ScreenshotCapture } from "./ScreenshotCapture";
 import { UVEffects } from "./UVEffects";
@@ -39,6 +42,9 @@ export function ThreeDOnlyContent() {
 	return (
 		<>
 			<GroundPlane />
+			<HallRoof />
+			<HallFoundation />
+			<HallWallsExterior />
 			{fogEnabled && <fogExp2 attach="fog" args={["#07071A", 0.04]} />}
 			<FogController enabled={fogEnabled} />
 
